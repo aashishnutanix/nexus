@@ -105,7 +105,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-8">
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">

@@ -45,7 +45,7 @@ export default function MentorshipPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-8">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Mentorship Dashboard</h2>
         <p className="text-muted-foreground">
