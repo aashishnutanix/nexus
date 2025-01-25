@@ -1,4 +1,8 @@
-export function Logo({ size = "default" }: { size?: "default" | "small" | "large" }) {
+export function Logo({
+  size = "default",
+}: {
+  size?: "default" | "small" | "large";
+}) {
   const sizes = {
     small: {
       text: "text-2xl",
@@ -14,14 +18,16 @@ export function Logo({ size = "default" }: { size?: "default" | "small" | "large
     },
   };
 
+  const isCompact = size === "small";
+
   return (
     <h1 className={`font-bold tracking-tighter ${sizes[size].text}`}>
-      NE
+      {!isCompact && "NE"}
       <span className={`text-primary relative ${sizes[size].x}`}>
         X
         <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary/50 rounded-full"></span>
       </span>
-      US
+      {!isCompact && "US"}
     </h1>
   );
-} 
+}
