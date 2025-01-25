@@ -38,7 +38,7 @@ interface ProjectData {
     | "In Progress"
     | "Completed"
     | "Rejected";
-  startDate: Date;
+  startDate: string;
   businessCritical: boolean;
   feedbacks: any[];
 }
@@ -76,7 +76,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
       description: "",
       techStack: [],
       status: "Idea",
-      startDate: new Date(),
+      startDate: new Date().toISOString(),
       businessCritical: false,
       feedbacks: [],
     },
@@ -109,7 +109,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
         description: formData.get('description') as string,
         techStack: techStack,
         status: formData.get('status') as ProjectData['status'] || 'Idea',
-        startDate: new Date(),
+        startDate: new Date().toISOString(),
         businessCritical: Boolean(formData.get('businessCritical')),
         feedbacks: []
       };
