@@ -77,6 +77,7 @@ export interface UserDocument {
   skillset?: string[];
   manager?: string;
   interests?: string[];
+  bio?: string;
   offering?: {
     freq: 'days' | 'weeks' | 'biweekly' | 'monthly';
     type: 'online' | 'offline' | 'both';
