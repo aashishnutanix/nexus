@@ -8,6 +8,7 @@ export const collections = {
   features: 'features',
   skills: 'skills', 
   contributorProjectMappings: 'contributorProjectMappings',
+  locations: 'locations',
 } as const;
 
 export interface User {
@@ -142,6 +143,14 @@ export interface ContributorProjectMapping {
   featureId?: ObjectId; // Optional reference to a specific feature
   startDate: string; // ISO string representing the start date
   endDate?: string; // Optional ISO string representing the end date
+}
+
+export interface Location {
+  _id?: ObjectId; // Unique identifier
+  timezone: string; // E.g., 'GMT-5', 'UTC+1', etc.
+  region: 'AMERICAS' | 'EMEA' | 'ASIA-PACIFIC'; // Specify allowed regions
+  city: string; // Name of the city
+  country: string; // Country name
 }
 
 
