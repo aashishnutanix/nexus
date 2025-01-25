@@ -14,12 +14,12 @@ export const ProjectSchema = z.object({
   description: z.string().min(10).max(500),
   techStack: z.array(z.string()).min(1),
   status: ProjectStatus,
-  startDate: z.date(),
+  startDate: z.string().datetime(),
   businessCritical: z.boolean(),
   feedbacks: z.array(z.object({
     userId: z.string(),
     comment: z.string(),
-    createdAt: z.date()
+    createdAt: z.string().datetime()
   })).default([])
 });
 

@@ -1,10 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ProjectSchema } from "@/lib/types"
-import { Button } from "@/components/ui/button"
+import { useState, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ProjectSchema } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,30 +15,61 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { X } from "lucide-react"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { createProject } from "@/app/(services)/projects";
 
 interface AddProjectFormProps {
-  onSuccess: () => void
+  onSuccess: () => void;
+}
+
+// Define a type for project data
+interface ProjectData {
+  name: string;
+  description: string;
+  techStack: string[];
+  status:
+    | "Idea"
+    | "In Review"
+    | "Approved"
+    | "In Progress"
+    | "Completed"
+    | "Rejected";
+  startDate: Date;
+  businessCritical: boolean;
+  feedbacks: any[];
+}
+
+// Define a type for the response of createProject
+interface CreateProjectResponse {
+  success: boolean;
+  id: string; // Adjust this based on your actual response structure
 }
 
 export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
-  const [techStack, setTechStack] = useState<string[]>([])
-  const [techInput, setTechInput] = useState("")
+  const [techStack, setTechStack] = useState<string[]>([]);
+  const [techInput, setTechInput] = useState("");
+  const queryClient = useQueryClient();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const form = useForm<{
-    name: string;
-    description: string;
-    techStack: string[];
-    status: string;
-    startDate: Date;
-    businessCritical: boolean;
-    feedbacks: any[];
-  }>({
+  const mutation = useMutation<CreateProjectResponse, Error, ProjectData>({
+    mutationFn: createProject,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      // form.reset(); // Reset form after successful submission
+      // setTechStack([]); // Clear tech stack
+      // onSuccess(); // Call the onSuccess callback
+    },
+    // onError: (error) => {
+    //   console.error("Project creation failed:", error);
+    // },
+  });
+
+  const form = useForm<ProjectData>({
     resolver: zodResolver(ProjectSchema),
     defaultValues: {
       name: "",
@@ -45,48 +78,52 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
       status: "Idea",
       startDate: new Date(),
       businessCritical: false,
-      feedbacks: []
-    }
-  })
+      feedbacks: [],
+    },
+    mode: "onSubmit",
+  });
 
   const handleAddTech = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && techInput.trim()) {
-      e.preventDefault()
+      e.preventDefault();
       if (!techStack.includes(techInput.trim())) {
-        setTechStack([...techStack, techInput.trim()])
-        form.setValue("techStack", [...techStack, techInput.trim()])
+        setTechStack([...techStack, techInput.trim()]);
+        form.setValue("techStack", [...techStack, techInput.trim()]);
       }
-      setTechInput("")
+      setTechInput("");
     }
-  }
+  };
 
   const handleRemoveTech = (tech: string) => {
-    const newTechStack = techStack.filter(t => t !== tech)
-    setTechStack(newTechStack)
-    form.setValue("techStack", newTechStack)
-  }
+    const newTechStack = techStack.filter((t) => t !== tech);
+    setTechStack(newTechStack);
+    form.setValue("techStack", newTechStack);
+  };
 
-  async function onSubmit(data: any) {
-    try {
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (response.ok) {
-        onSuccess()
-      }
-    } catch (error) {
-      console.error("Failed to create project:", error)
+  const handleButtonClick = () => {
+    console.log("Button clicked");
+    if (formRef.current) {
+      const formData = new FormData(formRef.current);
+      const data = {
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        techStack: techStack,
+        status: formData.get('status') as ProjectData['status'] || 'Idea',
+        startDate: new Date(),
+        businessCritical: Boolean(formData.get('businessCritical')),
+        feedbacks: []
+      };
+      console.log("Form data:", data);
+      mutation.mutate(data);
     }
-  }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        ref={formRef}
+        className="space-y-6"
+      >
         <FormField
           control={form.control}
           name="name"
@@ -108,7 +145,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Enter project description"
                   className="resize-none"
                   {...field}
@@ -176,11 +213,15 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
         />
 
         <div className="flex justify-end">
-          <Button type="submit" className="bg-primary hover:bg-primary/90">
+          <Button
+            type="button"
+            className="bg-primary hover:bg-primary/90"
+            onClick={handleButtonClick}
+          >
             Create Project
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }
