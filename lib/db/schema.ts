@@ -9,6 +9,7 @@ export const collections = {
   skills: 'skills', 
   contributorProjectMappings: 'contributorProjectMappings',
   locations: 'locations',
+  feedbacks: 'feedbacks',
 } as const;
 
 export interface User {
@@ -152,6 +153,18 @@ export interface Location {
   city: string; // Name of the city
   country: string; // Country name
 }
+
+export interface Feedback {
+  _id: ObjectId; // Unique identifier for the feedback
+  userToId: ObjectId; // Reference to the user receiving feedback
+  userFromId: ObjectId; // Reference to the user giving feedback
+  context: 'mentorship' | 'project'; // Context of the feedback (e.g., mentorship or project)
+  referenceId: ObjectId; // Reference to the associated entity (e.g., a project, task, etc.)
+  rating: number; // Numerical rating for the feedback
+  date: Date; // Date when the feedback was given
+  // optional?: ObjectId; // Optional additional field (e.g., skillId)
+}
+
 
 
 // example of a query to fetch contributor and project details using aggregation
