@@ -10,6 +10,7 @@ export const collections = {
   contributorProjectMappings: 'contributorProjectMappings',
   locations: 'locations',
   feedbacks: 'feedbacks',
+  mentorships: 'mentorships',
 } as const;
 
 export interface User {
@@ -165,6 +166,18 @@ export interface Feedback {
   // optional?: ObjectId; // Optional additional field (e.g., skillId)
 }
 
+export interface Mentorship {
+  _id: ObjectId; // Unique identifier for the mentorship
+  name: string; // Name of the mentorship program or relationship
+  mentor: ObjectId; // Reference to the mentor (User)
+  mentee: ObjectId; // Reference to the mentee (User)
+  progress: number; // Progress of the mentorship (percentage or number)
+  status: string; // Current status of the mentorship (e.g., 'active', 'completed', 'paused')
+  startDate: Date; // Start date of the mentorship
+  skillId: ObjectId; // Reference to the Skill
+  endDate?: Date; // Optional end date of the mentorship
+  duration?: number; // Optional duration of the mentorship in days, weeks, or months
+}
 
 
 // example of a query to fetch contributor and project details using aggregation
