@@ -5,7 +5,8 @@ export const collections = {
   projects: 'projects',
   mentorshipRequests: 'mentorshipRequests',
   projectInvites: 'projectInvites',
-  features: 'features'
+  features: 'features',
+  skills: 'skills', 
 } as const;
 
 export interface User {
@@ -122,4 +123,12 @@ export interface FeatureDocument {
     link: string;
   }[];
   contributors?: string[];
+}
+
+export interface Skill {
+  _id: ObjectId;
+  name: string; // Name of the skill
+  type: 'Technical' | 'Soft' | 'Other'; // Type of skill (you can adjust these types as needed)
+  createdAt: Date; // Date when the skill was created
+  updatedAt: Date; // Date when the skill was last updated
 }
