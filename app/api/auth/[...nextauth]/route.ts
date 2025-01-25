@@ -39,10 +39,52 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
+          team: user.team,
+          dept: user.dept,
+          skillset: user.skillset,
+          manager: user.manager,
+          interests: user.interests,
+          offering: user.offering,
+          availability: user.availability,
+          designation: user.designation,
         };
       }
     })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.team = user.team;
+        token.dept = user.dept;
+        token.skillset = user.skillset;
+        token.manager = user.manager;
+        token.interests = user.interests;
+        token.offering = user.offering;
+        token.availability = user.availability;
+        token.designation = user.designation;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.team = token.team as string;
+        session.user.dept = token.dept as string;
+        session.user.skillset = token.skillset as string[];
+        session.user.manager = token.manager as string;
+        session.user.interests = token.interests as string[];
+        session.user.offering = token.offering as {
+          freq: 'days' | 'weeks' | 'biweekly' | 'monthly';
+          type: 'online' | 'offline' | 'both';
+          time: number;
+        };
+        session.user.availability = token.availability as boolean;
+        session.user.designation = token.designation as string;
+      }
+      return session;
+    }
+  },
   session: {
     strategy: "jwt"
   },

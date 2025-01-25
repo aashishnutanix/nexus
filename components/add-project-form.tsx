@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { createProject } from "@/app/(services)/projects";
+import { SkillsMultiSelect } from "@/components/skill-multiselect";
 
 interface AddProjectFormProps {
   onSuccess: () => void;
@@ -40,7 +41,10 @@ interface ProjectData {
     | "Rejected";
   startDate: string;
   businessCritical: boolean;
-  feedbacks: any[];
+  department?: string;
+  upVotes?: number;
+  contributors?: string[];
+  open?: boolean;
 }
 
 // Define a type for the response of createProject
@@ -50,80 +54,44 @@ interface CreateProjectResponse {
 }
 
 export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
-  const [techStack, setTechStack] = useState<string[]>([]);
-  const [techInput, setTechInput] = useState("");
+  const [selectedTechStack, setSelectedTechStack] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const formRef = useRef<HTMLFormElement>(null);
-
-  const mutation = useMutation<CreateProjectResponse, Error, ProjectData>({
-    mutationFn: createProject,
-    onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      // form.reset(); // Reset form after successful submission
-      // setTechStack([]); // Clear tech stack
-      // onSuccess(); // Call the onSuccess callback
-    },
-    // onError: (error) => {
-    //   console.error("Project creation failed:", error);
-    // },
-  });
 
   const form = useForm<ProjectData>({
     resolver: zodResolver(ProjectSchema),
     defaultValues: {
       name: "",
       description: "",
-      techStack: [],
       status: "Idea",
       startDate: new Date().toISOString(),
       businessCritical: false,
-      feedbacks: [],
+      department: "",
+      open: true,
     },
-    mode: "onSubmit",
   });
 
-  const handleAddTech = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && techInput.trim()) {
-      e.preventDefault();
-      if (!techStack.includes(techInput.trim())) {
-        setTechStack([...techStack, techInput.trim()]);
-        form.setValue("techStack", [...techStack, techInput.trim()]);
-      }
-      setTechInput("");
-    }
-  };
-
-  const handleRemoveTech = (tech: string) => {
-    const newTechStack = techStack.filter((t) => t !== tech);
-    setTechStack(newTechStack);
-    form.setValue("techStack", newTechStack);
-  };
+  const mutation = useMutation<CreateProjectResponse, Error, ProjectData>({
+    mutationFn: createProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      form.reset();
+      setSelectedTechStack([]);
+      onSuccess();
+    },
+  });
 
   const handleButtonClick = () => {
-    console.log("Button clicked");
-    if (formRef.current) {
-      const formData = new FormData(formRef.current);
-      const data = {
-        name: formData.get('name') as string,
-        description: formData.get('description') as string,
-        techStack: techStack,
-        status: formData.get('status') as ProjectData['status'] || 'Idea',
-        startDate: new Date().toISOString(),
-        businessCritical: Boolean(formData.get('businessCritical')),
-        feedbacks: []
-      };
-      console.log("Form data:", data);
-      mutation.mutate(data);
-    }
+    const values = form.getValues();
+    mutation.mutate({
+      ...values,
+      techStack: selectedTechStack,
+    });
   };
 
   return (
     <Form {...form}>
-      <form
-        ref={formRef}
-        className="space-y-6"
-      >
+      <form ref={formRef} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -156,40 +124,16 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="techStack"
-          render={() => (
-            <FormItem>
-              <FormLabel>Tech Stack</FormLabel>
-              <FormControl>
-                <div className="space-y-2">
-                  <Input
-                    placeholder="Add technology (press Enter)"
-                    value={techInput}
-                    onChange={(e) => setTechInput(e.target.value)}
-                    onKeyDown={handleAddTech}
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    {techStack.map((tech, index) => (
-                      <Badge key={index} variant="secondary">
-                        {tech}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTech(tech)}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormItem>
+          <FormLabel>Tech Stack</FormLabel>
+          <FormControl>
+            <SkillsMultiSelect
+              selected={selectedTechStack}
+              onSelectionChange={setSelectedTechStack}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
         <FormField
           control={form.control}
