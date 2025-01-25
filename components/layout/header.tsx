@@ -10,7 +10,7 @@ export function Header() {
       <div className="flex h-16 items-center px-6">
         <div className="flex flex-1 items-center gap-x-4">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search mentors, projects..."
               className="w-full pl-8"
