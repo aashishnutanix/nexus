@@ -22,22 +22,33 @@ export default async function RootLayout({
 }) {
   const session = await getServerSession(authOptions);
 
+  if (session) {
+    return (
+      <html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
+          <Providers session={session}>
+            <main>
+              <div className="flex h-screen">
+                {session && <Sidebar />}
+                <div className="flex-1 flex flex-col min-h-screen">
+                  {session && <Header />}
+                  <main className="flex-1 overflow-y-auto">{children}</main>
+                </div>
+              </div>
+            </main>
+            <Toaster />
+          </Providers>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          <main>
-            <div className="flex h-screen">
-              {session && <Sidebar />}
-              <div className="flex-1 flex flex-col min-h-screen">
-                {session && <Header />}
-                <main className="flex-1 overflow-y-auto">{children}</main>
-              </div>
-            </div>
-          </main>
-          <Toaster />
-        </Providers>
+        <main>Not logged In !!</main>
       </body>
+      )
     </html>
   );
 }

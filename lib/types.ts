@@ -33,6 +33,7 @@ export const UserSchema = z.object({
   createdAt: z.string(), // ISO string
   updatedAt: z.string(), // ISO string
   bio: z.string().optional(),
+  image: z.string().optional(),
 });
 
 export const ProjectSchema = z.object({

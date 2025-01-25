@@ -1,31 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { PlusCircle, X, Pencil, Check } from "lucide-react"
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { PlusCircle, X, Pencil, Check } from "lucide-react";
+import { SkillsMultiSelect } from "@/components/skill-multiselect";
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [newSkill, setNewSkill] = useState("")
-  const [newInterest, setNewInterest] = useState("")
+  const { data: session } = useSession();
+  const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: "John Doe",
     role: "Senior Software Engineer",
     email: "john.doe@example.com",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-    skills: ["JavaScript", "TypeScript", "React", "Node.js", "AWS", "System Design"],
+    skills: [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "AWS",
+      "System Design",
+    ],
     interests: ["Machine Learning", "Blockchain", "Cloud Architecture"],
     bio: "Passionate about building scalable systems and mentoring others in software development.",
     mentoring: [
@@ -34,23 +42,23 @@ export default function ProfilePage() {
         image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
         focus: "Frontend Development",
         progress: 65,
-        skills: ["React", "JavaScript", "Frontend Testing"]
+        skills: ["React", "JavaScript", "Frontend Testing"],
       },
       {
         name: "Sarah Kim",
         image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
         focus: "React Development",
         progress: 40,
-        skills: ["React", "TypeScript", "Testing"]
-      }
+        skills: ["React", "TypeScript", "Testing"],
+      },
     ],
     mentors: [
       {
         name: "Michael Brown",
         image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
         focus: "System Architecture",
-        skills: ["System Design", "Cloud Architecture", "Microservices"]
-      }
+        skills: ["System Design", "Cloud Architecture", "Microservices"],
+      },
     ],
     projects: [
       {
@@ -58,51 +66,28 @@ export default function ProfilePage() {
         role: "Tech Lead",
         status: "In Progress",
         progress: 65,
-        techStack: ["React", "TypeScript", "Node.js", "PostgreSQL"]
+        techStack: ["React", "TypeScript", "Node.js", "PostgreSQL"],
       },
       {
         name: "Authentication Service",
         role: "Senior Developer",
         status: "Completed",
         progress: 100,
-        techStack: ["Node.js", "JWT", "Redis", "MongoDB"]
-      }
-    ]
-  })
+        techStack: ["Node.js", "JWT", "Redis", "MongoDB"],
+      },
+    ],
+  });
 
-  const handleAddSkill = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newSkill.trim()) {
-      setProfile(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }))
-      setNewSkill("")
-    }
-  }
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setProfile(prev => ({
+  const handleUpdateProfile = (key: string, value: string[]) => {
+    setProfile((prev) => ({
       ...prev,
-      skills: prev.skills.filter(skill => skill !== skillToRemove)
-    }))
-  }
+      [key]: value,
+    }));
+  };
 
-  const handleAddInterest = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newInterest.trim()) {
-      setProfile(prev => ({
-        ...prev,
-        interests: [...prev.interests, newInterest.trim()]
-      }))
-      setNewInterest("")
-    }
-  }
-
-  const handleRemoveInterest = (interestToRemove: string) => {
-    setProfile(prev => ({
-      ...prev,
-      interests: prev.interests.filter(interest => interest !== interestToRemove)
-    }))
-  }
+  useEffect(() => {
+    // updateProfile();
+  }, [profile]);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -112,37 +97,58 @@ export default function ProfilePage() {
             <div className="flex items-start space-x-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={profile.image} />
-                <AvatarFallback>{profile.name[0]}</AvatarFallback>
+                <AvatarFallback>{session!.user.name[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
                 {isEditing ? (
                   <div className="space-y-2">
                     <Input
                       value={profile.name}
-                      onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       className="text-2xl font-bold"
                     />
                     <Input
                       value={profile.role}
-                      onChange={(e) => setProfile(prev => ({ ...prev, role: e.target.value }))}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          role: e.target.value,
+                        }))
+                      }
                     />
                     <Input
                       value={profile.email}
-                      onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
                       type="email"
                     />
                     <Textarea
                       value={profile.bio}
-                      onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                      onChange={(e) =>
+                        setProfile((prev) => ({ ...prev, bio: e.target.value }))
+                      }
                       className="mt-2"
                       rows={3}
                     />
                   </div>
                 ) : (
                   <>
-                    <CardTitle className="text-2xl">{profile.name}</CardTitle>
+                    <CardTitle className="text-2xl">
+                      {session!.user.name}
+                    </CardTitle>
                     <CardDescription>{profile.role}</CardDescription>
-                    <p className="text-sm text-muted-foreground">{profile.email}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {session!.user.email}
+                    </p>
                     <p className="text-sm mt-2">{profile.bio}</p>
                   </>
                 )}
@@ -153,7 +159,11 @@ export default function ProfilePage() {
               size="icon"
               onClick={() => setIsEditing(!isEditing)}
             >
-              {isEditing ? <Check className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
+              {isEditing ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Pencil className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </CardHeader>
@@ -164,11 +174,12 @@ export default function ProfilePage() {
                 <h3 className="font-medium">Skills</h3>
                 {isEditing && (
                   <div className="flex-1 ml-4">
-                    <Input
-                      placeholder="Add a skill (press Enter)"
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyDown={handleAddSkill}
+                    <SkillsMultiSelect
+                      placeholder="Add a skill"
+                      selected={profile.skills}
+                      onSelectionChange={(selectedItems) =>
+                        handleUpdateProfile("skills", selectedItems)
+                      }
                     />
                   </div>
                 )}
@@ -179,7 +190,12 @@ export default function ProfilePage() {
                     {skill}
                     {isEditing && (
                       <button
-                        onClick={() => handleRemoveSkill(skill)}
+                        onClick={() =>
+                          handleUpdateProfile(
+                            "skills",
+                            profile.skills.filter((s) => s !== skill)
+                          )
+                        }
                         className="ml-1 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
@@ -194,11 +210,12 @@ export default function ProfilePage() {
                 <h3 className="font-medium">Learning Interests</h3>
                 {isEditing && (
                   <div className="flex-1 ml-4">
-                    <Input
-                      placeholder="Add an interest (press Enter)"
-                      value={newInterest}
-                      onChange={(e) => setNewInterest(e.target.value)}
-                      onKeyDown={handleAddInterest}
+                    <SkillsMultiSelect
+                      placeholder="Add an interest"
+                      selected={profile.interests}
+                      onSelectionChange={(selectedItems) =>
+                        handleUpdateProfile("interests", selectedItems)
+                      }
                     />
                   </div>
                 )}
@@ -209,7 +226,12 @@ export default function ProfilePage() {
                     {interest}
                     {isEditing && (
                       <button
-                        onClick={() => handleRemoveInterest(interest)}
+                        onClick={() =>
+                          handleUpdateProfile(
+                            "interests",
+                            profile.interests.filter((s) => s !== interest)
+                          )
+                        }
                         className="ml-1 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
@@ -227,7 +249,9 @@ export default function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>Mentoring</CardTitle>
-            <CardDescription>People you are currently mentoring</CardDescription>
+            <CardDescription>
+              People you are currently mentoring
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {profile.mentoring.map((mentee, i) => (
@@ -239,7 +263,9 @@ export default function ProfilePage() {
                   </Avatar>
                   <div className="flex-1">
                     <p className="text-sm font-medium">{mentee.name}</p>
-                    <p className="text-sm text-muted-foreground">{mentee.focus}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {mentee.focus}
+                    </p>
                   </div>
                 </div>
                 <div>
@@ -276,7 +302,9 @@ export default function ProfilePage() {
                   </Avatar>
                   <div className="flex-1">
                     <p className="text-sm font-medium">{mentor.name}</p>
-                    <p className="text-sm text-muted-foreground">{mentor.focus}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {mentor.focus}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -304,11 +332,17 @@ export default function ProfilePage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium">{project.name}</h3>
-                    <Badge variant={project.status === "Completed" ? "secondary" : "outline"}>
+                    <Badge
+                      variant={
+                        project.status === "Completed" ? "secondary" : "outline"
+                      }
+                    >
                       {project.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">{project.role}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {project.role}
+                  </p>
                 </div>
                 {project.status === "In Progress" && (
                   <div>
@@ -332,5 +366,5 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -71,6 +71,7 @@ export interface UserDocument {
   _id?: ObjectId;
   name: string;
   email: string;
+  image: string;
   hashedPassword?: string;
   team?: string;
   dept?: string;

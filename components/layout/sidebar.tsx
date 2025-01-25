@@ -4,65 +4,21 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Home,
-  Users,
-  GitPullRequest,
-  Trophy,
-  UserCircle,
-  Blocks,
-  LogOut,
-} from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Logo } from "@/components/ui/logo";
 
-const routes = [
-  {
-    label: "Home",
-    icon: Home,
-    href: "/",
-  },
-  {
-    label: "Projects",
-    icon: Blocks,
-    subRoutes: [
-      { label: "My Projects", href: "/projects/my-projects" },
-      { label: "View Projects", href: "/projects/view-projects" },
-    ],
-  },
-  {
-    label: "Mentorship",
-    icon: Users,
-    href: "/mentorship",
-  },
-  {
-    label: "Requests",
-    icon: GitPullRequest,
-    href: "/requests",
-  },
-  {
-    label: "Leaderboard",
-    icon: Trophy,
-    href: "/leaderboard",
-  },
-  {
-    label: "Profile",
-    icon: UserCircle,
-    href: "/profile",
-  },
-  {
-    label: "Logout",
-    icon: LogOut,
-    onClick: () => signOut({ callbackUrl: '/signin' })
-  }
-];
+import { routes } from "@/lib/constants";
 
 export function Sidebar() {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const { user } = session || {};
+  const { image, name, team, designation } = user || {};
 
   return (
     <div
@@ -88,13 +44,13 @@ export function Sidebar() {
           isCollapsed ? "px-2" : "px-6"
         )}
       >
-        <Avatar className="h-16 w-16 mb-4">
-          <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop" />
-          <AvatarFallback>JD</AvatarFallback>
+        <Avatar className="h-16 w-16 mb-1 p-1 text-3xl">
+          <AvatarImage src={image} />
+          <AvatarFallback>{name[0]}</AvatarFallback>
         </Avatar>
         {!isCollapsed && (
           <div className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold">John Doe</h2>
+            <h2 className="text-lg font-semibold">{name}</h2>
             <p className="text-sm text-muted-foreground">Senior Developer</p>
           </div>
         )}
@@ -144,7 +100,12 @@ export function Sidebar() {
                       isCollapsed && "justify-center"
                     )}
                   >
-                    <route.icon className={cn("h-5 w-5", isCollapsed ? "h-6 w-6" : "h-5 w-5")} />
+                    <route.icon
+                      className={cn(
+                        "h-5 w-5",
+                        isCollapsed ? "h-6 w-6" : "h-5 w-5"
+                      )}
+                    />
                     {!isCollapsed && <span>{route.label}</span>}
                   </button>
                 )}
