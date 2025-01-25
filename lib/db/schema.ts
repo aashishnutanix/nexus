@@ -7,6 +7,7 @@ export const collections = {
   projectInvites: 'projectInvites',
   features: 'features',
   skills: 'skills', 
+  contributorProjectMappings: 'contributorProjectMappings',
 } as const;
 
 export interface User {
@@ -132,3 +133,35 @@ export interface Skill {
   createdAt: Date; // Date when the skill was created
   updatedAt: Date; // Date when the skill was last updated
 }
+
+export interface ContributorProjectMapping {
+  _id?: ObjectId; // Unique identifier
+  contributorId: ObjectId; // Reference to User
+  projectId: ObjectId; // Reference to Project
+  status: string; // Status of the contribution (e.g., 'active', 'inactive')
+  featureId?: ObjectId; // Optional reference to a specific feature
+  startDate: string; // ISO string representing the start date
+  endDate?: string; // Optional ISO string representing the end date
+}
+
+
+// example of a query to fetch contributor and project details using aggregation
+
+// db.contributorProjectMappings.aggregate([
+//   {
+//     $lookup: {
+//       from: 'users',
+//       localField: 'contributorId',
+//       foreignField: '_id',
+//       as: 'userDetails'
+//     }
+//   },
+//   {
+//     $lookup: {
+//       from: 'projects',
+//       localField: 'projectId',
+//       foreignField: '_id',
+//       as: 'projectDetails'
+//     }
+//   }
+// ]);
