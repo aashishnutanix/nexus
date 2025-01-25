@@ -28,7 +28,15 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
   const [techStack, setTechStack] = useState<string[]>([])
   const [techInput, setTechInput] = useState("")
 
-  const form = useForm({
+  const form = useForm<{
+    name: string;
+    description: string;
+    techStack: string[];
+    status: string;
+    startDate: Date;
+    businessCritical: boolean;
+    feedbacks: any[];
+  }>({
     resolver: zodResolver(ProjectSchema),
     defaultValues: {
       name: "",

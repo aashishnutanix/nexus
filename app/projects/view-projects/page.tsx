@@ -104,7 +104,7 @@ export default function ViewProjectsPage() {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto p-6 space-y-8">
       {/* Header with Add Project button */}
       <div className="flex items-center justify-between">
         <div>
