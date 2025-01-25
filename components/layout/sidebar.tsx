@@ -13,10 +13,13 @@ import {
   Blocks,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { Logo } from "@/components/ui/logo";
 
 const routes = [
   {
@@ -52,6 +55,11 @@ const routes = [
     icon: UserCircle,
     href: "/profile",
   },
+  {
+    label: "Logout",
+    icon: LogOut,
+    onClick: () => signOut({ callbackUrl: '/signin' })
+  }
 ];
 
 export function Sidebar() {
@@ -84,14 +92,7 @@ export function Sidebar() {
           isCollapsed ? "px-2" : "px-6"
         )}
       >
-        <h1 className="text-4xl font-bold tracking-tighter">
-          {!isCollapsed ? "NE" : ""}
-          <span className="text-primary relative text-5xl">
-            X
-            <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary/50 rounded-full"></span>
-          </span>
-          {!isCollapsed ? "US" : ""}
-        </h1>
+        {isCollapsed ? <Logo size="small" /> : <Logo />}
       </div>
 
       <div
@@ -128,24 +129,38 @@ export function Sidebar() {
 
             return (
               <div key={route.label}>
-                <Link
-                  href={route?.href || "#"}
-                  className={cn(
-                    "flex items-center gap-x-2 text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-primary hover:text-white",
-                    isParentActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground",
-                    isCollapsed && "justify-center"
-                  )}
-                >
-                  <route.icon
+                {route.href ? (
+                  <Link
+                    href={route.href}
                     className={cn(
-                      "h-5 w-5",
-                      isCollapsed ? "h-6 w-6" : "h-5 w-5"
+                      "flex items-center gap-x-2 text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-primary hover:text-white",
+                      isParentActive
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground",
+                      isCollapsed && "justify-center"
                     )}
-                  />
-                  {!isCollapsed && <span>{route.label}</span>}
-                </Link>
+                  >
+                    <route.icon
+                      className={cn(
+                        "h-5 w-5",
+                        isCollapsed ? "h-6 w-6" : "h-5 w-5"
+                      )}
+                    />
+                    {!isCollapsed && <span>{route.label}</span>}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={route.onClick}
+                    className={cn(
+                      "flex items-center gap-x-2 text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-primary hover:text-white w-full",
+                      "text-muted-foreground",
+                      isCollapsed && "justify-center"
+                    )}
+                  >
+                    <route.icon className={cn("h-5 w-5", isCollapsed ? "h-6 w-6" : "h-5 w-5")} />
+                    {!isCollapsed && <span>{route.label}</span>}
+                  </button>
+                )}
                 {/* Render subRoutes if available */}
                 {!isCollapsed && route.subRoutes && (
                   <div className="ml-6 mt-2 space-y-1 border-l-2 border-primary">
