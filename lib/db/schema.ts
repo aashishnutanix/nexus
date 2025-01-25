@@ -179,6 +179,20 @@ export interface Mentorship {
   duration?: number; // Optional duration of the mentorship in days, weeks, or months
 }
 
+export interface Designation {
+  _id: ObjectId; // Unique identifier for the designation
+  name: string; // Name of the designation (e.g., 'Software Engineer', 'Manager')
+  level: number; // Level of the designation (e.g., 1 for junior, 2 for mid, 3 for senior)
+  domain: string; // Domain to which the designation belongs (e.g., 'Engineering', 'Sales', 'HR')
+}
+
+export interface Contact {
+  email: string; // Email address of the contact
+  socialHandles: string[]; // Array of social media handles (e.g., Twitter, LinkedIn URLs)
+  phoneNumber: string; // Phone number of the contact (in E.164 format for consistency, e.g., +1234567890)
+}
+
+
 
 // example of a query to fetch contributor and project details using aggregation
 
