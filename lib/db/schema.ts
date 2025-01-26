@@ -4,9 +4,12 @@ export const collections = {
   users: "users",
   projects: "projects",
   requests: "requests",
+  features: "features",
   skills: "skills",
   contributorProjectMappings: "contributorProjectMappings",
+  locations: "locations",
   feedbacks: "feedbacks",
+  mentorships: "mentorships",
 } as const;
 
 export interface User {
@@ -35,12 +38,12 @@ export interface Project {
     | "In Progress"
     | "Completed"
     | "Rejected";
-  startDate: Date;
+  startDate: string; // ISO string
   businessCritical: boolean;
   members: {
     userId: ObjectId;
     role: string;
-    joinedAt: Date;
+    joinedAt: string; // ISO string
   }[];
   createdBy: ObjectId;
   createdAt: string; // ISO string
@@ -97,8 +100,8 @@ export interface Skill {
   _id: ObjectId;
   name: string; // Name of the skill
   type: "Technical" | "Soft" | "Other"; // Type of skill (you can adjust these types as needed)
-  createdAt: Date; // Date when the skill was created
-  updatedAt: Date; // Date when the skill was last updated
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface UserDocument {
@@ -166,18 +169,6 @@ export interface FeatureDocument {
   contributors?: string[];
 }
 
-export interface Mentorship {
-  _id?: ObjectId;
-  mentor: string;
-  mentee: string;
-  startDate: string; // ISO string
-  endDate?: string; // Optional ISO string
-  status: string; // Status of the mentorship (e.g., 'active', 'inactive')
-  progress: number;
-  skills: string[];
-  duration: number;
-}
-
 export interface ContributorProjectMapping {
   _id?: ObjectId; // Unique identifier
   contributorId: ObjectId; // Reference to User
@@ -186,6 +177,50 @@ export interface ContributorProjectMapping {
   featureId?: ObjectId; // Optional reference to a specific feature
   startDate: string; // ISO string representing the start date
   endDate?: string; // Optional ISO string representing the end date
+}
+
+export interface Location {
+  _id?: ObjectId; // Unique identifier
+  timezone: string; // E.g., 'GMT-5', 'UTC+1', etc.
+  region: "AMERICAS" | "EMEA" | "ASIA-PACIFIC"; // Specify allowed regions
+  city: string; // Name of the city
+  country: string; // Country name
+}
+
+export interface Feedback {
+  _id: ObjectId; // Unique identifier for the feedback
+  userToId: ObjectId; // Reference to the user receiving feedback
+  userFromId: ObjectId; // Reference to the user giving feedback
+  context: "PROJECT" | "MENTORSHIP" | "FEATURE"; // Context of the feedback (e.g., mentorship or project)
+  referenceId: ObjectId; // Reference to the associated entity (e.g., a project, task, etc.)
+  rating: number; // Numerical rating for the feedback
+  date: string; // ISO string representing the date when the feedback was given
+}
+
+export interface Mentorship {
+  _id: ObjectId; // Unique identifier for the mentorship
+  name: string; // Name of the mentorship program or relationship
+  mentor: ObjectId; // Reference to the mentor (User)
+  mentee: ObjectId; // Reference to the mentee (User)
+  progress: number; // Progress of the mentorship (percentage or number)
+  status: string; // Current status of the mentorship (e.g., 'active', 'completed', 'paused')
+  startDate: string; // ISO string representing the start date of the mentorship
+  skillId: ObjectId; // Reference to the Skill
+  endDate?: string; // Optional ISO string representing the end date of the mentorship
+  duration?: number; // Optional duration of the mentorship in days, weeks, or months
+}
+
+export interface Designation {
+  _id: ObjectId; // Unique identifier for the designation
+  name: string; // Name of the designation (e.g., 'Software Engineer', 'Manager')
+  level: number; // Level of the designation (e.g., 1 for junior, 2 for mid, 3 for senior)
+  domain: string; // Domain to which the designation belongs (e.g., 'Engineering', 'Sales', 'HR')
+}
+
+export interface Contact {
+  email: string; // Email address of the contact
+  socialHandles: string[]; // Array of social media handles (e.g., Twitter, LinkedIn URLs)
+  phoneNumber: string; // Phone number of the contact (in E.164 format for consistency, e.g., +1234567890)
 }
 
 // example of a query to fetch contributor and project details using aggregation
