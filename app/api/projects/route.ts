@@ -8,6 +8,39 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = 'force-dynamic';
 
+const dummyProjects = [
+  {
+    _id: new ObjectId(),
+    name: "E-commerce Platform Redesign",
+    description: "Modernizing the user interface and improving user experience",
+    status: "In Progress",
+    progress: 65,
+    team: ["Frontend", "UX Design", "Backend"],
+    priority: "High",
+    techStack: ["React", "TypeScript", "Node.js", "PostgreSQL", "Redis", "AWS"],
+  },
+  {
+    _id: new ObjectId(),
+    name: "API Gateway Implementation",
+    description: "Setting up a centralized API gateway for microservices",
+    status: "Planning",
+    progress: 25,
+    team: ["Backend", "DevOps"],
+    priority: "Medium",
+    techStack: ["Java", "Spring Boot", "Docker", "Kubernetes", "Redis"],
+  },
+  {
+    _id: new ObjectId(),
+    name: "Mobile App Development",
+    description: "Creating a cross-platform mobile application",
+    status: "Starting",
+    progress: 10,
+    team: ["Mobile", "Backend", "QA"],
+    priority: "High",
+    techStack: ["React Native", "TypeScript", "Node.js", "MongoDB", "Firebase"],
+  },
+];
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -83,20 +116,26 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log("Received GET request");
-
     const client = await clientPromise;
     const db = client.db();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-    const projects = await db
-      .collection(collections.projects)
-      .find({})
-      .toArray();
-    console.log("Fetched projects:", projects);
-
-    return NextResponse.json({ success: true, projects });
+    if (id) {
+      const project = dummyProjects.find((p) => p._id.toString() === id) || null;
+      if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+      return NextResponse.json({ success: true, project });
+    } else {
+      const projects = await db.collection(collections.projects).find({}).toArray();
+      if (projects.length === 0) {
+        return NextResponse.json({ success: true, projects: dummyProjects });
+      }
+      return NextResponse.json({ success: true, projects });
+    }
   } catch (error) {
     console.error("GET /api/projects error:", error);
     return NextResponse.json(
