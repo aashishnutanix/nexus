@@ -34,9 +34,10 @@ export const PriorityEnum = z.enum(["low", "medium", "high"]);
 export const UserSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
+  role: z.string().optional(),
   team: z.string().optional(),
   dept: z.string().optional(),
-  skillset: z.array(z.string()).optional(),
+  skills: z.array(z.string()).optional(),
   manager: z.string().optional(),
   interests: z.array(z.string()).optional(),
   offering: z
@@ -53,6 +54,26 @@ export const UserSchema = z.object({
   updatedAt: z.string(), // ISO string
   bio: z.string().optional(),
   image: z.string().optional(),
+  mentoring: z.array(z.object({
+    name: z.string(),
+    image: z.string(),
+    focus: z.string(),
+    progress: z.number(),
+    skills: z.array(z.string()),
+  })).optional(),
+  mentors: z.array(z.object({
+    name: z.string(),
+    image: z.string(),
+    focus: z.string(),
+    skills: z.array(z.string()),
+  })).optional(),
+  projects: z.array(z.object({
+    name: z.string(),
+    role: z.string(),
+    status: ProjectStatusEnum,
+    progress: z.number(),
+    techStack: z.array(z.string()),
+  })).optional(),
 });
 
 export const ProjectSchema = z.object({
