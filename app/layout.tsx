@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/lib/providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import GlobalSearch from "@/components/layout/globalSearch";
 
 const inter = Inter({ subsets: ["latin"] });
 
