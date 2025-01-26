@@ -3,11 +3,18 @@ import { ProjectSchema } from "@/lib/types";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     console.log("Received body:", body);
     
@@ -21,12 +28,12 @@ export async function POST(request: NextRequest) {
       ...validatedData,
       members: [
         {
-          userId: body.createdBy,
+          userId: session.user.id,
           role: "Owner",
           joinedAt: new Date().toISOString(),
         },
       ],
-      createdBy: body.createdBy,
+      createdBy: session.user.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -46,6 +53,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id, ...updateData } = await request.json();
 
     const client = await clientPromise;
@@ -96,6 +108,11 @@ export async function GET() {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await request.json();
 
     const client = await clientPromise;
