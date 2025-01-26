@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Check } from "lucide-react";
+import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
@@ -37,6 +37,7 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -48,6 +49,30 @@ export default function ProfilePage() {
     if (profileData) {
       updateProfileMutation.mutate(profileData);
       setIsEditing(false);
+    }
+  };
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileData((prev) =>
+          prev ? { ...prev, image: data.filePath } : prev
+        );
+      } else {
+        console.error("Failed to upload image");
+      }
     }
   };
 
@@ -64,11 +89,34 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profileData.image || ""} />
-                <AvatarFallback>{profileData.name[0]}</AvatarFallback>
-              </Avatar>
+            <div className="flex items-start space-x-6 ">
+              <div className="relative">
+                <Avatar className="h-24 w-24 text-5xl relative">
+                  <AvatarImage
+                    src={profileData.image || ""}
+                    style={{ objectFit: "cover", objectPosition: "center" }}
+                  />
+                  <AvatarFallback>{profileData.name[0]}</AvatarFallback>
+                </Avatar>
+                {isEditing && (
+                  <div className="absolute rounded-full bottom-[-8px] right-[-8px]">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      ref={fileInputRef}
+                    />
+                    <Button
+                      variant="default"
+                      size="icon"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               <div className="space-y-1">
                 {isEditing ? (
                   <div className="space-y-2">
@@ -300,13 +348,12 @@ export default function ProfilePage() {
                     <Progress value={project.progress} />
                   </div>
                 )}
-                <div className="flex flex-wrap gap-2">
-                  {project.techStack.map((tech, j) => (
-                    <Badge key={j} variant="secondary">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
+                {project.techStack.map((tech, j) => (
+                  <Badge key={j} variant="secondary">
+                    {tech}
+                  </Badge>
+                ))}
               </div>
             ))}
           </div>

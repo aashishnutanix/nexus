@@ -40,13 +40,19 @@ export function SkillsMultiSelect({
   const [inputValue, setInputValue] = React.useState("");
   const queryClient = useQueryClient();
 
-  const { data: options = [], isLoading } = useQuery<Skill[]>({
+  const { data, isLoading } = useQuery<{success: boolean, skills:Skill[]}>({
     queryKey: ["skills"],
     queryFn: async () => {
       const res = await fetch("/api/skills");
       return res.json();
     },
   });
+
+  const options = data?.skills || []
+
+  console.log("data ->", data);
+  console.log("options ->", options);
+
 
   const createSkillMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -136,7 +142,7 @@ export function SkillsMultiSelect({
             <CommandGroup>
               {options.map((item) => (
                 <CommandItem
-                  key={item.id}
+                  key={item.name}
                   onSelect={() => handleSelect(item.name)}
                 >
                   <Check
