@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -15,79 +14,50 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, X, Pencil, Check } from "lucide-react";
+import { Pencil, Check } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
+import { User } from "@/lib/types";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    role: "Senior Software Engineer",
-    email: "john.doe@example.com",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-    skills: [
-      "JavaScript",
-      "TypeScript",
-      "React",
-      "Node.js",
-      "AWS",
-      "System Design",
-    ],
-    interests: ["Machine Learning", "Blockchain", "Cloud Architecture"],
-    bio: "Passionate about building scalable systems and mentoring others in software development.",
-    mentoring: [
-      {
-        name: "Alex Chen",
-        image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-        focus: "Frontend Development",
-        progress: 65,
-        skills: ["React", "JavaScript", "Frontend Testing"],
-      },
-      {
-        name: "Sarah Kim",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-        focus: "React Development",
-        progress: 40,
-        skills: ["React", "TypeScript", "Testing"],
-      },
-    ],
-    mentors: [
-      {
-        name: "Michael Brown",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-        focus: "System Architecture",
-        skills: ["System Design", "Cloud Architecture", "Microservices"],
-      },
-    ],
-    projects: [
-      {
-        name: "E-commerce Platform Redesign",
-        role: "Tech Lead",
-        status: "In Progress",
-        progress: 65,
-        techStack: ["React", "TypeScript", "Node.js", "PostgreSQL"],
-      },
-      {
-        name: "Authentication Service",
-        role: "Senior Developer",
-        status: "Completed",
-        progress: 100,
-        techStack: ["Node.js", "JWT", "Redis", "MongoDB"],
-      },
-    ],
+  const queryClient = useQueryClient();
+  const { data: profile, isLoading } = useQuery<User>({
+    queryKey: ["profile"],
+    queryFn: getProfile,
   });
 
-  const handleUpdateProfile = (key: string, value: string[]) => {
-    setProfile((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+  const updateProfileMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState<User | null>(null);
 
   useEffect(() => {
-    // updateProfile();
+    if (profile) {
+      setProfileData(profile);
+    }
   }, [profile]);
+
+  const handleSave = () => {
+    if (profileData) {
+      updateProfileMutation.mutate(profileData);
+      setIsEditing(false);
+    }
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!profileData) {
+    return <div>No profile data available</div>;
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -96,45 +66,44 @@ export default function ProfilePage() {
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-6">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={profile.image} />
-                <AvatarFallback>{session!.user.name[0]}</AvatarFallback>
+                <AvatarImage src={profileData.image || ""} />
+                <AvatarFallback>{profileData.name[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
                 {isEditing ? (
                   <div className="space-y-2">
                     <Input
-                      value={profile.name}
+                      value={profileData.name}
                       onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
+                        setProfileData((prev) =>
+                          prev ? { ...prev, name: e.target.value } : prev
+                        )
                       }
                       className="text-2xl font-bold"
                     />
                     <Input
-                      value={profile.role}
+                      value={profileData.role || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          role: e.target.value,
-                        }))
+                        setProfileData((prev) =>
+                          prev ? { ...prev, role: e.target.value } : prev
+                        )
                       }
                     />
                     <Input
-                      value={profile.email}
+                      value={profileData.email}
                       onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
+                        setProfileData((prev) =>
+                          prev ? { ...prev, email: e.target.value } : prev
+                        )
                       }
                       type="email"
                     />
                     <Textarea
-                      value={profile.bio}
+                      value={profileData.bio || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({ ...prev, bio: e.target.value }))
+                        setProfileData((prev) =>
+                          prev ? { ...prev, bio: e.target.value } : prev
+                        )
                       }
                       className="mt-2"
                       rows={3}
@@ -143,13 +112,13 @@ export default function ProfilePage() {
                 ) : (
                   <>
                     <CardTitle className="text-2xl">
-                      {session!.user.name}
+                      {profileData.name}
                     </CardTitle>
-                    <CardDescription>{profile.role}</CardDescription>
+                    <CardDescription>{profileData.role}</CardDescription>
                     <p className="text-sm text-muted-foreground">
-                      {session!.user.email}
+                      {profileData.email}
                     </p>
-                    <p className="text-sm mt-2">{profile.bio}</p>
+                    <p className="text-sm mt-2">{profileData.bio}</p>
                   </>
                 )}
               </div>
@@ -157,7 +126,13 @@ export default function ProfilePage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => {
+                if (isEditing) {
+                  handleSave();
+                } else {
+                  setIsEditing(true);
+                }
+              }}
             >
               {isEditing ? (
                 <Check className="h-4 w-4" />
@@ -172,35 +147,21 @@ export default function ProfilePage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">Skills</h3>
-                {isEditing && (
-                  <div className="flex-1 ml-4">
-                    <SkillsMultiSelect
-                      placeholder="Add a skill"
-                      selected={profile.skills}
-                      onSelectionChange={(selectedItems) =>
-                        handleUpdateProfile("skills", selectedItems)
-                      }
-                    />
-                  </div>
-                )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill, i) => (
+              {isEditing && (
+                <SkillsMultiSelect
+                  selected={profileData.skills || []}
+                  onSelectionChange={(skills) =>
+                    setProfileData((prev) =>
+                      prev ? { ...prev, skills } : prev
+                    )
+                  }
+                />
+              )}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {profileData.skills?.map((skill, i) => (
                   <Badge key={i} variant="secondary">
                     {skill}
-                    {isEditing && (
-                      <button
-                        onClick={() =>
-                          handleUpdateProfile(
-                            "skills",
-                            profile.skills.filter((s) => s !== skill)
-                          )
-                        }
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
                   </Badge>
                 ))}
               </div>
@@ -208,35 +169,21 @@ export default function ProfilePage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">Learning Interests</h3>
-                {isEditing && (
-                  <div className="flex-1 ml-4">
-                    <SkillsMultiSelect
-                      placeholder="Add an interest"
-                      selected={profile.interests}
-                      onSelectionChange={(selectedItems) =>
-                        handleUpdateProfile("interests", selectedItems)
-                      }
-                    />
-                  </div>
-                )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map((interest, i) => (
+              {isEditing && (
+                <SkillsMultiSelect
+                  selected={profileData.interests || []}
+                  onSelectionChange={(interests) =>
+                    setProfileData((prev) =>
+                      prev ? { ...prev, interests } : prev
+                    )
+                  }
+                />
+              )}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {profileData.interests?.map((interest, i) => (
                   <Badge key={i} variant="outline">
                     {interest}
-                    {isEditing && (
-                      <button
-                        onClick={() =>
-                          handleUpdateProfile(
-                            "interests",
-                            profile.interests.filter((s) => s !== interest)
-                          )
-                        }
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
                   </Badge>
                 ))}
               </div>
@@ -254,7 +201,7 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {profile.mentoring.map((mentee, i) => (
+            {profileData.mentoring?.map((mentee, i) => (
               <div key={i} className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <Avatar>
@@ -293,7 +240,7 @@ export default function ProfilePage() {
             <CardDescription>People who are mentoring you</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {profile.mentors.map((mentor, i) => (
+            {profileData.mentors?.map((mentor, i) => (
               <div key={i} className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <Avatar>
@@ -327,7 +274,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {profile.projects.map((project, i) => (
+            {profileData.projects?.map((project, i) => (
               <div key={i} className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
