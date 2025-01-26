@@ -26,7 +26,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
+        <Providers session={session}>
           <main>
             <div className="flex h-screen">
               {session && <Sidebar />}

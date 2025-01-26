@@ -54,7 +54,6 @@ interface CreateProjectResponse {
 }
 
 export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
-  const [selectedTechStack, setSelectedTechStack] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -76,22 +75,21 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       form.reset();
-      setSelectedTechStack([]);
       onSuccess();
     },
   });
 
-  const handleButtonClick = () => {
-    const values = form.getValues();
-    mutation.mutate({
-      ...values,
-      techStack: selectedTechStack,
-    });
+  const handleButtonClick = (data: ProjectData) => {
+    mutation.mutate(data);
   };
 
   return (
     <Form {...form}>
-      <form ref={formRef} className="space-y-6">
+      <form
+        ref={formRef}
+        className="space-y-6"
+        onSubmit={form.handleSubmit(handleButtonClick)}
+      >
         <FormField
           control={form.control}
           name="name"
@@ -124,16 +122,22 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
-        <FormItem>
-          <FormLabel>Tech Stack</FormLabel>
-          <FormControl>
-            <SkillsMultiSelect
-              selected={selectedTechStack}
-              onSelectionChange={setSelectedTechStack}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <FormField
+          control={form.control}
+          name="techStack"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tech Stack</FormLabel>
+              <FormControl>
+                <SkillsMultiSelect
+                  selected={field.value || []}
+                  onSelectionChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -158,9 +162,9 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
 
         <div className="flex justify-end">
           <Button
-            type="button"
+            type="submit"
             className="bg-primary hover:bg-primary/90"
-            onClick={handleButtonClick}
+            // onClick={handleButtonClick}
           >
             Create Project
           </Button>

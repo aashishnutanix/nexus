@@ -1,16 +1,15 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
 export const collections = {
-  users: 'users',
-  projects: 'projects',
-  mentorshipRequests: 'mentorshipRequests',
-  projectInvites: 'projectInvites',
-  features: 'features',
-  skills: 'skills', 
-  contributorProjectMappings: 'contributorProjectMappings',
-  locations: 'locations',
-  feedbacks: 'feedbacks',
-  mentorships: 'mentorships',
+  users: "users",
+  projects: "projects",
+  requests: "requests",
+  features: "features",
+  skills: "skills",
+  contributorProjectMappings: "contributorProjectMappings",
+  locations: "locations",
+  feedbacks: "feedbacks",
+  mentorships: "mentorships",
 } as const;
 
 export interface User {
@@ -23,8 +22,8 @@ export interface User {
   mentoring: ObjectId[];
   mentors: ObjectId[];
   projects: ObjectId[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface Project {
@@ -32,59 +31,94 @@ export interface Project {
   name: string;
   description: string;
   techStack: string[];
-  status: 'Idea' | 'In Review' | 'Approved' | 'In Progress' | 'Completed' | 'Rejected';
-  startDate: Date;
+  status:
+    | "Idea"
+    | "In Review"
+    | "Approved"
+    | "In Progress"
+    | "Completed"
+    | "Rejected";
+  startDate: string; // ISO string
   businessCritical: boolean;
-  feedbacks: {
-    userId: ObjectId;
-    comment: string;
-    createdAt: Date;
-  }[];
   members: {
     userId: ObjectId;
     role: string;
-    joinedAt: Date;
+    joinedAt: string; // ISO string
   }[];
   createdBy: ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
-export interface MentorshipRequest {
+export interface Feedback {
   _id: ObjectId;
-  mentorId: ObjectId;
-  menteeId: ObjectId;
+  userToId: ObjectId;
+  userFromId: ObjectId;
+  context: "PROJECT" | "MENTORSHIP" | "FEATURE";
+  referenceId: ObjectId;
+  feedback: string;
+  rating: number;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
+}
+
+export interface Request {
+  _id: ObjectId;
+  userToId: ObjectId;
+  userFromId: ObjectId;
+  context: "PROJECT" | "MENTORSHIP" | "FEATURE";
+  referenceId: ObjectId;
   message: string;
   skills: string[];
-  status: 'Pending' | 'Accepted' | 'Rejected';
-  createdAt: Date;
-  updatedAt: Date;
+  status: "Pending" | "Accepted" | "Rejected";
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
-export interface ProjectInvite {
+export interface Feature {
   _id: ObjectId;
+  name: string;
   projectId: ObjectId;
-  userId: ObjectId;
-  role: string;
-  message?: string;
-  status: 'Pending' | 'Accepted' | 'Rejected';
-  createdAt: Date;
-  updatedAt: Date;
+  timeline: {
+    value: number;
+    type: "days" | "weeks" | "months";
+  };
+  description: string;
+  status: "ideation" | "in_progress" | "under_review" | "completed";
+  startDate: string; // ISO string
+  upvote?: number;
+  techStack: string[];
+  priority: "low" | "medium" | "high";
+  links?: {
+    label: string;
+    link: string;
+  }[];
+  contributors?: string[];
+}
+
+export interface Skill {
+  _id: ObjectId;
+  name: string; // Name of the skill
+  type: "Technical" | "Soft" | "Other"; // Type of skill (you can adjust these types as needed)
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface UserDocument {
   _id?: ObjectId;
   name: string;
   email: string;
+  image: string;
   hashedPassword?: string;
   team?: string;
   dept?: string;
   skillset?: string[];
   manager?: string;
   interests?: string[];
+  bio?: string;
   offering?: {
-    freq: 'days' | 'weeks' | 'biweekly' | 'monthly';
-    type: 'online' | 'offline' | 'both';
+    freq: "days" | "weeks" | "biweekly" | "monthly";
+    type: "online" | "offline" | "both";
     time: number;
   };
   availability?: boolean;
@@ -100,7 +134,13 @@ export interface ProjectDocument {
   description: string;
   techStack: string[];
   startDate: string; // ISO string
-  status: 'Idea' | 'In Review' | 'Approved' | 'In Progress' | 'Completed' | 'Rejected';
+  status:
+    | "Idea"
+    | "In Review"
+    | "Approved"
+    | "In Progress"
+    | "Completed"
+    | "Rejected";
   feedbacks?: string[];
   department?: string;
   upVotes?: number;
@@ -116,25 +156,17 @@ export interface FeatureDocument {
   projectId: string;
   timeline: number;
   description: string;
-  status: 'ideation' | 'in_progress' | 'under_review' | 'completed';
+  status: "ideation" | "in_progress" | "under_review" | "completed";
   startDate: string; // ISO string
   feedback?: string[];
   upvote?: number;
   techStack: string[];
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
   links?: {
     label: string;
     link: string;
   }[];
   contributors?: string[];
-}
-
-export interface Skill {
-  _id: ObjectId;
-  name: string; // Name of the skill
-  type: 'Technical' | 'Soft' | 'Other'; // Type of skill (you can adjust these types as needed)
-  createdAt: Date; // Date when the skill was created
-  updatedAt: Date; // Date when the skill was last updated
 }
 
 export interface ContributorProjectMapping {
@@ -150,7 +182,7 @@ export interface ContributorProjectMapping {
 export interface Location {
   _id?: ObjectId; // Unique identifier
   timezone: string; // E.g., 'GMT-5', 'UTC+1', etc.
-  region: 'AMERICAS' | 'EMEA' | 'ASIA-PACIFIC'; // Specify allowed regions
+  region: "AMERICAS" | "EMEA" | "ASIA-PACIFIC"; // Specify allowed regions
   city: string; // Name of the city
   country: string; // Country name
 }
@@ -159,11 +191,10 @@ export interface Feedback {
   _id: ObjectId; // Unique identifier for the feedback
   userToId: ObjectId; // Reference to the user receiving feedback
   userFromId: ObjectId; // Reference to the user giving feedback
-  context: 'mentorship' | 'project'; // Context of the feedback (e.g., mentorship or project)
+  context: "PROJECT" | "MENTORSHIP" | "FEATURE"; // Context of the feedback (e.g., mentorship or project)
   referenceId: ObjectId; // Reference to the associated entity (e.g., a project, task, etc.)
   rating: number; // Numerical rating for the feedback
-  date: Date; // Date when the feedback was given
-  // optional?: ObjectId; // Optional additional field (e.g., skillId)
+  date: string; // ISO string representing the date when the feedback was given
 }
 
 export interface Mentorship {
@@ -173,9 +204,9 @@ export interface Mentorship {
   mentee: ObjectId; // Reference to the mentee (User)
   progress: number; // Progress of the mentorship (percentage or number)
   status: string; // Current status of the mentorship (e.g., 'active', 'completed', 'paused')
-  startDate: Date; // Start date of the mentorship
+  startDate: string; // ISO string representing the start date of the mentorship
   skillId: ObjectId; // Reference to the Skill
-  endDate?: Date; // Optional end date of the mentorship
+  endDate?: string; // Optional ISO string representing the end date of the mentorship
   duration?: number; // Optional duration of the mentorship in days, weeks, or months
 }
 
@@ -191,8 +222,6 @@ export interface Contact {
   socialHandles: string[]; // Array of social media handles (e.g., Twitter, LinkedIn URLs)
   phoneNumber: string; // Phone number of the contact (in E.164 format for consistency, e.g., +1234567890)
 }
-
-
 
 // example of a query to fetch contributor and project details using aggregation
 

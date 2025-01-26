@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
+          image: user.image,
           team: user.team,
           dept: user.dept,
           skillset: user.skillset,
@@ -56,6 +57,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.team = user.team;
+        token.image = user.image;
         token.dept = user.dept;
         token.skillset = user.skillset;
         token.manager = user.manager;
@@ -69,6 +71,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
+        session.user.image = token.image as string;
         session.user.team = token.team as string;
         session.user.dept = token.dept as string;
         session.user.skillset = token.skillset as string[];
@@ -95,4 +98,4 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST };
