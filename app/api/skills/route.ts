@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SkillSchema } from "@/lib/types";
+// import { SkillSchema } from "@/lib/types";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
+const { ObjectId } = require('mongodb');
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +11,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("Received body:", body);
     
-    const validatedData = SkillSchema.parse(body);
+    // const validatedData = SkillSchema.parse(body);
+    const validatedData = body
+
     console.log("Validated data:", validatedData);
 
     const client = await clientPromise;

@@ -8,49 +8,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { get } from "lodash"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AddProjectForm } from "@/components/add-project-form"
+import { AddRequestForm } from "@/components/request-form"
+import { getProjects } from "@/app/(services)/projects";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { RequestContextEnum } from "@/lib/types"
+
 
 export default function ViewProjectsPage() {
   const [open, setOpen] = useState(false)
-  
-  // Mock data for user's projects
-  const userProjects = [
-    {
-      name: "E-commerce Platform Redesign",
-      description: "Modernizing the user interface and improving user experience",
-      role: "Tech Lead",
-      status: "In Progress",
-      progress: 65,
-      priority: "High",
-      techStack: [
-        "React",
-        "TypeScript",
-        "Node.js",
-        "PostgreSQL",
-        "Redis",
-        "AWS"
-      ]
+  const [requestModal, setRequestModal] = useState(false)
+
+
+  // Fetch user's projects using the getProjects service
+  const queryClient = useQueryClient();
+
+  const { data: fetchedProjects = {}, isLoading } = useQuery<any>({
+    queryKey: ["fetch-all-projects"],
+    queryFn: async () => {
+      const res = await fetch("/api/projects");
+      return res.json();
     },
-    {
-      name: "Authentication Service",
-      description: "Building a secure and scalable authentication system",
-      role: "Senior Developer",
-      status: "Completed",
-      progress: 100,
-      priority: "Medium",
-      techStack: [
-        "Node.js",
-        "JWT",
-        "Redis",
-        "MongoDB"
-      ]
-    }
-  ]
+  });
+
+  console.log("fetchedProjects -->>> ", fetchedProjects);
+  const allProjects = get(fetchedProjects, "projects", []);
+  const skillsIdMap = get(fetchedProjects, "skillsIdMap", {});
+  const usersIdMap = get(fetchedProjects, "usersIdMap", {});
 
   const availableProjects = [
     {
@@ -68,38 +58,6 @@ export default function ViewProjectsPage() {
         "Kubernetes",
         "Redis"
       ]
-    },
-    {
-      name: "Mobile App Development",
-      description: "Creating a cross-platform mobile application",
-      team: ["Mobile", "Backend", "QA"],
-      openRoles: ["React Native Developer", "QA Engineer"],
-      status: "Starting",
-      progress: 10,
-      priority: "High",
-      techStack: [
-        "React Native",
-        "TypeScript",
-        "Node.js",
-        "MongoDB",
-        "Firebase"
-      ]
-    },
-    {
-      name: "Data Analytics Platform",
-      description: "Building a real-time analytics dashboard",
-      team: ["Frontend", "Data Engineering"],
-      openRoles: ["Data Engineer", "Frontend Developer"],
-      status: "Planning",
-      progress: 15,
-      priority: "Medium",
-      techStack: [
-        "Python",
-        "React",
-        "Apache Kafka",
-        "Elasticsearch",
-        "AWS"
-      ]
     }
   ]
 
@@ -109,9 +67,7 @@ export default function ViewProjectsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
-          <p className="text-muted-foreground">
-            Manage and explore projects
-          </p>
+          <p className="text-muted-foreground">Manage and explore projects</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -136,48 +92,78 @@ export default function ViewProjectsPage() {
       <div className="space-y-6">
         <h3 className="text-xl font-semibold tracking-tight">Your Projects</h3>
         <div className="grid gap-6">
-          {userProjects.map((project, i) => (
-            <Card key={i} className="border-l-4 border-l-primary">
+          {allProjects.map((project: any, i: number) => (
+            <Card key={project._id} className="border-l-4 border-l-primary">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>{project.name}</CardTitle>
                     <CardDescription>{project.description}</CardDescription>
                   </div>
-                  <Badge variant={project.priority === "High" ? "destructive" : "secondary"}>
-                    {project.priority} Priority
+                  <Badge
+                    variant={
+                      project.businessCritical ? "destructive" : "secondary"
+                    }
+                  >
+                    {project.businessCritical ? "Business Critical" : ""}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Role: {project.role}</p>
+                    <p className="text-sm font-medium">
+                      Created By: {usersIdMap[project.createdBy].name}
+                    </p>
                     <Badge variant="outline">{project.status}</Badge>
                   </div>
                   {project.status === "In Progress" && (
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">Progress</p>
-                        <p className="text-sm font-medium">{project.progress}%</p>
+                        <p className="text-sm text-muted-foreground">
+                          Progress
+                        </p>
+                        <p className="text-sm font-medium">
+                          {project.progress}%
+                        </p>
                       </div>
-                      <Progress value={project.progress} className="bg-secondary" />
+                      <Progress
+                        value={project.progress}
+                        className="bg-secondary"
+                      />
                     </div>
                   )}
                   <div>
                     <p className="text-sm font-medium mb-2">Tech Stack:</p>
                     <div className="flex flex-wrap gap-2">
-                      {project.techStack.map((tech, i) => (
-                        <Badge 
-                          key={i} 
+                      {project.techStack.map((tech: any) => (
+                        <Badge
+                          key={skillsIdMap[tech]._id}
                           variant="secondary"
                           className="cursor-pointer hover:bg-secondary/80"
                         >
-                          {tech}
+                          {skillsIdMap[tech].name}
                         </Badge>
                       ))}
                     </div>
                   </div>
+                    <Dialog open={requestModal} onOpenChange={setRequestModal}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-primary hover:bg-primary/90">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Contribute
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[600px]">
+                        <DialogHeader>
+                          <DialogTitle>Apply for contribution In {project.name} </DialogTitle>
+                          <DialogDescription>
+                            Request will go to project owner <b>{usersIdMap[project.createdBy].name}</b>
+                          </DialogDescription>
+                        </DialogHeader>
+                        <AddRequestForm onSuccess={() => setRequestModal(false)} context={RequestContextEnum.enum.PROJECT} referenceId={project._id} userToId={project.createdBy}  />
+                      </DialogContent>
+                    </Dialog>
                 </div>
               </CardContent>
             </Card>
@@ -187,7 +173,9 @@ export default function ViewProjectsPage() {
 
       {/* Available Projects Section */}
       <div className="space-y-6">
-        <h3 className="text-xl font-semibold tracking-tight">Available Projects</h3>
+        <h3 className="text-xl font-semibold tracking-tight">
+          Available Projects
+        </h3>
         <div className="grid gap-6">
           {availableProjects.map((project, i) => (
             <Card key={i}>
@@ -197,7 +185,11 @@ export default function ViewProjectsPage() {
                     <CardTitle>{project.name}</CardTitle>
                     <CardDescription>{project.description}</CardDescription>
                   </div>
-                  <Badge variant={project.priority === "High" ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={
+                      project.priority === "High" ? "destructive" : "secondary"
+                    }
+                  >
                     {project.priority} Priority
                   </Badge>
                 </div>
@@ -206,10 +198,17 @@ export default function ViewProjectsPage() {
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium">Status: {project.status}</p>
-                      <p className="text-sm text-muted-foreground">{project.progress}% Complete</p>
+                      <p className="text-sm font-medium">
+                        Status: {project.status}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {project.progress}% Complete
+                      </p>
                     </div>
-                    <Progress value={project.progress} className="bg-secondary" />
+                    <Progress
+                      value={project.progress}
+                      className="bg-secondary"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-2">Current Team:</p>
@@ -225,7 +224,11 @@ export default function ViewProjectsPage() {
                     <p className="text-sm font-medium mb-2">Open Roles:</p>
                     <div className="flex flex-wrap gap-2">
                       {project.openRoles.map((role, i) => (
-                        <Badge key={i} variant="secondary" className="bg-green-100 hover:bg-green-200 text-green-800">
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="bg-green-100 hover:bg-green-200 text-green-800"
+                        >
                           {role}
                         </Badge>
                       ))}
@@ -235,8 +238,8 @@ export default function ViewProjectsPage() {
                     <p className="text-sm font-medium mb-2">Tech Stack:</p>
                     <div className="flex flex-wrap gap-2">
                       {project.techStack.map((tech, i) => (
-                        <Badge 
-                          key={i} 
+                        <Badge
+                          key={i}
                           variant="secondary"
                           className="cursor-pointer hover:bg-secondary/80"
                         >
@@ -252,5 +255,5 @@ export default function ViewProjectsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

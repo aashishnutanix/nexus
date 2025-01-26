@@ -5,7 +5,8 @@ import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import { fetchSkillByIds } from "../skills/skillByIds/route";
+import { fetchUserByIds } from "../profile/byIds/route";
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
@@ -94,9 +95,27 @@ export async function GET() {
       .collection(collections.projects)
       .find({})
       .toArray();
-    console.log("Fetched projects:", projects);
 
-    return NextResponse.json({ success: true, projects });
+    // fetch all the skills by calling GET_SKILLS api route and pass projects.techStack as a query parameter
+    const techStackIds = projects.flatMap(project => project.techStack || []);
+    const skills = await fetchSkillByIds(techStackIds);
+
+
+    const skillsIdMap: { [key: string]: any } = {};
+    skills.forEach((skill) => {
+      skillsIdMap[skill._id.toString()] = skill;
+    });
+
+
+    const userids = projects.flatMap(project => project.members.map((member: any) => member.userId));
+    const users = await fetchUserByIds(userids);
+
+    const usersIdMap: { [key: string]: any } = {};
+    users.forEach((user) => {
+      usersIdMap[user._id.toString()] = user;
+    });
+
+    return NextResponse.json({ success: true, projects, skillsIdMap, usersIdMap });
   } catch (error) {
     console.error("GET /api/projects error:", error);
     return NextResponse.json(
