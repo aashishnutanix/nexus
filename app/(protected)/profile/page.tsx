@@ -21,6 +21,7 @@ import { SkillsMultiSelect } from "@/components/skill-multiselect";
 import { User } from "@/lib/types";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { get } from "lodash";
+import { SkillDisplays } from "@/components/skillDisplay";
 interface Skill {
   _id: string;
   name: string;
@@ -232,11 +233,7 @@ export default function ProfilePage() {
                 />
               )}
               <div className="flex flex-wrap gap-2 mt-2">
-                {profileData.skills?.map((skill, i) => (
-                  <Badge key={i} variant="secondary">
-                    {skillsIdMap[skill]?.name}
-                  </Badge>
-                ))}
+                <SkillDisplays skillIds={profileData.skills || []} />
               </div>
             </div>
             <div>
@@ -254,11 +251,7 @@ export default function ProfilePage() {
                 />
               )}
               <div className="flex flex-wrap gap-2 mt-2">
-                {profileData.interests?.map((interest, i) => (
-                  <Badge key={i} variant="outline">
-                    {interest}
-                  </Badge>
-                ))}
+                <SkillDisplays skillIds={profileData.interests || []} />
               </div>
             </div>
           </div>
