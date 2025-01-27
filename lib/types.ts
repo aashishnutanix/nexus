@@ -49,7 +49,7 @@ export const UserSchema = z.object({
       })
     )
     .optional(),
-    isAvailable: z.boolean().optional(),
+  isAvailable: z.boolean().optional(),
   designation: z.string().optional(),
   hashedPassword: z.string().optional(),
   createdAt: z.string(), // ISO string
@@ -96,6 +96,12 @@ export const UserSchema = z.object({
       })
     )
     .optional(),
+});
+
+export const SkillSchema = z.object({
+  name: z.string().min(1),
+  type: SkillTypeEnum,
+  level: SkillLevelEnum,
 });
 
 export const ProjectSchema = z.object({
@@ -153,6 +159,7 @@ export const LocationSchema = z.object({
 });
 
 // Types
+export type Skill = z.infer<typeof SkillSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Feature = z.infer<typeof FeatureSchema>;
