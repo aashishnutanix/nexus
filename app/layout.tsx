@@ -8,6 +8,7 @@ import { Providers } from "@/lib/providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import GlobalSearch from "@/components/layout/globalSearch";
+import BreadcrumbCustom from "@/components/breadcrumb-custom";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,13 +26,17 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
-        <Providers>
+        <Providers session={session}>
           <main>
             <div className="flex h-screen">
               {session && <Sidebar />}
               <div className="flex-1 flex flex-col min-h-screen">
                 {session && <Header />}
+                {/* {session && <BreadcrumbCustom />} */}
                 <main className="flex-1 overflow-y-auto">{children}</main>
               </div>
             </div>

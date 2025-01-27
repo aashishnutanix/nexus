@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { get } from "lodash";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -27,7 +28,7 @@ interface SkillsMultiSelectProps {
 }
 
 interface Skill {
-  id: string;
+  _id: string;
   name: string;
 }
 
@@ -40,13 +41,25 @@ export function SkillsMultiSelect({
   const [inputValue, setInputValue] = React.useState("");
   const queryClient = useQueryClient();
 
-  const { data: options = [], isLoading } = useQuery<Skill[]>({
+  const { data, isLoading } = useQuery<{success: boolean, skills:Skill[]}>({
     queryKey: ["skills"],
     queryFn: async () => {
       const res = await fetch("/api/skills");
       return res.json();
     },
   });
+
+  console.log("data ->>> ", data);
+
+
+
+  // get skills array from options, skills array is type Skill[]
+  const savedSkills: Skill[] = get(data, "skills", []);
+  const skillsIdMap: { [key: string]: Skill } = {};
+  savedSkills.forEach((skill) => {
+    skillsIdMap[skill._id] = skill;
+  });
+
 
   const createSkillMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -55,6 +68,7 @@ export function SkillsMultiSelect({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
       return res.json();
     },
     onSuccess: () => {
@@ -62,21 +76,22 @@ export function SkillsMultiSelect({
     },
   });
 
-  const handleSelect = (item: string) => {
+  const handleSelect = (item: Skill) => {
     onSelectionChange(
-      selected.includes(item)
-        ? selected.filter((i) => i !== item)
-        : [...selected, item]
+      selected.includes(item._id)
+        ? selected.filter((i) => i !== item._id)
+        : [...selected, item._id]
     );
   };
 
   const handleAddNewOption = async () => {
-    if (inputValue && !options.some((option) => option.name === inputValue)) {
-      await createSkillMutation.mutateAsync(inputValue);
-      handleSelect(inputValue);
+    if (inputValue && !savedSkills.some((option) => option.name === inputValue)) {
+      const newSkill:Skill = await createSkillMutation.mutateAsync(inputValue);
+      handleSelect(newSkill);
       setInputValue("");
     }
   };
+
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -89,14 +104,14 @@ export function SkillsMultiSelect({
         >
           {selected.length > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {selected.map((item) => (
-                <Badge key={item} variant="secondary">
-                  {item}
+              {selected.map((itemId) => (
+                <Badge key={itemId} variant="secondary">
+                  {skillsIdMap[itemId]?.name}
                   <X
                     className="ml-1 h-4 w-4 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSelect(item);
+                      handleSelect(skillsIdMap[itemId]);
                     }}
                   />
                 </Badge>
@@ -134,15 +149,15 @@ export function SkillsMultiSelect({
               )}
             </CommandEmpty>
             <CommandGroup>
-              {options.map((item) => (
+              {savedSkills.map((item) => (
                 <CommandItem
-                  key={item.id}
-                  onSelect={() => handleSelect(item.name)}
+                  key={item._id}
+                  onSelect={() => handleSelect(item)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selected.includes(item.name) ? "opacity-100" : "opacity-0"
+                      selected.includes(item._id) ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {item.name}
