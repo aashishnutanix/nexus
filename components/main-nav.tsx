@@ -20,15 +20,37 @@ export function MainNav() {
           Profile
         </Button>
       </Link>
-      <Link href="/dashboard/mentorship">
-        <Button
-          variant={pathname === "/dashboard/mentorship" ? "secondary" : "ghost"}
-          className="w-full justify-start"
-        >
-          <Users className="mr-2 h-4 w-4" />
-          Mentorship
-        </Button>
-      </Link>
+      <div className="space-y-1">
+        <Link href="/dashboard/mentorship">
+          <Button
+            variant={pathname.startsWith("/dashboard/mentorship") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Mentorship
+          </Button>
+        </Link>
+        <div className="pl-6 space-y-1">
+          <Link href="/dashboard/mentorship/dashboard">
+            <Button
+              variant={pathname === "/dashboard/mentorship/dashboard" ? "secondary" : "ghost"}
+              className="w-full justify-start text-sm"
+              size="sm"
+            >
+              Dashboard
+            </Button>
+          </Link>
+          <Link href="/dashboard/mentorship/find-mentor">
+            <Button
+              variant={pathname === "/dashboard/mentorship/find-mentor" ? "secondary" : "ghost"}
+              className="w-full justify-start text-sm"
+              size="sm"
+            >
+              Find Mentor
+            </Button>
+          </Link>
+        </div>
+      </div>
       <div className="space-y-1">
         <Link href="/dashboard/projects">
           <Button

@@ -146,6 +146,8 @@ const SelectSeparator = React.forwardRef<
 ));
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
+const SelectOption = SelectItem;
+
 export {
   Select,
   SelectGroup,
@@ -157,4 +159,5 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
+  SelectOption,
 };
