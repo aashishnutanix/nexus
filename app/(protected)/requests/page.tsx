@@ -35,15 +35,17 @@ const RequestsPage = () => {
         <p className="text-gray-500">No pending requests</p>
       ) : (
         requests.map((request) => (
-          <div key={request._id} className="border p-4 mb-4 rounded-lg shadow-md">
-            <p className="font-semibold">Requester: {users[request.userFromId]}</p>
-            <p className="text-gray-700">Context: {request.context}</p>
-            <p className="text-gray-700">
-              {request.context === "PROJECT"
-                ? `Project: ${request.referenceId}`
-                : `Skill: ${request.skills.join(", ")}`}
-            </p>
-            <div className="mt-4 flex items-center">
+          <div key={request._id} className="border p-4 mb-4 rounded-lg shadow-md flex justify-between items-center">
+            <div>
+              <p className="font-semibold">Requester: {users[request.userFromId]}</p>
+              <p className="text-gray-700">Context: {request.context}</p>
+              <p className="text-gray-700">
+                {request.context === "PROJECT"
+                  ? `Project: ${request.referenceId}`
+                  : `Skill: ${request.skills.join(", ")}`}
+              </p>
+            </div>
+            <div className="flex items-center">
               <button
                 className="bg-purple-500 text-white p-2 mr-2 rounded-full flex items-center justify-center"
                 onClick={() => handleUpdateStatus(request._id, "Accepted")}
