@@ -16,12 +16,15 @@ import { PlusCircle } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AddProjectForm } from "@/components/add-project-form"
 import { AddRequestForm } from "@/components/request-form"
-import { upVoteProject } from "@/app/(services)/projects";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { RequestContextEnum } from "@/lib/types"
+import { RequestContextEnum, UpVoteType } from "@/lib/types"
+import { useSession } from "next-auth/react"
 import { useState } from "react";
+import { upVote } from "@/app/(services)/upvotes";
 
 export default function ViewProjectsPage() {
+    const { data: session } = useSession();
+    const { user: loggedInUser } = session || {};
   const [open, setOpen] = useState(false)
   const [requestModal, setRequestModal] = useState(false)
   const router = useRouter();
@@ -39,20 +42,22 @@ export default function ViewProjectsPage() {
   });
 
 
-  const mutation = useMutation<any, unknown, string>({
-    mutationFn: upVoteProject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
-    },
-  });
+  const mutation = useMutation<any, unknown, UpVoteType>({
+      mutationFn: upVote,
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
+      },
+    });
 
   console.log("fetchedProjects -->>> ", fetchedProjects);
   const allProjects = get(fetchedProjects, "projects", []);
   const skillsIdMap = get(fetchedProjects, "skillsIdMap", {});
   const usersIdMap = get(fetchedProjects, "usersIdMap", {});
-
-  const handleUpvote = (projectId: string) => {
-    mutation.mutate(projectId);
+  const requestsMapByProjectId = get(fetchedProjects, "requestsMapByProjectId", {});
+  const upVoteMapByProjectId = get(fetchedProjects, "upVoteMapByProjectId", {});
+  
+  const handleUpvote = (upvoteData: UpVoteType) => {
+    mutation.mutate(upvoteData);
   };
 
   const availableProjects = [
@@ -78,6 +83,21 @@ export default function ViewProjectsPage() {
   const handleCardClick = (id: string) => {
     router.push(`/projects/${id}`);
   };
+
+  const canContribute = (project: any) => {
+   return project.open && loggedInUser && loggedInUser.id  !== project.createdBy;
+  }
+
+  const canUpvote = (project: any) => {
+    const projectUpvotes = upVoteMapByProjectId[project._id];
+    return projectUpvotes && loggedInUser && projectUpvotes.find((upvote: any) => upvote.userId === loggedInUser.id);
+  }
+
+  const canRequestForContribution = (project: any) => {
+    const projectRequests = requestsMapByProjectId[project._id];
+    return projectRequests && loggedInUser && projectRequests.find((request: any) => request.userFromId === loggedInUser.id);
+  }
+  
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -165,9 +185,9 @@ export default function ViewProjectsPage() {
                       ))}
                     </div>
                   </div>
-                    {project.open ? (<Dialog open={requestModal} onOpenChange={setRequestModal}>
+                    {canContribute(project) ? (<Dialog open={requestModal} onOpenChange={setRequestModal}>
                       <DialogTrigger asChild>
-                        <Button className="bg-primary hover:bg-primary/90">
+                        <Button className="bg-primary hover:bg-primary/90" disabled = {canRequestForContribution(project)}>
                           <PlusCircle className="mr-2 h-4 w-4" />
                           Contribute
                         </Button>
@@ -182,9 +202,9 @@ export default function ViewProjectsPage() {
                         <AddRequestForm onSuccess={() => setRequestModal(false)} context={RequestContextEnum.enum.PROJECT} referenceId={project._id} userToId={project.createdBy}  />
                       </DialogContent>
                     </Dialog>):null}
-                    <Button className="bg-primary hover:bg-primary/90" onClick={() => handleUpvote(project._id)}>
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => handleUpvote({refreferenceId: project._id, context: RequestContextEnum.enum.PROJECT})} disabled={canUpvote(project)} >
                           <PlusCircle className="mr-2 h-4 w-4" />
-                          Upvote - {project.upvote}
+                          Upvote - {upVoteMapByProjectId[project._id]?.length}
                         </Button>
                 </div>
               </CardContent>

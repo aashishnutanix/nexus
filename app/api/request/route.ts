@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RequestSchema } from "@/lib/types";
+import { ProjectSchema, RequestContextEnum, RequestStatusEnum } from "@/lib/types";
+
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
@@ -43,4 +45,29 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+}
+
+export async function getProjectRequestsMapByUserId(context: string){
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const client = await clientPromise;
+  const db = client.db();
+
+  const projectRequests = await db
+    .collection(collections.requests)
+    .find({ userFromId: session.user.id, context: RequestContextEnum.Enum.PROJECT})
+    .toArray();
+
+  const requestsMapByProjectId: { [key: string]: any } = {};
+  projectRequests.forEach((request) => {
+    requestsMapByProjectId[request.referenceId] = [
+      ...(requestsMapByProjectId[request.referenceId] || []),
+      request,
+    ]
+  });
+
+  return requestsMapByProjectId;
 }

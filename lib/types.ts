@@ -89,6 +89,11 @@ export const ProjectSchema = z.object({
   open: z.boolean().optional(),
 });
 
+export const UpVoteSchema = z.object({
+  refreferenceId: z.string(),
+  context:z.string()
+});
+
 export const FeatureSchema = z.object({
   name: z.string().min(1),
   projectId: z.string(),
@@ -128,6 +133,7 @@ export type User = z.infer<typeof UserSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Feature = z.infer<typeof FeatureSchema>;
 export type Request = z.infer<typeof RequestSchema>;
+export type UpVoteType = z.infer<typeof UpVoteSchema>;
 
 declare module "next-auth" {
   interface User {

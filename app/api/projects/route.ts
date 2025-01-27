@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ProjectSchema } from "@/lib/types";
+import { ProjectSchema, RequestContextEnum, RequestStatusEnum } from "@/lib/types";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
@@ -7,6 +7,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchSkillByIds } from "../skills/skillByIds/route";
 import { fetchUserByIds } from "../profile/byIds/route";
+import { getProjectRequestsMapByUserId } from "../request/route";
+import { getUpVoteMapByContext } from "../upvote/route";
 export const dynamic = 'force-dynamic';
 
 const dummyProjects = [
@@ -153,10 +155,13 @@ export async function GET(request: NextRequest) {
       usersIdMap[user._id.toString()] = user;
     });
 
+    const requestsMapByProjectId = await getProjectRequestsMapByUserId(RequestContextEnum.Enum.PROJECT);
+    const upVoteMapByProjectId = await getUpVoteMapByContext(RequestContextEnum.Enum.PROJECT);
+
     if (projects.length === 0) {
-      return NextResponse.json({ success: true, projects: dummyProjects, skillsIdMap, usersIdMap });
+      return NextResponse.json({ success: true, projects: dummyProjects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
     }
-    return NextResponse.json({ success: true, projects, skillsIdMap, usersIdMap });
+    return NextResponse.json({ success: true, projects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
     }
   } catch (error) {
     console.error("GET /api/projects error:", error);
@@ -166,6 +171,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 export async function DELETE(request: NextRequest) {
   try {
