@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // add console logs 
+    console.log("GET /api/locations");
     const client = await clientPromise;
     const db = client.db();
     const { searchParams } = new URL(request.url);
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({ success: true, location });
     } else {
-      const locations = await db.collection(collections.locations).find({}).toArray();
+      const locations = await db.collection(collections.locations).find().toArray();
       return NextResponse.json({ success: true, locations });
     }
   } catch (error) {
