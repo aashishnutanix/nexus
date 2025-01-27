@@ -26,7 +26,10 @@ export const routes = [
   {
     label: "Mentorship",
     icon: Users,
-    href: "/mentorship",
+    subRoutes: [
+      { label: "Dashboard", href: "/mentorship/dashboard" },
+      { label: "Find Mentor", href: "/mentorship/find-mentor" },
+    ],
   },
   {
     label: "Requests",

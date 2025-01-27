@@ -5,9 +5,20 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Users, FolderGit2, UserCircle } from "lucide-react"
+import { useEffect, useState } from "react";
 
 export function MainNav() {
   const pathname = usePathname()
+  const [requestCount, setRequestCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchRequestCount() {
+      const res = await fetch("/api/request/count");
+      const data = await res.json();
+      setRequestCount(data.count);
+    }
+    fetchRequestCount();
+  }, []);
 
   return (
     <nav className="flex flex-col space-y-2">
@@ -20,15 +31,37 @@ export function MainNav() {
           Profile
         </Button>
       </Link>
-      <Link href="/dashboard/mentorship">
-        <Button
-          variant={pathname === "/dashboard/mentorship" ? "secondary" : "ghost"}
-          className="w-full justify-start"
-        >
-          <Users className="mr-2 h-4 w-4" />
-          Mentorship
-        </Button>
-      </Link>
+      <div className="space-y-1">
+        <Link href="/dashboard/mentorship">
+          <Button
+            variant={pathname.startsWith("/dashboard/mentorship") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Mentorship
+          </Button>
+        </Link>
+        <div className="pl-6 space-y-1">
+          <Link href="/dashboard/mentorship/dashboard">
+            <Button
+              variant={pathname === "/dashboard/mentorship/dashboard" ? "secondary" : "ghost"}
+              className="w-full justify-start text-sm"
+              size="sm"
+            >
+              Dashboard
+            </Button>
+          </Link>
+          <Link href="/dashboard/mentorship/find-mentor">
+            <Button
+              variant={pathname === "/dashboard/mentorship/find-mentor" ? "secondary" : "ghost"}
+              className="w-full justify-start text-sm"
+              size="sm"
+            >
+              Find Mentor
+            </Button>
+          </Link>
+        </div>
+      </div>
       <div className="space-y-1">
         <Link href="/dashboard/projects">
           <Button
@@ -60,6 +93,19 @@ export function MainNav() {
           </Link>
         </div>
       </div>
+      <Link href="/dashboard/requests">
+        <Button
+          variant={pathname === "/dashboard/requests" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+        >
+          Requests
+          {requestCount > 0 && (
+            <span className="ml-2 bg-purple-500 text-white rounded-full px-2 py-1 text-xs">
+              {requestCount}
+            </span>
+          )}
+        </Button>
+      </Link>
     </nav>
   )
 }
