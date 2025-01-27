@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,14 +23,19 @@ export async function GET(request: NextRequest) {
     let filter: any = {};
 
     searchParams.forEach((value, key) => {
-      if (key !== "groupBy" && key !== "sortBy" && key !== "limit" && key !== "period") {
+      if (
+        key !== "groupBy" &&
+        key !== "sortBy" &&
+        key !== "limit" &&
+        key !== "period"
+      ) {
         filter[key] = value;
       }
     });
 
     if (Object.keys(filter).length > 0) {
       pipeline.push({
-        $match: filter
+        $match: filter,
       });
     }
 
@@ -38,8 +45,8 @@ export async function GET(request: NextRequest) {
       date.setDate(date.getDate() - days);
       pipeline.push({
         $match: {
-          createdAt: { $gte: date.toISOString() }
-        }
+          createdAt: { $gte: date.toISOString() },
+        },
       });
     }
 
@@ -47,22 +54,22 @@ export async function GET(request: NextRequest) {
       pipeline.push({
         $group: {
           _id: `$${groupBy}`,
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       });
     }
 
     if (sortBy) {
       pipeline.push({
         $sort: {
-          count: sortBy === 'MaxCount' ? -1 : 1
-        }
+          count: sortBy === "MaxCount" ? -1 : 1,
+        },
       });
     }
 
     if (limit) {
       pipeline.push({
-        $limit: parseInt(limit, 10)
+        $limit: parseInt(limit, 10),
       });
     }
 
@@ -83,8 +90,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) { 
+export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     console.log("Received POST request:", body);
 
@@ -93,6 +105,7 @@ export async function POST(request: NextRequest) {
 
     const result = await db.collection(collections.requests).insertOne({
       ...body,
+      userFromId: session.user.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -103,7 +116,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("POST /api/requests error:", error);
     return NextResponse.json(
-      { error: "Invalid request", details: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Invalid request",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 400 }
     );
   }

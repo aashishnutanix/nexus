@@ -30,6 +30,8 @@ export async function fetchSkillByIds(skillIds: string[]) {
   const client = await clientPromise;
   const db = client.db();
 
+  console.log("skillIds ->> ", skillIds);
+
   const objectIdArray = skillIds.map((id) => new ObjectId(id));
   const skills = await db
     .collection(collections.skills)
