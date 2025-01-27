@@ -30,7 +30,7 @@ interface LocationComboboxProps {
 export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  const { data: locationsData } = useQuery<{
+  const { data: locationsData, isLoading, isError } = useQuery<{
     success: boolean;
     locations: Location[];
   }>({
@@ -41,6 +41,10 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
     },
   });
 
+  console.log("isLoading:", isLoading);
+  console.log("isError:", isError);
+  console.log("locationsData:", locationsData);
+
   const locations = locationsData?.locations || [];
 
   return (
@@ -50,7 +54,7 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className=" justify-between"
+          className="w-full justify-between"
         >
           {value
             ? `${value.city}, ${value.country}, ${value.region}`
