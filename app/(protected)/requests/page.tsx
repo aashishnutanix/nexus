@@ -76,21 +76,23 @@ export default function RequestsPage () {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Requests Page</h2>
           <p className="text-muted-foreground">Manage your mentorship and project requests</p>
         </div>
       </div>
-      <div className="flex mb-4">
-        <Button onClick={() => setActiveTab('membership')} className={`py-2 px-4 mr-2 ${activeTab === 'membership' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Membership</Button>
-        <Button onClick={() => setActiveTab('project')} className={`py-2 px-4 ${activeTab === 'project' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Project</Button>
+      <div className="flex flex-col space-y-4">
+        <div className="flex justify-center space-x-4">
+          <Button onClick={() => setActiveTab('membership')} className={`py-2 px-4 ${activeTab === 'membership' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Membership</Button>
+          <Button onClick={() => setActiveTab('project')} className={`py-2 px-4 ${activeTab === 'project' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Project</Button>
+        </div>
+        <div className="flex justify-center space-x-4">
+          <Button onClick={() => setActiveSubTab('pending')} className={`py-2 px-4 ${activeSubTab === 'pending' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Pending</Button>
+          <Button onClick={() => setActiveSubTab('done')} className={`py-2 px-4 ${activeSubTab === 'done' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Done</Button>
+        </div>
       </div>
-      <div className="flex mb-4">
-        <Button onClick={() => setActiveSubTab('pending')} className={`py-2 px-4 mr-2 ${activeSubTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Pending</Button>
-        <Button onClick={() => setActiveSubTab('done')} className={`py-2 px-4 ${activeSubTab === 'done' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Done</Button>
-      </div>
-      <div>
+      <div className="mt-8">
         {activeTab === 'membership' && (
           <div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Mentorship Requests {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>

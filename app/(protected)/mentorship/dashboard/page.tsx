@@ -34,10 +34,10 @@ export default function MentorshipDashboardPage() {
       getMenteesForUser(session.user.id).then(async (mentees) => {
         const menteesWithNames = await Promise.all(
           mentees.map(async (mentee) => {
-            const mentorData = await getUserById(mentee.mentor);
+            const menteeData = await getUserById(mentee.mentee);
             return {
               ...mentee,
-              mentorName: mentorData?.user.name,
+              menteeName: menteeData?.user.name,
             };
           })
         );
@@ -129,11 +129,11 @@ export default function MentorshipDashboardPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        Mentor: <Link href={`/profile/${mentee.mentor}`}>{mentee.mentorName}</Link>
+                        Mentor: <Link href={`/profile/${mentee.mentor}`}>{session?.user?.name}</Link>
                       </p>
-                      {/* <p className="text-sm font-medium">
-                        Mentee: <Link href={`/profile/${mentee._id}`}>{mentee.name}</Link>
-                      </p> */}
+                      <p className="text-sm font-medium">
+                        Mentee: <Link href={`/profile/${mentee._id}`}>{mentee.menteeName}</Link>
+                      </p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
