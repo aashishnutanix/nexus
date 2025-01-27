@@ -45,3 +45,18 @@ export async function deleteUser(id: string) {
 
   return res.json();
 }
+
+export async function getUserById(id: string) {
+  const res = await fetch(`/api/users/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch user");
+  }
+
+  return res.json();
+}
