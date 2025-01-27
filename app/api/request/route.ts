@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RequestSchema } from "@/lib/types";
+import { ProjectSchema, RequestContextEnum, RequestStatusEnum } from "@/lib/types";
+
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
@@ -25,12 +27,16 @@ export async function POST(request: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    const result = await db.collection(collections.requests).insertOne({
+    const createRequestObj = {
       ...validatedData,
       userFromId: session.user.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    }
+
+    console.log("createRequestObj", createRequestObj)
+
+    const result = await db.collection(collections.requests).insertOne(createRequestObj);
 
     return NextResponse.json({ success: true, id: result.insertedId });
   } catch (error) {
@@ -44,6 +50,35 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function getProjectRequestsMapByUserId(context: string){
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const client = await clientPromise;
+  const db = client.db();
+
+  const projectRequests = await db
+    .collection(collections.requests)
+    .find({ userFromId: session.user.id, context})
+    .toArray();
+
+
+    console.log("projectRequests ", projectRequests);
+
+  const requestsMapByProjectId: { [key: string]: any } = {};
+  projectRequests.forEach((request) => {
+    requestsMapByProjectId[request.referenceId] = [
+      ...(requestsMapByProjectId[request.referenceId] || []),
+      request,
+    ]
+  });
+
+  return requestsMapByProjectId;
+}
+
 
 export async function GET(request: NextRequest) {
   try {

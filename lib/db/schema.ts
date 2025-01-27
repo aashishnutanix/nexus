@@ -10,6 +10,7 @@ export const collections = {
   locations: "locations",
   feedbacks: "feedbacks",
   mentorships: "mentorships",
+  upvotes: "upvotes",
 } as const;
 
 export interface User {
@@ -150,7 +151,7 @@ export interface ProjectDocument {
     | "Rejected";
   feedbacks?: string[];
   department?: string;
-  upVotes?: number;
+  upVotes?: UpVote[];
   contributors?: string[];
   open?: boolean;
   businessCritical: boolean;
@@ -166,7 +167,7 @@ export interface FeatureDocument {
   status: "ideation" | "in_progress" | "under_review" | "completed";
   startDate: string; // ISO string
   feedback?: string[];
-  upvote?: number;
+  upvote?: UpVote[];
   techStack: string[];
   priority: "low" | "medium" | "high";
   links?: {
@@ -174,6 +175,14 @@ export interface FeatureDocument {
     link: string;
   }[];
   contributors?: string[];
+}
+
+export interface UpVote{
+  _id?: ObjectId;
+  referenceId: ObjectId;
+  userId: ObjectId;
+  context: "PROJECT" | "FEATURE" | "MENTORSHIP";
+  createdAt: string;
 }
 
 export interface ContributorProjectMapping {
