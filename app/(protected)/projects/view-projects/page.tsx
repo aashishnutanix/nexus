@@ -7,12 +7,53 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+} from "@/components/ui/card"
+import { get } from "lodash"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
+import { PlusCircle } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { AddProjectForm } from "@/components/add-project-form"
+import { AddRequestForm } from "@/components/request-form"
+import { upVoteProject } from "@/app/(services)/projects";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { RequestContextEnum } from "@/lib/types"
+import { useState } from "react";
 
 export default function ViewProjectsPage() {
+  const [open, setOpen] = useState(false)
+  const [requestModal, setRequestModal] = useState(false)
   const router = useRouter();
+
+
+  // Fetch user's projects using the getProjects service
+  const queryClient = useQueryClient();
+
+  const { data: fetchedProjects = {}, isLoading } = useQuery<any>({
+    queryKey: ["fetch-all-projects"],
+    queryFn: async () => {
+      const res = await fetch("/api/projects");
+      return res.json();
+    },
+  });
+
+
+  const mutation = useMutation<any, unknown, string>({
+    mutationFn: upVoteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
+    },
+  });
+
+  console.log("fetchedProjects -->>> ", fetchedProjects);
+  const allProjects = get(fetchedProjects, "projects", []);
+  const skillsIdMap = get(fetchedProjects, "skillsIdMap", {});
+  const usersIdMap = get(fetchedProjects, "usersIdMap", {});
+
+  const handleUpvote = (projectId: string) => {
+    mutation.mutate(projectId);
+  };
 
   const availableProjects = [
     {
@@ -24,37 +65,15 @@ export default function ViewProjectsPage() {
       status: "Planning",
       progress: 25,
       priority: "Medium",
-      techStack: ["Java", "Spring Boot", "Docker", "Kubernetes", "Redis"],
-    },
-    {
-      id: "4",
-      name: "Mobile App Development",
-      description: "Creating a cross-platform mobile application",
-      team: ["Mobile", "Backend", "QA"],
-      openRoles: ["React Native Developer", "QA Engineer"],
-      status: "Starting",
-      progress: 10,
-      priority: "High",
       techStack: [
-        "React Native",
-        "TypeScript",
-        "Node.js",
-        "MongoDB",
-        "Firebase",
-      ],
-    },
-    {
-      id: "5",
-      name: "Data Analytics Platform",
-      description: "Building a real-time analytics dashboard",
-      team: ["Frontend", "Data Engineering"],
-      openRoles: ["Data Engineer", "Frontend Developer"],
-      status: "Planning",
-      progress: 15,
-      priority: "Medium",
-      techStack: ["Python", "React", "Apache Kafka", "Elasticsearch", "AWS"],
-    },
-  ];
+        "Java",
+        "Spring Boot",
+        "Docker",
+        "Kubernetes",
+        "Redis"
+      ]
+    }
+  ]
 
   const handleCardClick = (id: string) => {
     router.push(`/projects/${id}`);
@@ -67,6 +86,110 @@ export default function ViewProjectsPage() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
           <p className="text-muted-foreground">Manage and explore projects</p>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Project
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Create New Project</DialogTitle>
+              <DialogDescription>
+                Fill in the project details below to create a new project.
+              </DialogDescription>
+            </DialogHeader>
+            <AddProjectForm onSuccess={() => setOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* User's Projects Section */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold tracking-tight">Your Projects</h3>
+        <div className="grid gap-6">
+          {allProjects.map((project: any, i: number) => (
+            <Card key={project._id} className="border-l-4 border-l-primary">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{project.name} - {project.department}</CardTitle>
+                    <CardDescription>{project.description}</CardDescription>
+                  </div>
+                  <Badge
+                    variant={
+                      project.businessCritical ? "destructive" : "secondary"
+                    }
+                  >
+                    {project.businessCritical ? "Business Critical" : ""}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">
+                      Created By: {usersIdMap[project.createdBy]?.name}
+                    </p>
+                    <Badge variant="outline">{project.status}</Badge>
+                  </div>
+                  {project.status === "In Progress" && (
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-muted-foreground">
+                          Progress
+                        </p>
+                        <p className="text-sm font-medium">
+                          {project.progress}%
+                        </p>
+                      </div>
+                      <Progress
+                        value={project.progress}
+                        className="bg-secondary"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium mb-2">Tech Stack:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.techStack.map((tech: any) => (
+                        <Badge
+                          key={skillsIdMap[tech]?._id}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-secondary/80"
+                        >
+                          {skillsIdMap[tech]?.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                    {project.open ? (<Dialog open={requestModal} onOpenChange={setRequestModal}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-primary hover:bg-primary/90">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Contribute
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[600px]">
+                        <DialogHeader>
+                          <DialogTitle>Apply for contribution In {project.name} </DialogTitle>
+                          <DialogDescription>
+                            Request will go to project owner <b>{usersIdMap[project.createdBy].name}</b>
+                          </DialogDescription>
+                        </DialogHeader>
+                        <AddRequestForm onSuccess={() => setRequestModal(false)} context={RequestContextEnum.enum.PROJECT} referenceId={project._id} userToId={project.createdBy}  />
+                      </DialogContent>
+                    </Dialog>):null}
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => handleUpvote(project._id)}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Upvote - {project.upvote}
+                        </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 
@@ -160,3 +283,4 @@ export default function ViewProjectsPage() {
     </div>
   );
 }
+
