@@ -25,36 +25,6 @@ export default function ProjectsPage() {
         "Redis",
         "AWS"
       ]
-    },
-    {
-      name: "API Gateway Implementation",
-      description: "Setting up a centralized API gateway for microservices",
-      status: "Planning",
-      progress: 25,
-      team: ["Backend", "DevOps"],
-      priority: "Medium",
-      techStack: [
-        "Java",
-        "Spring Boot",
-        "Docker",
-        "Kubernetes",
-        "Redis"
-      ]
-    },
-    {
-      name: "Mobile App Development",
-      description: "Creating a cross-platform mobile application",
-      status: "Starting",
-      progress: 10,
-      team: ["Mobile", "Backend", "QA"],
-      priority: "High",
-      techStack: [
-        "React Native",
-        "TypeScript",
-        "Node.js",
-        "MongoDB",
-        "Firebase"
-      ]
     }
   ]
 
