@@ -23,6 +23,7 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
 import { SkillDisplays } from "@/components/skillDisplay";
 import { LocationCombobox } from "@/components/location-combobox";
+import { Switch } from "@/components/ui/switch";
 
 import { Location } from "@/lib/types";
 
@@ -63,21 +64,23 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
+  const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
       setProfileData(profile);
       setLocation(profile.location || null);
+      setIsAvailable(profile.isAvailable || false);
     }
   }, [profile]);
 
   const handleSave = () => {
     if (profileData && location) {
-      updateProfileMutation.mutate({ ...profileData, location });
+      updateProfileMutation.mutate({ ...profileData, location, isAvailable });
       setIsEditing(false);
     } else if (profileData) {
-      updateProfileMutation.mutate({ ...profileData });
+      updateProfileMutation.mutate({ ...profileData, isAvailable });
       setIsEditing(false);
     }
   };
@@ -190,6 +193,16 @@ export default function ProfilePage() {
                       rows={3}
                     />
                     <LocationCombobox value={location} onSelect={setLocation} />
+                    <div className="flex items-center space-x-2 mt-2">
+                      <label htmlFor="availability" className="text-sm">
+                        Available for invites
+                      </label>
+                      <Switch
+                        id="availability"
+                        checked={isAvailable}
+                        onCheckedChange={setIsAvailable}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -206,6 +219,11 @@ export default function ProfilePage() {
                       {location
                         ? `${location.city}, ${location.country}, ${location.region}`
                         : ""}
+                    </p>
+                    <p className="text-sm mt-2">
+                      {isAvailable
+                        ? "Available for invites"
+                        : "Not available for invites"}
                     </p>
                   </>
                 )}
