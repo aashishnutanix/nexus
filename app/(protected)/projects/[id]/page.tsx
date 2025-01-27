@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getProject } from "@/app/(services)/projects";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSpinner from "@/components/loading-spinner";
 
 const dummyProject = {
   name: "E-commerce Platform Redesign",
