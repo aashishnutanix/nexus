@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import React from "react";
 
 export default async function ProtectedLayout({
   children,
@@ -14,8 +15,8 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div>
+    <React.Fragment>
       {children}
-    </div>
+    </React.Fragment>
   );
 } 
