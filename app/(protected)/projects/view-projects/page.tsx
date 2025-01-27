@@ -16,8 +16,8 @@ import { PlusCircle } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AddProjectForm } from "@/components/add-project-form"
 import { AddRequestForm } from "@/components/request-form"
-import { getProjects } from "@/app/(services)/projects";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { upVoteProject } from "@/app/(services)/projects";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { RequestContextEnum } from "@/lib/types"
 
 
@@ -37,10 +37,22 @@ export default function ViewProjectsPage() {
     },
   });
 
+
+  const mutation = useMutation<any, unknown, string>({
+    mutationFn: upVoteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
+    },
+  });
+
   console.log("fetchedProjects -->>> ", fetchedProjects);
   const allProjects = get(fetchedProjects, "projects", []);
   const skillsIdMap = get(fetchedProjects, "skillsIdMap", {});
   const usersIdMap = get(fetchedProjects, "usersIdMap", {});
+
+  const handleUpvote = (projectId: string) => {
+    mutation.mutate(projectId);
+  };
 
   const availableProjects = [
     {
@@ -97,7 +109,7 @@ export default function ViewProjectsPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{project.name}</CardTitle>
+                    <CardTitle>{project.name} - {project.department}</CardTitle>
                     <CardDescription>{project.description}</CardDescription>
                   </div>
                   <Badge
@@ -113,7 +125,7 @@ export default function ViewProjectsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">
-                      Created By: {usersIdMap[project.createdBy].name}
+                      Created By: {usersIdMap[project.createdBy]?.name}
                     </p>
                     <Badge variant="outline">{project.status}</Badge>
                   </div>
@@ -138,16 +150,16 @@ export default function ViewProjectsPage() {
                     <div className="flex flex-wrap gap-2">
                       {project.techStack.map((tech: any) => (
                         <Badge
-                          key={skillsIdMap[tech]._id}
+                          key={skillsIdMap[tech]?._id}
                           variant="secondary"
                           className="cursor-pointer hover:bg-secondary/80"
                         >
-                          {skillsIdMap[tech].name}
+                          {skillsIdMap[tech]?.name}
                         </Badge>
                       ))}
                     </div>
                   </div>
-                    <Dialog open={requestModal} onOpenChange={setRequestModal}>
+                    {project.open ? (<Dialog open={requestModal} onOpenChange={setRequestModal}>
                       <DialogTrigger asChild>
                         <Button className="bg-primary hover:bg-primary/90">
                           <PlusCircle className="mr-2 h-4 w-4" />
@@ -163,7 +175,11 @@ export default function ViewProjectsPage() {
                         </DialogHeader>
                         <AddRequestForm onSuccess={() => setRequestModal(false)} context={RequestContextEnum.enum.PROJECT} referenceId={project._id} userToId={project.createdBy}  />
                       </DialogContent>
-                    </Dialog>
+                    </Dialog>):null}
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => handleUpvote(project._id)}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Upvote - {project.upvote}
+                        </Button>
                 </div>
               </CardContent>
             </Card>

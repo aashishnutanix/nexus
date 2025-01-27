@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date(),
     });
 
-    return NextResponse.json({ success: true, id: result.insertedId });
+    console.log("Inserted skill with id:", result);
+
+    return NextResponse.json({ success: true, _id: result.insertedId, name:validatedData.name });
   } catch (error) {
     console.error("POST /api/skills error:", error);
     return NextResponse.json(

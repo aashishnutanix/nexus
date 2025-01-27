@@ -61,3 +61,19 @@ export async function deleteProject(id: string) {
 
   return res.json();
 }
+
+export async function upVoteProject(projectId: string) {
+  const res = await fetch("/api/projects/upvote", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({projectId}),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create project");
+  }
+
+  return res.json();
+}

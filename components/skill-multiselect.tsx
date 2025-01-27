@@ -66,6 +66,7 @@ export function SkillsMultiSelect({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
       return res.json();
     },
     onSuccess: () => {
@@ -74,7 +75,6 @@ export function SkillsMultiSelect({
   });
 
   const handleSelect = (item: Skill) => {
-    console.log("item handleSelect ->>> ", item);
     onSelectionChange(
       selected.includes(item._id)
         ? selected.filter((i) => i !== item._id)
@@ -90,8 +90,6 @@ export function SkillsMultiSelect({
     }
   };
 
-  console.log("options skills ->>> ", savedSkills);
-  console.log("selected skills ->>> ", selected);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -106,7 +104,7 @@ export function SkillsMultiSelect({
             <div className="flex flex-wrap gap-1">
               {selected.map((itemId) => (
                 <Badge key={itemId} variant="secondary">
-                  {skillsIdMap[itemId].name}
+                  {skillsIdMap[itemId]?.name}
                   <X
                     className="ml-1 h-4 w-4 cursor-pointer"
                     onClick={(e) => {
