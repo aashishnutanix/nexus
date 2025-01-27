@@ -47,6 +47,21 @@ export async function getProjects() {
   return res.json();
 }
 
+export async function getProject(id: string) {
+  const res = await fetch(`/api/projects?id=${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch project");
+  }
+
+  return res.json();
+}
+
 export async function deleteProject(id: string) {
   const res = await fetch(`/api/projects/${id}`, {
     method: "DELETE",

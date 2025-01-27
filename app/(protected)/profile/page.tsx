@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Check } from "lucide-react";
+import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
@@ -37,6 +37,7 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -51,6 +52,30 @@ export default function ProfilePage() {
     }
   };
 
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileData((prev) =>
+          prev ? { ...prev, image: data.filePath } : prev
+        );
+      } else {
+        console.error("Failed to upload image");
+      }
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -61,17 +86,43 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+      {/* Profile Card */}
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={profileData.image || ""} />
-                <AvatarFallback>{profileData.name[0]}</AvatarFallback>
-              </Avatar>
+            <div className="flex items-start space-x-6 ">
+              <div className="relative">
+                {/* Avatar with Image Upload */}
+                <Avatar className="h-24 w-24 text-5xl relative">
+                  <AvatarImage
+                    src={profileData.image || ""}
+                    style={{ objectFit: "cover", objectPosition: "center" }}
+                  />
+                  <AvatarFallback>{profileData.name[0]}</AvatarFallback>
+                </Avatar>
+                {isEditing && (
+                  <div className="absolute rounded-full bottom-[-8px] right-[-8px]">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      ref={fileInputRef}
+                    />
+                    <Button
+                      variant="default"
+                      size="icon"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               <div className="space-y-1">
                 {isEditing ? (
                   <div className="space-y-2">
+                    {/* Editable Profile Fields */}
                     <Input
                       value={profileData.name}
                       onChange={(e) =>
@@ -111,6 +162,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <>
+                    {/* Display Profile Fields */}
                     <CardTitle className="text-2xl">
                       {profileData.name}
                     </CardTitle>
@@ -123,6 +175,7 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
+            {/* Edit/Save Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -193,6 +246,7 @@ export default function ProfilePage() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Mentoring Section */}
         <Card>
           <CardHeader>
             <CardTitle>Mentoring</CardTitle>
@@ -201,72 +255,86 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {profileData.mentoring?.map((mentee, i) => (
-              <div key={i} className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarImage src={mentee.image} />
-                    <AvatarFallback>{mentee.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{mentee.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {mentee.focus}
-                    </p>
+            {profileData.mentoring?.length ? (
+              profileData.mentoring.map((mentee, i) => (
+                <div key={i} className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarImage src={mentee.image} />
+                      <AvatarFallback>{mentee.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{mentee.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {mentee.focus}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progress</span>
+                      <span>{mentee.progress}%</span>
+                    </div>
+                    <Progress value={mentee.progress} />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {mentee.skills.map((skill, j) => (
+                      <Badge key={j} variant="outline">
+                        {skill}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Progress</span>
-                    <span>{mentee.progress}%</span>
-                  </div>
-                  <Progress value={mentee.progress} />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {mentee.skills.map((skill, j) => (
-                    <Badge key={j} variant="outline">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No mentees yet? Time to share your wisdom!
+              </p>
+            )}
           </CardContent>
         </Card>
 
+        {/* My Mentors Section */}
         <Card>
           <CardHeader>
             <CardTitle>My Mentors</CardTitle>
             <CardDescription>People who are mentoring you</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {profileData.mentors?.map((mentor, i) => (
-              <div key={i} className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarImage src={mentor.image} />
-                    <AvatarFallback>{mentor.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{mentor.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {mentor.focus}
-                    </p>
+            {profileData.mentors?.length ? (
+              profileData.mentors.map((mentor, i) => (
+                <div key={i} className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarImage src={mentor.image} />
+                      <AvatarFallback>{mentor.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{mentor.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {mentor.focus}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {mentor.skills.map((skill, j) => (
+                      <Badge key={j} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {mentor.skills.map((skill, j) => (
-                    <Badge key={j} variant="secondary">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No mentors yet? Looks like you're the master of your own destiny!
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
 
+      {/* Projects Section */}
       <Card>
         <CardHeader>
           <CardTitle>Projects</CardTitle>
@@ -274,41 +342,47 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {profileData.projects?.map((project, i) => (
-              <div key={i} className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">{project.name}</h3>
-                    <Badge
-                      variant={
-                        project.status === "Completed" ? "secondary" : "outline"
-                      }
-                    >
-                      {project.status}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {project.role}
-                  </p>
-                </div>
-                {project.status === "In Progress" && (
+            {profileData.projects?.length ? (
+              profileData.projects.map((project, i) => (
+                <div key={i} className="space-y-4">
                   <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Progress</span>
-                      <span>{project.progress}%</span>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium">{project.name}</h3>
+                      <Badge
+                        variant={
+                          project.status === "Completed" ? "secondary" : "outline"
+                        }
+                      >
+                        {project.status}
+                      </Badge>
                     </div>
-                    <Progress value={project.progress} />
+                    <p className="text-sm text-muted-foreground">
+                      {project.role}
+                    </p>
                   </div>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  {project.techStack.map((tech, j) => (
-                    <Badge key={j} variant="secondary">
-                      {tech}
-                    </Badge>
-                  ))}
+                  {project.status === "In Progress" && (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Progress</span>
+                        <span>{project.progress}%</span>
+                      </div>
+                      <Progress value={project.progress} />
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {project.techStack.map((tech, j) => (
+                      <Badge key={j} variant="secondary">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No projects yet? Time to get those creative juices flowing!
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

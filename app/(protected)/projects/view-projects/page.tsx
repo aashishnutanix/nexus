@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -19,11 +19,12 @@ import { AddRequestForm } from "@/components/request-form"
 import { getProjects } from "@/app/(services)/projects";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequestContextEnum } from "@/lib/types"
-
+import { useState } from "react";
 
 export default function ViewProjectsPage() {
   const [open, setOpen] = useState(false)
   const [requestModal, setRequestModal] = useState(false)
+  const router = useRouter();
 
 
   // Fetch user's projects using the getProjects service
@@ -44,6 +45,7 @@ export default function ViewProjectsPage() {
 
   const availableProjects = [
     {
+      id: "3",
       name: "API Gateway Implementation",
       description: "Setting up a centralized API gateway for microservices",
       team: ["Backend", "DevOps"],
@@ -60,6 +62,10 @@ export default function ViewProjectsPage() {
       ]
     }
   ]
+
+  const handleCardClick = (id: string) => {
+    router.push(`/projects/${id}`);
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -178,7 +184,11 @@ export default function ViewProjectsPage() {
         </h3>
         <div className="grid gap-6">
           {availableProjects.map((project, i) => (
-            <Card key={i}>
+            <Card
+              key={i}
+              className="border-l-4 border-l-primary"
+              onClick={() => handleCardClick(project.id)}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -257,3 +267,4 @@ export default function ViewProjectsPage() {
     </div>
   );
 }
+

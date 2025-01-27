@@ -41,7 +41,7 @@ export function SkillsMultiSelect({
   const [inputValue, setInputValue] = React.useState("");
   const queryClient = useQueryClient();
 
-  const { data: options = [], isLoading } = useQuery<Skill[]>({
+  const { data, isLoading } = useQuery<{success: boolean, skills:Skill[]}>({
     queryKey: ["skills"],
     queryFn: async () => {
       const res = await fetch("/api/skills");
@@ -49,10 +49,12 @@ export function SkillsMultiSelect({
     },
   });
 
+  console.log("data ->>> ", data);
+
 
 
   // get skills array from options, skills array is type Skill[]
-  const savedSkills: Skill[] = get(options, "skills", []);
+  const savedSkills: Skill[] = get(data, "skills", []);
   const skillsIdMap: { [key: string]: Skill } = {};
   savedSkills.forEach((skill) => {
     skillsIdMap[skill._id] = skill;
