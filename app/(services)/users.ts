@@ -1,5 +1,8 @@
 import { User, Mentorship } from "@/lib/types";
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export async function editUser(id: string, data: User) {
   const res = await fetch(`/api/users/${id}`, {
     method: "PUT",
@@ -47,7 +50,7 @@ export async function deleteUser(id: string) {
 }
 
 export async function getUserById(id: string) {
-  const res = await fetch(`/api/users/${id}`, {
+  const res = await fetch(`/api/users?id=${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -55,7 +58,8 @@ export async function getUserById(id: string) {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch user");
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to fetch user");
   }
 
   return res.json();
