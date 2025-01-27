@@ -19,12 +19,12 @@ export default function MentorshipDashboardPage() {
       getMentorshipsForUser(session.user.id).then(async (mentorships) => {
         const mentorshipsWithNames = await Promise.all(
           mentorships.map(async (mentorship) => {
-            const mentor = await getUserById(mentorship.mentor);
-            const mentee = await getUserById(mentorship.mentee);
+            const mentorData = await getUserById(mentorship.mentor);
+            const menteeData = await getUserById(mentorship.mentee);
             return {
               ...mentorship,
-              mentorName: mentor.name,
-              menteeName: mentee.name,
+              mentorName: mentorData?.user.name,
+              menteeName: menteeData?.user.name,
             };
           })
         );
@@ -34,10 +34,10 @@ export default function MentorshipDashboardPage() {
       getMenteesForUser(session.user.id).then(async (mentees) => {
         const menteesWithNames = await Promise.all(
           mentees.map(async (mentee) => {
-            const mentor = await getUserById(mentee.mentor);
+            const mentorData = await getUserById(mentee.mentor);
             return {
               ...mentee,
-              mentorName: mentor.name,
+              mentorName: mentorData?.user.name,
             };
           })
         );
@@ -131,9 +131,9 @@ export default function MentorshipDashboardPage() {
                       <p className="text-sm font-medium">
                         Mentor: <Link href={`/profile/${mentee.mentor}`}>{mentee.mentorName}</Link>
                       </p>
-                      <p className="text-sm font-medium">
+                      {/* <p className="text-sm font-medium">
                         Mentee: <Link href={`/profile/${mentee._id}`}>{mentee.name}</Link>
-                      </p>
+                      </p> */}
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">

@@ -50,7 +50,7 @@ import { ObjectId } from 'mongodb';
 
 export async function GET(request: Request) {
   try {
-    console.log('GET /api/mentorships');
+    console.log('GET /api/mentorship');
     const { searchParams } = new URL(request.url);
     console.log('searchParams:', searchParams);
     const menteeId = searchParams.get('mentee');
