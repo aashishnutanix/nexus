@@ -20,6 +20,12 @@ export interface User {
   skills: string[];
   interests: string[];
   location: ObjectId;
+  isAvailable: boolean;
+  offering: {
+    freq: "days" | "weeks" | "biweekly" | "monthly";
+    type: "online" | "offline" | "both";
+    duration: number;
+  }[];
   mentoring: ObjectId[];
   mentors: ObjectId[];
   projects: ObjectId[];

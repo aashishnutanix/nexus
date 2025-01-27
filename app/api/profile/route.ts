@@ -79,11 +79,6 @@ export async function GET(request: NextRequest) {
       .find({ _id: { $in: projectIds } })
       .toArray();
 
-    // Fetch the location details from the locations collection
-    const location = await db
-      .collection("locations")
-      .findOne({ _id: new ObjectId(user.location as string) });
-
     // Construct the profile data to be returned
     const profileData = {
       name: user.name,
@@ -121,7 +116,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     // Return an internal server error if something goes wrong
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: `Internal Server Error - ${error}` },
       { status: 500 }
     );
   }

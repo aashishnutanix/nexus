@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/popover";
 
 import { Location } from "@/lib/types";
+import { getLocations } from "@/app/(services)/locations";
 
 interface LocationComboboxProps {
   value: Location | null;
@@ -30,20 +31,13 @@ interface LocationComboboxProps {
 export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  const { data: locationsData, isLoading, isError } = useQuery<{
+  const { data: locationsData } = useQuery<{
     success: boolean;
     locations: Location[];
   }>({
     queryKey: ["locations"],
-    queryFn: async () => {
-      const res = await fetch("/api/locations");
-      return res.json();
-    },
+    queryFn: getLocations,
   });
-
-  console.log("isLoading:", isLoading);
-  console.log("isError:", isError);
-  console.log("locationsData:", locationsData);
 
   const locations = locationsData?.locations || [];
 

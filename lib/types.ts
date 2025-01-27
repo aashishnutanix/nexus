@@ -41,13 +41,15 @@ export const UserSchema = z.object({
   manager: z.string().optional(),
   interests: z.array(z.string()).optional(),
   offering: z
-    .object({
-      freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
-      type: z.enum(["online", "offline", "both"]),
-      duration: z.number(),
-    })
+    .array(
+      z.object({
+        freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
+        type: z.enum(["online", "offline", "both"]),
+        duration: z.number(),
+      })
+    )
     .optional(),
-  availability: z.boolean().optional(),
+    isAvailable: z.boolean().optional(),
   designation: z.string().optional(),
   hashedPassword: z.string().optional(),
   createdAt: z.string(), // ISO string
