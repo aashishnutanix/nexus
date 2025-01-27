@@ -20,6 +20,7 @@ export interface User {
   role: string;
   skills: string[];
   interests: string[];
+  location: ObjectId;
   mentoring: ObjectId[];
   mentors: ObjectId[];
   projects: ObjectId[];
@@ -120,7 +121,7 @@ export interface UserDocument {
   offering?: {
     freq: "days" | "weeks" | "biweekly" | "monthly";
     type: "online" | "offline" | "both";
-    time: number;
+    duration: number;
   };
   availability?: boolean;
   designation?: string;

@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
@@ -18,7 +17,18 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const { user } = session || {};
-  const { image, name, team, designation } = user || {};
+  const { id, image, name, team, designation } = user || {};
+
+  // useEffect(() => {
+  //   async function fetchRequestCount() {
+  //     const res = await fetch("/api/request/count");
+  //     const data = await res.json();
+  //     setRequestCount(data.count);
+  //   }
+  //   fetchRequestCount();
+  // }, []);
+
+  console.log("user id - ", id);
 
   return (
     <div
@@ -45,8 +55,8 @@ export function Sidebar() {
         )}
       >
         <Avatar className="h-16 w-16 mb-1 p-1 text-3xl">
-          <AvatarImage src={image} />
-          <AvatarFallback>{name[0]}</AvatarFallback>
+          <AvatarImage src={image || undefined} />
+          <AvatarFallback>{name?.[0]}</AvatarFallback>
         </Avatar>
         {!isCollapsed && (
           <div className="flex flex-col items-center">
@@ -63,7 +73,7 @@ export function Sidebar() {
               route.href === pathname ||
               (route.subRoutes &&
                 route.subRoutes.some((subRoute) =>
-                  pathname.startsWith(subRoute.href)
+                  pathname?.startsWith(subRoute.href)
                 ));
 
             const isSubRouteActive =

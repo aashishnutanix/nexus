@@ -5,7 +5,7 @@ import { DefaultSession } from "next-auth";
 export const UserRoleEnum = z.enum(["user", "admin", "manager"]);
 export const SkillTypeEnum = z.enum(["technical", "management", "creative"]);
 export const SkillLevelEnum = z.enum(["0", "1", "2", "3"]);
-export const RegionEnum = z.enum(["americas", "emea", "asia_pacific"]);
+export const RegionEnum = z.enum(["AMERICAS", "EMEA", "ASIA-PACIFIC"]);
 export const RequestContextEnum = z.enum(["PROJECT", "MENTORSHIP", "FEATURE"]);
 export const RequestStatusEnum = z.enum(["Pending", "Accepted", "Rejected"]);
 export const MentorshipStatusEnum = z.enum([
@@ -44,7 +44,7 @@ export const UserSchema = z.object({
     .object({
       freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
       type: z.enum(["online", "offline", "both"]),
-      time: z.number(),
+      duration: z.number(),
     })
     .optional(),
   availability: z.boolean().optional(),
@@ -54,26 +54,46 @@ export const UserSchema = z.object({
   updatedAt: z.string(), // ISO string
   bio: z.string().optional(),
   image: z.string().optional(),
-  mentoring: z.array(z.object({
-    name: z.string(),
-    image: z.string(),
-    focus: z.string(),
-    progress: z.number(),
-    skills: z.array(z.string()),
-  })).optional(),
-  mentors: z.array(z.object({
-    name: z.string(),
-    image: z.string(),
-    focus: z.string(),
-    skills: z.array(z.string()),
-  })).optional(),
-  projects: z.array(z.object({
-    name: z.string(),
-    role: z.string(),
-    status: ProjectStatusEnum,
-    progress: z.number(),
-    techStack: z.array(z.string()),
-  })).optional(),
+  location: z
+    .object({
+      timezone: z.string(),
+      region: RegionEnum,
+      city: z.string(),
+      country: z.string(),
+    })
+    .optional(),
+  mentoring: z
+    .array(
+      z.object({
+        name: z.string(),
+        image: z.string(),
+        focus: z.string(),
+        progress: z.number(),
+        skills: z.array(z.string()),
+      })
+    )
+    .optional(),
+  mentors: z
+    .array(
+      z.object({
+        name: z.string(),
+        image: z.string(),
+        focus: z.string(),
+        skills: z.array(z.string()),
+      })
+    )
+    .optional(),
+  projects: z
+    .array(
+      z.object({
+        name: z.string(),
+        role: z.string(),
+        status: ProjectStatusEnum,
+        progress: z.number(),
+        techStack: z.array(z.string()),
+      })
+    )
+    .optional(),
 });
 
 export const ProjectSchema = z.object({
@@ -128,12 +148,20 @@ export const RequestSchema = z.object({
   updatedAt: z.string(), // ISO string
 });
 
+export const LocationSchema = z.object({
+  timezone: z.string().min(1),
+  region: RegionEnum,
+  city: z.string().min(1),
+  country: z.string().min(1),
+});
+
 // Types
 export type User = z.infer<typeof UserSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Feature = z.infer<typeof FeatureSchema>;
 export type Request = z.infer<typeof RequestSchema>;
 export type UpVoteType = z.infer<typeof UpVoteSchema>;
+export type Location = z.infer<typeof LocationSchema>;
 
 declare module "next-auth" {
   interface User {

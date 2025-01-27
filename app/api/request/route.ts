@@ -71,3 +71,85 @@ export async function getProjectRequestsMapByUserId(context: string){
 
   return requestsMapByProjectId;
 }
+
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db();
+
+    const requests = await db
+      .collection(collections.requests)
+      .find({ userToId: new ObjectId(session.user.id), status: "Pending" })
+      .toArray();
+
+    return NextResponse.json({ success: true, requests });
+  } catch (error) {
+    console.error("GET /api/request error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch requests", details: (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id, status } = await request.json();
+
+    const client = await clientPromise;
+    const db = client.db();
+
+    await db.collection(collections.requests).updateOne(
+      { _id: new ObjectId(id as string) },
+      {
+        $set: {
+          status,
+          updatedAt: new Date().toISOString(),
+        },
+      }
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("PUT /api/request error:", error);
+    return NextResponse.json(
+      { error: "Invalid request", details: error instanceof Error ? error.message : String(error) },
+      { status: 400 }
+    );
+  }
+}
+
+export async function GET_COUNT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db();
+
+    const count = await db
+      .collection(collections.requests)
+      .countDocuments({ userToId: new ObjectId(session.user.id), status: "Pending" });
+
+    return NextResponse.json({ success: true, count });
+  } catch (error) {
+    console.error("GET_COUNT /api/request error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch request count", details: (error as Error).message },
+      { status: 500 }
+    );
+  }
+}

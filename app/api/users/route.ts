@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { UserSchema } from "@/lib/types";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
+import { ObjectId } from "mongodb";
 
 export const dynamic = 'force-dynamic';
 
@@ -58,25 +59,45 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  try {
-    console.log("Received GET request");
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
 
-    const client = await clientPromise;
-    const db = client.db();
+  if (id) {
+    try {
+      const client = await clientPromise;
+      const db = client.db();
 
-    const users = await db
-      .collection(collections.users)
-      .find({})
-      .toArray();
-    console.log("Fetched users:", users);
+      const user = await db.collection(collections.users).findOne({ _id: new ObjectId(id) });
 
-    return NextResponse.json({ success: true, users });
-  } catch (error) {
-    console.error("GET /api/users error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch users", details: (error as Error).message },
-      { status: 500 }
-    );
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, user });
+    } catch (error) {
+      return NextResponse.json({ error: "Failed to fetch user", details: (error as Error).message }, { status: 500 });
+    }
+  } else {
+    try {
+      console.log("Received GET request");
+
+      const client = await clientPromise;
+      const db = client.db();
+
+      const users = await db
+        .collection(collections.users)
+        .find({})
+        .toArray();
+      console.log("Fetched users:", users);
+
+      return NextResponse.json({ success: true, users });
+    } catch (error) {
+      console.error("GET /api/users error:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch users", details: (error as Error).message },
+        { status: 500 }
+      );
+    }
   }
 }
