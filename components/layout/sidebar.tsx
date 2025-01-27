@@ -19,6 +19,15 @@ export function Sidebar() {
   const { user } = session || {};
   const { id, image, name, team, designation } = user || {};
 
+  // useEffect(() => {
+  //   async function fetchRequestCount() {
+  //     const res = await fetch("/api/request/count");
+  //     const data = await res.json();
+  //     setRequestCount(data.count);
+  //   }
+  //   fetchRequestCount();
+  // }, []);
+
   console.log("user id - ", id);
 
   return (
