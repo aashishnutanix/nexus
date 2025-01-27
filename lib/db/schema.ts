@@ -215,6 +215,7 @@ export interface Mentorship {
   skillId: ObjectId; // Reference to the Skill
   endDate?: string; // Optional ISO string representing the end date of the mentorship
   duration?: number; // Optional duration of the mentorship in days, weeks, or months
+  description: string; // Description of the mentorship
 }
 
 export interface Designation {

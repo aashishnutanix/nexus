@@ -1,52 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { getMentorshipsForUser, getMenteesForUser, getUserById } from "@/app/(services)/users";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function MentorshipDashboardPage() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<string>("ongoing");
+  const [mentorships, setMentorships] = useState<any[]>([]);
+  const [mentees, setMentees] = useState<any[]>([]);
 
-  const ongoingMentorships = [
-    {
-      _id: "1",
-      name: "Frontend Development Mentorship",
-      description: "Mentoring on advanced frontend development techniques",
-      mentor: "John Doe",
-      mentee: "Jane Smith",
-      progress: 75,
-      status: "Active",
-    },
-    {
-      _id: "2",
-      name: "Backend Development Mentorship",
-      description: "Mentoring on backend development with Node.js",
-      mentor: "Alice Johnson",
-      mentee: "Bob Brown",
-      progress: 50,
-      status: "Active",
-    },
-  ];
+  useEffect(() => {
+    if (session?.user?.id) {
+      getMentorshipsForUser(session.user.id).then(async (mentorships) => {
+        const mentorshipsWithNames = await Promise.all(
+          mentorships.map(async (mentorship) => {
+            const mentor = await getUserById(mentorship.mentor);
+            const mentee = await getUserById(mentorship.mentee);
+            return {
+              ...mentorship,
+              mentorName: mentor.name,
+              menteeName: mentee.name,
+            };
+          })
+        );
+        setMentorships(mentorshipsWithNames);
+      });
 
-  const mentees = [
-    {
-      _id: "1",
-      name: "Jane Smith",
-      description: "Learning advanced frontend development techniques",
-      mentor: "John Doe",
-      progress: 75,
-      status: "Active",
-    },
-    {
-      _id: "2",
-      name: "Bob Brown",
-      description: "Learning backend development with Node.js",
-      mentor: "Alice Johnson",
-      progress: 50,
-      status: "Active",
-    },
-  ];
+      getMenteesForUser(session.user.id).then(async (mentees) => {
+        const menteesWithNames = await Promise.all(
+          mentees.map(async (mentee) => {
+            const mentor = await getUserById(mentee.mentor);
+            return {
+              ...mentee,
+              mentorName: mentor.name,
+            };
+          })
+        );
+        setMentees(menteesWithNames);
+      });
+    }
+  }, [session]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -79,7 +77,7 @@ export default function MentorshipDashboardPage() {
 
         {activeTab === "ongoing" && (
           <div className="grid gap-6">
-            {ongoingMentorships.map((mentorship) => (
+            {mentorships.map((mentorship) => (
               <Card key={mentorship._id} className="border-l-4 border-l-primary">
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -93,8 +91,12 @@ export default function MentorshipDashboardPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Mentor: {mentorship.mentor}</p>
-                      <p className="text-sm font-medium">Mentee: {mentorship.mentee}</p>
+                      <p className="text-sm font-medium">
+                        Mentor: <Link href={`/profile/${mentorship.mentor}`}>{mentorship.mentorName}</Link>
+                      </p>
+                      <p className="text-sm font-medium">
+                        Mentee: <Link href={`/profile/${mentorship.mentee}`}>{mentorship.menteeName}</Link>
+                      </p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -126,8 +128,12 @@ export default function MentorshipDashboardPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Mentor: {mentee.mentor}</p>
-                      <p className="text-sm font-medium">Mentee: {mentee.name}</p>
+                      <p className="text-sm font-medium">
+                        Mentor: <Link href={`/profile/${mentee.mentor}`}>{mentee.mentorName}</Link>
+                      </p>
+                      <p className="text-sm font-medium">
+                        Mentee: <Link href={`/profile/${mentee._id}`}>{mentee.name}</Link>
+                      </p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
