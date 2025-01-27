@@ -19,8 +19,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
 import { User } from "@/lib/types";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
+import { SkillDisplays } from "@/components/skillDisplay";
+import { LocationCombobox } from "@/components/location-combobox";
+
+import { Location } from "@/lib/types";
+
 interface Skill {
   _id: string;
   name: string;
@@ -40,34 +45,39 @@ export default function ProfilePage() {
     },
   });
 
-    const { data } = useQuery<{success: boolean, skills:Skill[]}>({
-      queryKey: ["skills"],
-      queryFn: async () => {
-        const res = await fetch("/api/skills");
-        return res.json();
-      },
-    });
-  
-    // get skills array from options, skills array is type Skill[]
-    const savedSkills: Skill[] = get(data, "skills", []);
-    const skillsIdMap: { [key: string]: Skill } = {};
-    savedSkills.forEach((skill) => {
-      skillsIdMap[skill._id] = skill;
-    });
+  const { data } = useQuery<{ success: boolean; skills: Skill[] }>({
+    queryKey: ["skills"],
+    queryFn: async () => {
+      const res = await fetch("/api/skills");
+      return res.json();
+    },
+  });
+
+  // get skills array from options, skills array is type Skill[]
+  const savedSkills: Skill[] = get(data, "skills", []);
+  const skillsIdMap: { [key: string]: Skill } = {};
+  savedSkills.forEach((skill) => {
+    skillsIdMap[skill._id] = skill;
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
+  const [location, setLocation] = useState<Location | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
       setProfileData(profile);
+      setLocation(profile.location || null);
     }
   }, [profile]);
 
   const handleSave = () => {
-    if (profileData) {
-      updateProfileMutation.mutate(profileData);
+    if (profileData && location) {
+      updateProfileMutation.mutate({ ...profileData, location });
+      setIsEditing(false);
+    } else if (profileData) {
+      updateProfileMutation.mutate({ ...profileData });
       setIsEditing(false);
     }
   };
@@ -179,6 +189,7 @@ export default function ProfilePage() {
                       className="mt-2"
                       rows={3}
                     />
+                    <LocationCombobox value={location} onSelect={setLocation} />
                   </div>
                 ) : (
                   <>
@@ -191,6 +202,11 @@ export default function ProfilePage() {
                       {profileData.email}
                     </p>
                     <p className="text-sm mt-2">{profileData.bio}</p>
+                    <p className="text-sm mt-2">
+                      {location
+                        ? `${location.city}, ${location.country}, ${location.region}`
+                        : ""}
+                    </p>
                   </>
                 )}
               </div>
@@ -232,11 +248,7 @@ export default function ProfilePage() {
                 />
               )}
               <div className="flex flex-wrap gap-2 mt-2">
-                {profileData.skills?.map((skill, i) => (
-                  <Badge key={i} variant="secondary">
-                    {skillsIdMap[skill]?.name}
-                  </Badge>
-                ))}
+                <SkillDisplays skillIds={profileData.skills || []} />
               </div>
             </div>
             <div>
@@ -254,11 +266,7 @@ export default function ProfilePage() {
                 />
               )}
               <div className="flex flex-wrap gap-2 mt-2">
-                {profileData.interests?.map((interest, i) => (
-                  <Badge key={i} variant="outline">
-                    {interest}
-                  </Badge>
-                ))}
+                <SkillDisplays skillIds={profileData.interests || []} />
               </div>
             </div>
           </div>
@@ -347,7 +355,8 @@ export default function ProfilePage() {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                No mentors yet? Looks like you're the master of your own destiny!
+                No mentors yet? Looks like you&apos;re the master of your own
+                destiny!
               </p>
             )}
           </CardContent>
@@ -370,7 +379,9 @@ export default function ProfilePage() {
                       <h3 className="font-medium">{project.name}</h3>
                       <Badge
                         variant={
-                          project.status === "Completed" ? "secondary" : "outline"
+                          project.status === "Completed"
+                            ? "secondary"
+                            : "outline"
                         }
                       >
                         {project.status}
