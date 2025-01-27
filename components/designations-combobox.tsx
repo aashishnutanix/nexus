@@ -20,26 +20,26 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Location } from "@/lib/types";
-import { getLocations } from "@/app/(services)/locations";
+import { Designation } from "@/lib/types";
+import { getDesignations } from "@/app/(services)/designations";
 
-interface LocationComboboxProps {
-  value: Location | null;
-  onSelect: (value: Location) => void;
+interface DesignationsComboboxProps {
+  value: Designation | null;
+  onSelect: (value: Designation) => void;
 }
 
-export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
+export function DesignationsCombobox({ value, onSelect }: DesignationsComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  const { data: locationsData } = useQuery<{
+  const { data: designationsData } = useQuery<{
     success: boolean;
-    locations: Location[];
+    designations: Designation[];
   }>({
-    queryKey: ["locations"],
-    queryFn: getLocations,
+    queryKey: ["designations"],
+    queryFn: getDesignations,
   });
 
-  const locations = locationsData?.locations || [];
+  const designations = designationsData?.designations || [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -50,36 +50,30 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? `${value.city}, ${value.country}, ${value.region}`
-            : "Select location..."}
+          {value ? value.name : "Select designation..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
-          <CommandInput placeholder="Search location..." className="h-9" />
+          <CommandInput placeholder="Search designation..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No location found.</CommandEmpty>
+            <CommandEmpty>No designation found.</CommandEmpty>
             <CommandGroup>
-              {locations.map((location) => (
+              {designations.map((designation) => (
                 <CommandItem
-                  key={`${location.city}, ${location.country}, ${location.region}`}
-                  value={`${location.city}, ${location.country}, ${location.region}`}
+                  key={designation.name}
+                  value={designation.name}
                   onSelect={() => {
-                    onSelect(location);
+                    onSelect(designation);
                     setOpen(false);
                   }}
                 >
-                  {`${location.city}, ${location.country}, ${location.region}`}
+                  {designation.name}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value?.city === location.city &&
-                        value?.country === location.country &&
-                        value?.region === location.region
-                        ? "opacity-100"
-                        : "opacity-0"
+                      value?.name === designation.name ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
@@ -92,12 +86,10 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
   );
 }
 
-export function RenderLocation({ location }: { location: Location }) {
+export function RenderDesignation({ designation }: { designation: Designation }) {
   return (
     <p className="text-sm mt-2">
-      {location
-        ? `${location.city}, ${location.country}, ${location.region}`
-        : ""}
+      {designation ? designation.name : ""}
     </p>
   );
 }

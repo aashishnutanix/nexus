@@ -11,6 +11,7 @@ export const collections = {
   feedbacks: "feedbacks",
   mentorships: "mentorships",
   upvotes: "upvotes",
+  designations: "designations",
 } as const;
 
 export interface User {
@@ -27,6 +28,12 @@ export interface User {
     type: "online" | "offline" | "both";
     duration: number;
   }[];
+  designation: {
+    _id: ObjectId;
+    name: string;
+    type: string;
+    level: number;
+  };
   mentoring: ObjectId[];
   mentors: ObjectId[];
   projects: ObjectId[];
