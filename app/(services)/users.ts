@@ -1,4 +1,4 @@
-import { User } from "@/lib/types";
+import { User, Mentorship } from "@/lib/types";
 
 export async function editUser(id: string, data: User) {
   const res = await fetch(`/api/users/${id}`, {
@@ -56,6 +56,36 @@ export async function getUserById(id: string) {
 
   if (!res.ok) {
     throw new Error("Failed to fetch user");
+  }
+
+  return res.json();
+}
+
+export async function getMentorshipsForUser(userId: string) {
+  const res = await fetch(`/api/mentorship?mentee=${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch mentorships");
+  }
+
+  return res.json();
+}
+
+export async function getMenteesForUser(userId: string) {
+  const res = await fetch(`/api/mentorship?mentor=${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch mentees");
   }
 
   return res.json();
