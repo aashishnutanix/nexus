@@ -104,6 +104,20 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
+<FormField
+          control={form.control}
+          name="department"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Department</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter department name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="description"
@@ -148,6 +162,28 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
                 <FormLabel className="text-base">Business Critical</FormLabel>
                 <FormDescription>
                   Mark if this project is critical for business operations
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+
+    <FormField
+          control={form.control}
+          name="open"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Open Contribution</FormLabel>
+                <FormDescription>
+                  Is this project open for contributions by others?
                 </FormDescription>
               </div>
               <FormControl>

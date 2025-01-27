@@ -93,7 +93,7 @@ export default function Home() {
                   <p className="font-medium">Mentor {i}</p>
                   <p className="text-sm text-muted-foreground">12 active sessions</p>
                 </div>
-                <Trophy className="h-4 w-4 text-yellow-500" />
+                <Trophy className="h-4 w-4 text-primary" />
               </div>
             ))}
             <Button variant="outline" className="w-full" asChild>

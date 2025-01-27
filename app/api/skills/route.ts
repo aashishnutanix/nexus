@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SkillSchema } from "@/lib/types";
+// import { SkillSchema } from "@/lib/types";
 import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
+const { ObjectId } = require('mongodb');
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +11,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("Received body:", body);
     
-    const validatedData = SkillSchema.parse(body);
+    // const validatedData = SkillSchema.parse(body);
+    const validatedData = body
+
     console.log("Validated data:", validatedData);
 
     const client = await clientPromise;
@@ -22,7 +25,9 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date(),
     });
 
-    return NextResponse.json({ success: true, id: result.insertedId });
+    console.log("Inserted skill with id:", result);
+
+    return NextResponse.json({ success: true, _id: result.insertedId, name:validatedData.name });
   } catch (error) {
     console.error("POST /api/skills error:", error);
     return NextResponse.json(
