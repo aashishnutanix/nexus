@@ -6,6 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { createRequest } from "@/app/(services)/requests";
+import { useSession } from "next-auth/react";
+
+function generateUniqueId() {
+  return '_' + Math.random().toString(36).substr(2, 9);
+}
 
 export default function FindMentorPage() {
   const [query, setQuery] = useState("");
@@ -15,6 +21,8 @@ export default function FindMentorPage() {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [numSessions, setNumSessions] = useState(1);
   const [sessionDuration, setSessionDuration] = useState("30mins");
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
 
   const mentors = [
     {
@@ -44,13 +52,12 @@ export default function FindMentorPage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const request = {
-      _id: new ObjectId(),
       userToId: selectedMentor._id,
-      userFromId: "currentUserId", // Replace with actual user ID
+      userFromId: currentUserId,
       context: "MENTORSHIP",
-      referenceId: selectedMentor._id,
+      referenceId: selectedSkills[0] || selectedMentor._id,
       message,
       skills: selectedSkills,
       numSessions,
@@ -59,8 +66,16 @@ export default function FindMentorPage() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    // Save request logic here
-    setIsModalOpen(false);
+    try {
+      await createRequest(request);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create request:", error);
+    }
+  };
+
+  const handleSkillChange = (event) => {
+    setSelectedSkills([event.target.value]);
   };
 
   return (
@@ -136,20 +151,17 @@ export default function FindMentorPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Skills</label>
-                <Select
-                  multiple
-                  value={selectedSkills}
-                  onChange={(e) => setSelectedSkills(Array.from(e.target.selectedOptions, option => option.value))}
+                <label className="block text-sm font-medium">Skill</label>
+                <select
+                  value={selectedSkills[0] || ""}
+                  onChange={handleSkillChange}
                   className="border rounded px-4 py-2 w-full"
                 >
-                  <SelectTrigger />
-                  <SelectContent>
-                    {mentors.flatMap(mentor => mentor.skills).map((skill, index) => (
-                      <SelectItem key={index} value={skill}>{skill}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="" disabled>Select a skill</option>
+                  {mentors.flatMap(mentor => mentor.skills).map((skill, index) => (
+                    <option key={index} value={skill}>{skill}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium">Number of Sessions</label>
@@ -163,18 +175,15 @@ export default function FindMentorPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium">Session Duration</label>
-                <Select
+                <select
                   value={sessionDuration}
                   onChange={(e) => setSessionDuration(e.target.value)}
                   className="border rounded px-4 py-2 w-full"
                 >
-                  <SelectTrigger />
-                  <SelectContent>
-                    <SelectItem value="30mins">30 mins</SelectItem>
-                    <SelectItem value="1hr">1 hour</SelectItem>
-                    <SelectItem value="2hr">2 hours</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="30mins">30 mins</option>
+                  <option value="1hr">1 hour</option>
+                  <option value="2hr">2 hours</option>
+                </select>
               </div>
               <div className="mt-4"></div> {/* Add space after session duration */}
             </div>

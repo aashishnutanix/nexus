@@ -1,7 +1,7 @@
 import { Request } from "@/lib/types";
 
 export async function createRequest(data: Request) {
-  const res = await fetch("/api/request", {
+  const res = await fetch("/api/requests", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export async function getMentorshipRequestsRecieved() {
 }
 
 export async function getRequests() {
-  const res = await fetch("/api/request", {
+  const res = await fetch("/api/requests", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export async function getRequests() {
 }
 
 export async function updateRequestStatus(id: string, status: "Accepted" | "Rejected") {
-  const res = await fetch("/api/request", {
+  const res = await fetch("/api/requests", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
