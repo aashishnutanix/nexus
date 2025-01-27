@@ -20,6 +20,11 @@ import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
 import { User } from "@/lib/types";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { get } from "lodash";
+interface Skill {
+  _id: string;
+  name: string;
+}
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
@@ -34,6 +39,21 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
+
+    const { data } = useQuery<{success: boolean, skills:Skill[]}>({
+      queryKey: ["skills"],
+      queryFn: async () => {
+        const res = await fetch("/api/skills");
+        return res.json();
+      },
+    });
+  
+    // get skills array from options, skills array is type Skill[]
+    const savedSkills: Skill[] = get(data, "skills", []);
+    const skillsIdMap: { [key: string]: Skill } = {};
+    savedSkills.forEach((skill) => {
+      skillsIdMap[skill._id] = skill;
+    });
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
@@ -214,7 +234,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap gap-2 mt-2">
                 {profileData.skills?.map((skill, i) => (
                   <Badge key={i} variant="secondary">
-                    {skill}
+                    {skillsIdMap[skill]?.name}
                   </Badge>
                 ))}
               </div>
