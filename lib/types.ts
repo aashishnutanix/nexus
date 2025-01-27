@@ -30,7 +30,27 @@ export const FeatureStatusEnum = z.enum([
 ]);
 export const PriorityEnum = z.enum(["low", "medium", "high"]);
 
-// Schemas
+
+// Small Schemas
+export const SkillSchema = z.object({
+  name: z.string().min(1),
+  type: SkillTypeEnum,
+  level: SkillLevelEnum,
+});
+
+export const DesignationSchema = z.object({
+  name: z.string(),
+  level: z.string(),
+  type: z.string(),
+});
+
+export const OfferingSchema = z.object({
+  freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
+  type: z.enum(["online", "offline", "both"]),
+  duration: z.number(),
+});
+
+// Large Schemas
 export const UserSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
@@ -50,7 +70,7 @@ export const UserSchema = z.object({
     )
     .optional(),
   isAvailable: z.boolean().optional(),
-  designation: z.string().optional(),
+  designation: DesignationSchema.optional(),
   hashedPassword: z.string().optional(),
   createdAt: z.string(), // ISO string
   updatedAt: z.string(), // ISO string
@@ -98,12 +118,6 @@ export const UserSchema = z.object({
     .optional(),
 });
 
-export const SkillSchema = z.object({
-  name: z.string().min(1),
-  type: SkillTypeEnum,
-  level: SkillLevelEnum,
-});
-
 export const ProjectSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(10),
@@ -119,7 +133,7 @@ export const ProjectSchema = z.object({
 
 export const UpVoteSchema = z.object({
   refreferenceId: z.string(),
-  context:z.string()
+  context: z.string(),
 });
 
 export const FeatureSchema = z.object({
@@ -171,6 +185,8 @@ export type Feature = z.infer<typeof FeatureSchema>;
 export type Request = z.infer<typeof RequestSchema>;
 export type UpVoteType = z.infer<typeof UpVoteSchema>;
 export type Location = z.infer<typeof LocationSchema>;
+export type Offering = z.infer<typeof OfferingSchema>;
+export type Designation = z.infer<typeof DesignationSchema>;
 
 declare module "next-auth" {
   interface User {
