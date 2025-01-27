@@ -324,7 +324,7 @@ export default function ProfilePage() {
                     <Progress value={mentee.progress} />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {mentee.skills.map((skill, j) => (
+                    {mentee.skills?.map((skill, j) => (
                       <Badge key={j} variant="outline">
                         {skill}
                       </Badge>
