@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { getMentorshipRequestsRecieved } from '@/app/(services)/requests'
+import { getRequests, updateRequestStatus, createRequest } from '@/app/(services)/requests'
+import { getUserById } from '@/app/(services)/users'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,29 +10,33 @@ import { Badge } from "@/components/ui/badge";
 export default function RequestsPage () {
   const [activeTab, setActiveTab] = useState('membership');
   const [activeSubTab, setActiveSubTab] = useState('pending');
-  const [mentorshipRequestsRecieved, setMentorshipRequestsRecieved] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [users, setUsers] = useState({});
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      const requests = await getMentorshipRequestsRecieved();
-      setMentorshipRequestsRecieved(requests);
-    };
-
+    async function fetchRequests() {
+      const data = await getRequests();
+      setRequests(data.requests);
+      const userIds = data.requests.map(request => request.userFromId);
+      const userDetails = await Promise.all(userIds.map(id => getUserById(id)));
+      const usersMap = userDetails.reduce((acc, user) => {
+        acc[user._id] = user.name;
+        return acc;
+      }, {});
+      setUsers(usersMap);
+    }
     fetchRequests();
   }, []);
 
-  const mentorshipRequestsSent = [ 
-    {
-      userToId: 'mentor1',
-      userFromId: 'pending'
-    }, {
-      userToId: 'mentor2',
-      userFromId: 'mentor5'
-    }, {
-      userToId: 'mentor3',
-      userFromId: 'mentor9'
-    }
-  ];
+  const handleUpdateStatus = async (id, status) => {
+    await updateRequestStatus(id, status);
+    setRequests(requests.map(request => request._id === id ? { ...request, status } : request));
+  };
+
+  const handleCreateRequest = async (data) => {
+    const newRequest = await createRequest(data);
+    setRequests([...requests, newRequest]);
+  };
 
   const renderRequests = (requests) => {
     return requests.map((request, index) => (
@@ -39,15 +44,29 @@ export default function RequestsPage () {
         <CardHeader className="flex items-center space-x-4">
           <img src="/images/IMG_5219.jpg" alt="Profile" className="w-12 h-12 rounded-full" />
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold">{request.userFromId}</CardTitle>
+            <CardTitle className="text-lg font-semibold">{users[request.userFromId]}</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">Title: MTS-3</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="flex justify-end space-x-2 mt-4">
           {activeSubTab === 'pending' && (
             <>
-              <Button className="bg-green-600 text-white py-1 px-4 rounded hover:bg-green-700">Accept</Button>
-              <Button className="bg-red-600 text-white py-1 px-4 rounded hover:bg-red-700">Reject</Button>
+              <button
+                className="bg-purple-500 text-white p-2 mr-2 rounded-full flex items-center justify-center"
+                onClick={() => handleUpdateStatus(request._id, "Accepted")}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </button>
+              <button
+                className="bg-black text-white p-2 rounded-full flex items-center justify-center"
+                onClick={() => handleUpdateStatus(request._id, "Rejected")}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </>
           )}
         </CardContent>
@@ -76,7 +95,7 @@ export default function RequestsPage () {
           <div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Mentorship Requests {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
             <div className="grid gap-6">
-              {renderRequests(mentorshipRequestsRecieved)}
+              {renderRequests(requests.filter(request => request.context === 'MENTORSHIP'))}
             </div>
           </div>
         )}
@@ -84,7 +103,7 @@ export default function RequestsPage () {
           <div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Requests {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
             <div className="grid gap-6">
-              {/* Render project requests here */}
+              {renderRequests(requests.filter(request => request.context === 'PROJECT'))}
             </div>
           </div>
         )}
