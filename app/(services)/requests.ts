@@ -16,3 +16,34 @@ export async function createRequest(data: Request) {
   return res.json();
 }
 
+export async function getRequests() {
+  const res = await fetch("/api/request", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch requests");
+  }
+
+  return res.json();
+}
+
+export async function updateRequestStatus(id: string, status: "Accepted" | "Rejected") {
+  const res = await fetch("/api/request", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, status }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update request status");
+  }
+
+  return res.json();
+}
+

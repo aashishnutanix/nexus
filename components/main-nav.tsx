@@ -5,9 +5,20 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Users, FolderGit2, UserCircle } from "lucide-react"
+import { useEffect, useState } from "react";
 
 export function MainNav() {
   const pathname = usePathname()
+  const [requestCount, setRequestCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchRequestCount() {
+      const res = await fetch("/api/request/count");
+      const data = await res.json();
+      setRequestCount(data.count);
+    }
+    fetchRequestCount();
+  }, []);
 
   return (
     <nav className="flex flex-col space-y-2">
@@ -82,6 +93,19 @@ export function MainNav() {
           </Link>
         </div>
       </div>
+      <Link href="/dashboard/requests">
+        <Button
+          variant={pathname === "/dashboard/requests" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+        >
+          Requests
+          {requestCount > 0 && (
+            <span className="ml-2 bg-purple-500 text-white rounded-full px-2 py-1 text-xs">
+              {requestCount}
+            </span>
+          )}
+        </Button>
+      </Link>
     </nav>
   )
 }
