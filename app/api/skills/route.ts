@@ -63,16 +63,29 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET( request: NextRequest) {
   try {
     console.log("Received GET request");
 
     const client = await clientPromise;
     const db = client.db();
 
+    // Add support for general filtering
+    const { searchParams } = new URL(request.url);
+    let filter: any = {};
+
+    // Construct filter object from query parameters
+    searchParams.forEach((value, key) => {
+      if (key === '_id') {
+        filter[key] = new ObjectId(value);
+      } else {
+        filter[key] = value;
+      }
+    });
+
     const skills = await db
       .collection(collections.skills)
-      .find({})
+      .find(filter)
       .toArray();
     console.log("Fetched skills:", skills);
 

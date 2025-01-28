@@ -94,3 +94,23 @@ export async function getMenteesForUser(userId: string) {
 
   return res.json();
 }
+
+
+export async function getUserNameById( userId: string ) {
+
+  const res = await fetch(`/api/users?id=${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch user");
+  }
+
+  return await res.json().then((data) => {
+    return data.name;
+  });
+
+}

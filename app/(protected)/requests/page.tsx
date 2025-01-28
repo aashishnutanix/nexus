@@ -6,6 +6,7 @@ import { getUserById } from '@/app/(services)/users'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
 import { ObjectId } from 'mongodb';
 
 interface Request {
@@ -22,10 +23,8 @@ interface Request {
 }
 
 const REQUEST_HEADING = { 
-
   mentorship: 'Mentorship Requests',
   project: 'Project Requests'
-  
 }
 
 const REQUEST_CONTEXT = {
@@ -34,10 +33,13 @@ const REQUEST_CONTEXT = {
 }
 
 export default function RequestsPage () {
+  const [activeMainTab, setActiveMainTab] = useState('received');
   const [activeTab, setActiveTab] = useState('mentorship');
   const [activeSubTab, setActiveSubTab] = useState('pending');
   const [requests, setRequests] = useState<Request[]>([]);
   const [users, setUsers] = useState({});
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
 
   async function fetchRequests() {
     const data = await getRequests();
@@ -73,20 +75,19 @@ export default function RequestsPage () {
       contributorId: request.userFromId,
       status: 'active',
       startDate: new Date().toISOString()
-
     }
     if (context === 'MENTORSHIP') {
-      await createMentorshipFromRequest( request );
+      await createMentorshipFromRequest(request);
     } else {
-      await addContributorProjectMapping(  { 
+      await addContributorProjectMapping({ 
         ...contributorMapping,
-        projectId: request.referenceId } );
+        projectId: request.referenceId 
+      });
     } 
     fetchRequests();
   };
 
   const renderRequests = (requests) => {
-
     if(requests.length === 0) {
       return (
         <div className="flex items-center justify-center h-32">
@@ -140,6 +141,10 @@ export default function RequestsPage () {
       </div>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-center space-x-4">
+          <Button onClick={() => setActiveMainTab('received')} className={`py-2 px-4 ${activeMainTab === 'received' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Requests Received</Button>
+          <Button onClick={() => setActiveMainTab('sent')} className={`py-2 px-4 ${activeMainTab === 'sent' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Requests Sent</Button>
+        </div>
+        <div className="flex justify-center space-x-4">
           <Button onClick={() => setActiveTab('mentorship')} className={`py-2 px-4 ${activeTab === 'mentorship' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Mentorship</Button>
           <Button onClick={() => setActiveTab('project')} className={`py-2 px-4 ${activeTab === 'project' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Project</Button>
         </div>
@@ -152,7 +157,7 @@ export default function RequestsPage () {
           <div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">{REQUEST_HEADING[activeTab]} {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
             <div className="grid gap-6">
-              {renderRequests(requests.filter(request => request.context ===  REQUEST_CONTEXT[activeTab] && ( activeSubTab === 'pending' ? request.status === 'Pending': request.status != 'Pending' ) ))}
+              {renderRequests(requests.filter(request => request.context ===  REQUEST_CONTEXT[activeTab] && ( activeSubTab === 'pending' ? request.status === 'Pending': request.status != 'Pending' ) && (activeMainTab === 'received' ? request.userToId === currentUserId : request.userFromId === currentUserId)))}
             </div>
           </div>
       </div>

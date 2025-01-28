@@ -164,7 +164,7 @@ export const RequestSchema = z.object({
   context: RequestContextEnum,
   referenceId: z.string(),
   message: z.string().min(10).max(500),
-  skills: z.array(z.string()).min(1),
+  skillId: z.string(),
   status: RequestStatusEnum.default("Pending"),
   createdAt: z.string(), // ISO string
   updatedAt: z.string(), // ISO string
