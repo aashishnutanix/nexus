@@ -3,18 +3,20 @@
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Logo } from "@/components/ui/logo";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { routes } from "@/lib/constants";
 
 export function Sidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { user } = session || {};
   const { id, image, name, team, designation} = user || {};
@@ -38,11 +40,21 @@ export function Sidebar() {
     <div
       className={cn(
         "relative flex flex-col h-full bg-card border-r pt-6 transition-all duration-300",
-        isCollapsed ? "w-[80px] hover:w-[280px]" : "w-[280px]"
+        isCollapsed ? "w-[80px]" : "w-[280px]"
       )}
-      onMouseEnter={() => setIsCollapsed(false)}
-      onMouseLeave={() => setIsCollapsed(true)}
     >
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute -right-4 top-4 h-8 w-8 rounded-full border bg-background z-50"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </Button>
       <div
         className={cn(
           "flex items-center justify-center mb-8",
@@ -59,7 +71,10 @@ export function Sidebar() {
         )}
       >
         <Avatar className="h-16 w-16 mb-1 p-1 text-3xl">
-          <AvatarImage src={image || undefined} />
+          <AvatarImage
+            src={image || undefined}
+            style={{ objectFit: "cover", objectPosition: "center" }}
+          />
           <AvatarFallback>{name?.[0]}</AvatarFallback>
         </Avatar>
         {!isCollapsed && (
