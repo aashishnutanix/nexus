@@ -20,8 +20,8 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  skills: string[];
-  interests: string[];
+  skills: ObjectId[]; // Array of skill IDs
+  interests: ObjectId[]; // Array of interest IDs
   location: ObjectId;
   isAvailable: boolean;
   offering: {

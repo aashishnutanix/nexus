@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 import { createRequest } from "@/app/(services)/requests";
 import { useSession } from "next-auth/react";
+import { searchMentors } from "@/app/(services)/searchMentors";
 
 function generateUniqueId() {
   return '_' + Math.random().toString(36).substr(2, 9);
@@ -23,29 +24,20 @@ export default function FindMentorPage() {
   const [sessionDuration, setSessionDuration] = useState("30mins");
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
+  const [mentors, setMentors] = useState([]);
 
-  const mentors = [
-    {
-      _id: "1",
-      name: "John Doe",
-      bio: "Experienced frontend developer with a passion for teaching.",
-      designation: "Senior Developer",
-      skills: ["React", "JavaScript", "CSS"],
-      interests: ["UI/UX Design", "Web Development"],
-    },
-    {
-      _id: "2",
-      name: "Alice Johnson",
-      bio: "Backend developer specializing in Node.js and databases.",
-      designation: "Lead Developer",
-      skills: ["Node.js", "MongoDB", "SQL"],
-      interests: ["API Development", "Database Design"],
-    },
-  ];
+  const handleSearch = async () => {
+    try {
+      const result = await searchMentors(query, 10, 1, currentUserId);
+      setMentors(result.results);
+    } catch (error) {
+      console.error("Failed to search mentors:", error);
+    }
+  };
 
-  const filteredMentors = mentors.filter((mentor) =>
-    mentor.name.toLowerCase().includes(query.toLowerCase())
-  );
+  useEffect(() => {
+    handleSearch();
+  }, [query]);
 
   const handleApply = (mentor) => {
     setSelectedMentor(mentor);
@@ -95,7 +87,7 @@ export default function FindMentorPage() {
       </div>
 
       <div className="grid gap-6">
-        {filteredMentors.map((mentor) => (
+        {mentors.map((mentor) => (
           <Card key={mentor._id} className="border-l-4 border-l-primary">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -103,7 +95,7 @@ export default function FindMentorPage() {
                   <CardTitle>{mentor.name}</CardTitle>
                   <CardDescription>{mentor.bio}</CardDescription>
                 </div>
-                <Badge variant="outline">{mentor.designation}</Badge>
+                <Badge variant="outline">{mentor?.designation?.name}</Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -111,7 +103,7 @@ export default function FindMentorPage() {
                 <div>
                   <p className="text-sm font-medium mb-2">Skills:</p>
                   <div className="flex flex-wrap gap-2">
-                    {mentor.skills.map((skill, index) => (
+                    {mentor.skills?.map((skill, index) => (
                       <Badge key={index} variant="secondary">
                         {skill}
                       </Badge>
@@ -121,7 +113,7 @@ export default function FindMentorPage() {
                 <div>
                   <p className="text-sm font-medium mb-2">Interests:</p>
                   <div className="flex flex-wrap gap-2">
-                    {mentor.interests.map((interest, index) => (
+                    {mentor.interests?.map((interest, index) => (
                       <Badge key={index} variant="secondary">
                         {interest}
                       </Badge>
