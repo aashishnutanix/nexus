@@ -53,6 +53,7 @@ export function AddRequestForm({ onSuccess, context, userToId, referenceId }: Re
     mutationFn: createRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
       form.reset();
       onSuccess();
     },
