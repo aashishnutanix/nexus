@@ -28,7 +28,7 @@ export function Sidebar() {
   //   fetchRequestCount();
   // }, []);
 
-  console.log("user id - ", id);
+  console.log("user id - ", user);
 
   return (
     <div

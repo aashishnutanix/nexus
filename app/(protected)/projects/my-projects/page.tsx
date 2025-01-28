@@ -18,7 +18,7 @@ export default function MyProjectsPage() {
   const { data: fetchedProjects = {}, isLoading } = useQuery<any>({
     queryKey: ["fetch-my-projects"],
     queryFn: async () => {
-      const res = await fetch("/api/projects");
+      const res = await fetch("/api/projects?onlyMyProjects=true");
       return res.json();
     },
   });
