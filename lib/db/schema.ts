@@ -7,6 +7,7 @@ export const collections = {
   features: "features",
   skills: "skills",
   contributorProjectMappings: "contributorProjectMappings",
+  contributorMentorshipMappings: "contributorMentorshipMappings",
   locations: "locations",
   feedbacks: "feedbacks",
   mentorships: "mentorships",
@@ -200,6 +201,19 @@ export interface ContributorProjectMapping {
   featureId?: ObjectId; // Optional reference to a specific feature
   startDate: string; // ISO string representing the start date
   endDate?: string; // Optional ISO string representing the end date
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
+}
+
+export interface ContributorMentorshipMapping {
+  _id?: ObjectId; // Unique identifier
+  contributorId: ObjectId; // Reference to User
+  mentorshipId: ObjectId; // Reference to Project
+  status: string; // Status of the contribution (e.g., 'active', 'inactive')
+  startDate: string; // ISO string representing the start date
+  endDate?: string; // Optional ISO string representing the end date
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface Location {
