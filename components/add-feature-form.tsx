@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FeatureType } from "@/lib/types";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
 import { Feature } from "@/lib/db/schema";
+import { Pencil, X } from "lucide-react";
 
 interface AddFeatureFormProps {
   projectId: string;
@@ -87,6 +88,10 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
     setLinks(links.filter((_, i) => i !== index));
   };
 
+  const handleDeleteLink = (index: number) => {
+    setLinks(links.filter((_, i) => i !== index));
+  };
+
   const isValidUrl = (url: string) => {
     try {
       new URL(url);
@@ -113,28 +118,30 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
           </SelectContent>
         </Select>
       </div>
-      <Select value={status} onValueChange={(value) => setStatus(value as "ideation" | "in_progress" | "under_review" | "completed")}>
-        <SelectTrigger>
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="ideation">Ideation</SelectItem>
-          <SelectItem value="in_progress">In Progress</SelectItem>
-          <SelectItem value="under_review">Under Review</SelectItem>
-          <SelectItem value="completed">Completed</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select value={priority} onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}>
-        <SelectTrigger>
-          <SelectValue placeholder="Priority" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="low">Low</SelectItem>
-          <SelectItem value="medium">Medium</SelectItem>
-          <SelectItem value="high">High</SelectItem>
-        </SelectContent>
-      </Select>
-      <Input type="date" placeholder="Start Date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+      <div className="flex space-x-4">
+        <Select value={status} onValueChange={(value) => setStatus(value as "ideation" | "in_progress" | "under_review" | "completed")}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ideation">Ideation</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="under_review">Under Review</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={priority} onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}>
+          <SelectTrigger>
+            <SelectValue placeholder="Priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">Low</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input type="date" placeholder="Start Date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+      </div>
       <SkillsMultiSelect selected={techStack} onSelectionChange={setTechStack} />
       <div className="space-y-2">
         <div className="flex space-x-2">
@@ -143,20 +150,23 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
           <Button onClick={handleAddLink}>Add Link</Button>
         </div>
         {linkError && <p className="text-red-500">{linkError}</p>}
-        <div className="space-y-1">
+        <div className="flex flex-wrap gap-2">
           {links.map((link, index) => (
-            <div key={index} className="flex items-center space-x-2">
+            <div key={index} className="flex items-center space-x-2 bg-gray-100 p-2 rounded">
               <a href={link.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                 {link.label}
               </a>
               <Button variant="ghost" size="icon" onClick={() => handleEditLink(index)}>
-                Edit
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleDeleteLink(index)}>
+                <X className="h-4 w-4" />
               </Button>
             </div>
           ))}
         </div>
       </div>
-      <Button onClick={handleAddFeature}>{feature ? "Update Feature" : "Add Feature"}</Button>
+      <Button onClick={() => { handleAddFeature(); onSuccess(); }}>{feature ? "Update Feature" : "Add Feature"}</Button>
     </div>
   );
 }
