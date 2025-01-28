@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,11 +7,21 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { AddRequestForm } from "@/components/request-form";
 import { Button } from "@/components/ui/button";
 import { Badge } from "./ui/badge";
 import { Label } from "./ui/label";
-import { CircleArrowUp } from "lucide-react";
+import { CircleArrowUp, CircleCheckBig } from "lucide-react";
 import { Progress } from "./ui/progress";
+import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   projectData?: {
@@ -21,9 +31,17 @@ interface ProjectCardProps {
     status: string;
     techStack: string[];
     businessCritical: boolean;
-    upvotes: number;
+    createdBy: string;
   };
-  onContactClick?: () => void;
+  upvotes: number;
+  handleUpvote: (upvoteData: any) => void;
+  context: string;
+  canContribute: boolean;
+  canUpvote: boolean;
+  canRequestForContribution: boolean;
+  handleCardClick: (id: string) => void;
+  usersIdMap: any;
+  skillsIdMap: any;
 }
 
 const projectDataDummy = {
@@ -35,28 +53,52 @@ const projectDataDummy = {
   techStack: ["React", "TypeScript", "Node.js", "MongoDB"],
   businessCritical: true,
   upvotes: ["user1", "user2", "user3"],
+  createdBy: "60d5ec49f8d2b320d8e4f8b5",
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   projectData = projectDataDummy,
-  onContactClick,
+  handleUpvote,
+  context,
+  canContribute,
+  canRequestForContribution,
+  handleCardClick,
+  usersIdMap,
+  skillsIdMap,
+  canUpvote,
+  upvotes,
 }) => {
-  const { name, description, status, techStack, businessCritical, upvotes } =
-    projectData;
+  const [requestModal, setRequestModal] = useState(false);
+  const {
+    _id,
+    name,
+    description,
+    status,
+    techStack,
+    businessCritical,
+    createdBy,
+  } = projectData;
   return (
     <Card className="max-w-[375px]">
       <CardHeader className="gap-2 relative">
         {upvotes && (
           <Button
             size={"sm"}
+            disabled={canUpvote}
+            onClick={() => handleUpvote({ context, referenceId: _id })}
             variant="outline"
             className="absolute right-6 gap-2 font-medium"
           >
-            <CircleArrowUp size={16} /> {`(${upvotes.length})`}
+            <CircleArrowUp size={16} /> {`(${upvotes})`}
           </Button>
         )}
         {/* <div className="flex items-center gap-2"> */}
-        <CardTitle>{name}</CardTitle>
+        <CardTitle
+          className="cursor-pointer hover:underline"
+          onClick={() => handleCardClick(_id)}
+        >
+          {name}
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
         {/* </div> */}
         <div className="flex items-center gap-2 justify-start flex-wrap">
@@ -82,18 +124,48 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <CardContent className="flex flex-col">
         <Label className="mb-2">TECH STACK</Label>
         <div className="flex flex-wrap gap-2">
-          {["React", "Java", "Node", "Next"].map((skill, index) => (
+          {techStack.map((skill, index) => (
             <Badge key={index} variant="secondary" className="py-1 px-3">
-              {skill}
+              {skillsIdMap[skill]?.name}
             </Badge>
           ))}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between w-full">
-        <Button className="w-full" variant="outline" onClick={onContactClick}>
-          Apply Now
-        </Button>
-      </CardFooter>
+      {canContribute && (
+        <CardFooter className="flex justify-between w-full">
+          <Dialog open={requestModal} onOpenChange={setRequestModal}>
+            <DialogTrigger asChild >
+              <Button
+                className={cn(
+                  "w-full gap-2",
+                  canRequestForContribution &&
+                    "bg-[#BBF7D0] text=[#166534] opacity-100"
+                )}
+                variant="outline"
+                disabled={canRequestForContribution}
+              >
+                {canRequestForContribution && <CircleCheckBig size={16} />}
+                Apply Now
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Apply for contribution In {name} </DialogTitle>
+                <DialogDescription>
+                  Request will go to project owner{" "}
+                  <b>{usersIdMap[createdBy].name}</b>
+                </DialogDescription>
+              </DialogHeader>
+              <AddRequestForm
+                onSuccess={() => setRequestModal(false)}
+                context={context}
+                referenceId={_id}
+                userToId={createdBy}
+              />
+            </DialogContent>
+          </Dialog>
+        </CardFooter>
+      )}
     </Card>
   );
 };

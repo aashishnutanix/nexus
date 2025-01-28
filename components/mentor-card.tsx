@@ -16,9 +16,11 @@ interface MentorCardProps {
   userData: {
     _id: string;
     name: string;
-    image?:string;
+    image?: string;
     bio: string;
-    designation: string;
+    designation: {
+      name: string;
+    };
     skills: string[];
     interests: string[];
   };
@@ -38,15 +40,17 @@ const MentorCard: React.FC<MentorCardProps> = ({
             <AvatarFallback>{name[0]}</AvatarFallback>
             <AvatarImage src={image} alt={name} />
           </Avatar>
-          <div>
+          <div className="flex flex-col items-start justify-start gap-2 h-full">
             <CardTitle>{name}</CardTitle>
             <CardDescription>{bio}</CardDescription>
           </div>
         </div>
         <div className="flex items-center gap-2 justify-start flex-wrap">
-          <Button size="sm" className="bg-[#CFFAFE] text-[#164E63]">
-            {designation}
-          </Button>
+          {designation && (
+            <Button size="sm" className="bg-[#CFFAFE] text-[#164E63]">
+              {designation?.name}
+            </Button>
+          )}
           <Button size="sm" className="bg-[#DBEAFE] text-[#1E3A8A]">
             R&D SaaS Engineering
           </Button>
