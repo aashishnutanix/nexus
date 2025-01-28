@@ -46,7 +46,7 @@ export default function ProjectsPage({ projects, skillsIdMap, usersIdMap, reques
 
   const mutation = useMutation<any, unknown, UpVoteType>({
     mutationFn: upVote,
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
     },
   });
