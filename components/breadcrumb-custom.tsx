@@ -33,7 +33,7 @@ export default function BreadcrumbCustom() {
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
         </BreadcrumbItem>
-        {firstSegment && (
+        {/* {firstSegment && (
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -42,7 +42,7 @@ export default function BreadcrumbCustom() {
               </BreadcrumbLink>
             </BreadcrumbItem>
           </>
-        )}
+        )} */}
         {middleSegments && middleSegments.length > 0 && (
           <>
             <BreadcrumbSeparator />

@@ -68,7 +68,7 @@ export function Sidebar() {
         )}
       >
         <div className="relative">
-          <Avatar className="h-16 w-16 mb-1 p-1 text-3xl border-primary border-2">
+          <Avatar className="h-16 w-16 text-3xl border-primary border-2">
             <AvatarImage
               src={image || undefined}
               style={{ objectFit: "cover", objectPosition: "center" }}
