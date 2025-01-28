@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { getRequests, updateRequestStatus, createRequest, addContributorProjectMapping, addContributorMentorshipMapping, getPendingRequest, getPendingRequests, createMentorshipFromRequest } from '@/app/(services)/requests'
-import { getUserById } from '@/app/(services)/users'
+import { getUserById, getUserNameById, getUserRoleById } from '@/app/(services)/users'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,10 +45,13 @@ export default function RequestsPage () {
     const data = await getRequests();
     setRequests(data.requests);
     const userIds = data.requests.map(request => request.userFromId);
+    userIds.push(...data.requests.map(request => request.userToId));
     let userDetails = [];
 
     for (let i = 0; i < userIds.length; i++) {
       try{
+        if(!userIds[i])
+            continue;
         const user = await getUserById(userIds[i]);
         userDetails.push(user);
       } catch (error) {
@@ -56,8 +59,8 @@ export default function RequestsPage () {
       } 
     }
 
-    const usersMap = userDetails.reduce((acc, user) => {
-      acc[user._id] = user.name;
+    const usersMap = userDetails.reduce((acc, data) => {
+      acc[data.user._id] = data.user;
       return acc;
     }, {});
     setUsers(usersMap);
@@ -100,10 +103,18 @@ export default function RequestsPage () {
       <Card key={index} className="w-full m-2 p-4 border rounded-lg shadow-sm">
         <CardHeader className="flex items-center space-x-4">
           <img src="/images/IMG_5219.jpg" alt="Profile" className="w-12 h-12 rounded-full" />
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold">{users[request.userFromId]}</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">Title: MTS-3</CardDescription>
-          </div>
+          
+            {(() => {
+              let requestContextUserId = ( activeMainTab === 'received' ? request.userToId : request.userFromId );
+              return (
+                <div className="flex-1">
+                  <CardTitle className="text-lg font-semibold">{ users[requestContextUserId].name }</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">{ users[requestContextUserId].role }</CardDescription>
+                  <CardDescription className="text-sm text-muted-foreground">{ request.message }</CardDescription>
+                </div>
+              );
+            })()}
+            
         </CardHeader>
         <CardContent className="flex justify-end space-x-2 mt-4">
           {activeSubTab === 'pending' && (
