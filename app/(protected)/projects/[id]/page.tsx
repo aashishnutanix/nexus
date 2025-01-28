@@ -1,43 +1,95 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getProject } from "@/app/(services)/projects";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { get } from "lodash";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import LoadingSpinner from "@/components/loading-spinner";
-
-const dummyProject = {
-  name: "E-commerce Platform Redesign",
-  description: "Modernizing the user interface and improving user experience",
-  status: "In Progress",
-  progress: 65,
-  priority: "High",
-  techStack: ["React", "TypeScript", "Node.js", "PostgreSQL", "Redis", "AWS"],
-  team: ["Frontend", "UX Design", "Backend"],
-};
+import { LoadingSpinner } from "@/components/loading-spinner";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { AddRequestForm } from "@/components/request-form";
+import { upVote } from "@/app/(services)/upvotes";
+import { RequestContextEnum, UpVoteType } from "@/lib/types";
+import { Project, Feature } from "@/lib/db/schema";
+import FeaturesList from "@/app/(protected)/projects/featuresList";
+import { AddFeatureForm } from "@/components/add-feature-form";
 
 export default function ProjectPage() {
   const params = useParams<{ id: string }>();
   const projectId = params?.id || "1";
-  console.log("projectId ->", params);
-  const [project, setProject] = useState(dummyProject);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
+  const { user: loggedInUser } = session || {};
+  const [requestModal, setRequestModal] = useState(false);
+  const [featureModal, setFeatureModal] = useState(false);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (projectId) {
-      getProject(projectId)
-        .then((data) => {
-          setProject(data.project || dummyProject);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Failed to fetch project:", error);
-          setProject(dummyProject);
-          setIsLoading(false);
-        });
-    }
-  }, [projectId]);
+  const { data: projectData = {}, isLoading } = useQuery<any>({
+    queryKey: ["fetch-project-by-id", projectId],
+    queryFn: async () => {
+      const res = await fetch(`/api/projects?id=${projectId}`);
+      return res.json();
+    },
+  });
+
+  const mutation = useMutation<any, unknown, UpVoteType>({
+    mutationFn: upVote,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
+    },
+  });
+
+  const handleUpvote = (upvoteData: UpVoteType) => {
+    mutation.mutate(upvoteData);
+  };
+
+  const canContribute = (project: any) => {
+    return (
+      project.open && loggedInUser && loggedInUser.id !== project.createdBy
+    );
+  };
+
+  const canUpvote = (project: any) => {
+    const projectUpvotes = upVoteMapByProjectId[project._id];
+    return (
+      projectUpvotes &&
+      loggedInUser &&
+      projectUpvotes.find((upvote: any) => upvote.userId === loggedInUser.id)
+    );
+  };
+
+  const canRequestForContribution = (project: any) => {
+    const projectRequests = requestsMapByProjectId[project._id];
+    return (
+      projectRequests &&
+      loggedInUser &&
+      projectRequests.find(
+        (request: any) => request.userFromId === loggedInUser.id
+      )
+    );
+  };
+
+  const project: Project = get(projectData, "project", null);
+  const skillsIdMap = get(projectData, "skillsIdMap", {});
+  const usersIdMap = get(projectData, "usersIdMap", {});
+  const requestsMapByProjectId = get(projectData, "requestsMapByProjectId", {});
+  const upVoteMapByProjectId = get(projectData, "upVoteMapByProjectId", {});
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -47,58 +99,131 @@ export default function ProjectPage() {
     return <div>Project not found</div>;
   }
 
+  console.log("project", project);
+
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{project.name}</h1>
-            <p className="text-muted-foreground">{project.description}</p>
+      <Card className="border-l-4 border-l-primary">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{project.name}</CardTitle>
+              <CardDescription>{project.description}</CardDescription>
+            </div>
+            <Badge
+              variant={project.businessCritical ? "destructive" : "secondary"}
+            >
+              {project.businessCritical ? "Business Critical" : ""}
+            </Badge>
           </div>
-          <Badge
-            variant={
-              project.priority === "High" ? "destructive" : "secondary"
-            }
-          >
-            {project.priority} Priority
-          </Badge>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium">{project.status}</p>
-              <p className="text-sm text-muted-foreground">
-                {project.progress}%
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">
+                Created By: {usersIdMap[project.createdBy.toString()]?.name}
+              </p>
+              <Badge variant="outline">{project.status}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">
+                Start Date: {new Date(project.startDate).toLocaleDateString()}
               </p>
             </div>
-            <Progress value={project.progress} />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Team Roles:</h2>
-            <div className="flex flex-wrap gap-2">
-              {project.team.map((role, i) => (
-                <Badge key={i} variant="outline">
-                  {role}
-                </Badge>
-              ))}
+            <div>
+              <p className="text-sm font-medium mb-2">Tech Stack:</p>
+              <div className="flex flex-wrap gap-2">
+                {project.techStack.map((tech: any) => (
+                  <Badge
+                    key={skillsIdMap[tech]?._id}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-secondary/80"
+                  >
+                    {skillsIdMap[tech]?.name}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Tech Stack:</h2>
-            <div className="flex flex-wrap gap-2">
-              {project.techStack.map((tech, i) => (
-                <Badge
-                  key={i}
-                  variant="secondary"
-                  className="cursor-pointer hover:bg-secondary/80"
-                >
-                  {tech}
-                </Badge>
-              ))}
+            <div>
+              <p className="text-sm font-medium mb-2">Contributors:</p>
+              <div className="flex flex-wrap gap-2">
+                {project.members.map((member: any) => (
+                  <div key={member.userId} className="p-2 border rounded">
+                    <p className="font-medium">
+                      {usersIdMap[member.userId]?.name || member.userId}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Role: {member.role}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
+            <FeaturesList features={project.features} skillsIdMap={skillsIdMap} projectId={projectId} />
+            {canContribute(project) && (
+              <Dialog open={requestModal} onOpenChange={setRequestModal}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="bg-primary hover:bg-primary/90"
+                    disabled={canRequestForContribution(project)}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Contribute
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Apply for contribution In {project.name}
+                    </DialogTitle>
+                    <DialogDescription>
+                      Request will go to project owner{" "}
+                      <b>{usersIdMap[project.createdBy.toString()]?.name}</b>
+                    </DialogDescription>
+                  </DialogHeader>
+                  <AddRequestForm
+                    onSuccess={() => setRequestModal(false)}
+                    context={RequestContextEnum.enum.PROJECT}
+                    referenceId={project._id}
+                    userToId={project.createdBy}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={() =>
+                handleUpvote({
+                  refreferenceId: project._id.toString(),
+                  context: RequestContextEnum.enum.PROJECT,
+                })
+              }
+              disabled={canUpvote(project)}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Upvote - {upVoteMapByProjectId[project._id.toString()]?.length}
+            </Button>
+            here1
+            <Dialog open={featureModal} onOpenChange={setFeatureModal}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Feature here 2
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Feature</DialogTitle>
+                  <DialogDescription>
+                    Fill in the feature details below to add a new feature.
+                  </DialogDescription>
+                </DialogHeader>
+                <AddFeatureForm projectId={project._id.toString()} onSuccess={() => setFeatureModal(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

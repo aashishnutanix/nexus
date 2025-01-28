@@ -19,8 +19,8 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  skills: ObjectId[];
-  interests: string[];
+  skills: ObjectId[]; // Array of skill IDs
+  interests: ObjectId[]; // Array of interest IDs
   location: ObjectId;
   isAvailable: boolean;
   offering: {
@@ -60,6 +60,7 @@ export interface Project {
     role: string;
     joinedAt: string; // ISO string
   }[];
+  features: Feature[];
   createdBy: ObjectId;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
@@ -101,7 +102,7 @@ export interface Feature {
   description: string;
   status: "ideation" | "in_progress" | "under_review" | "completed";
   startDate: string; // ISO string
-  upvote?: number;
+  upvote?: UpVote[]
   techStack: string[];
   priority: "low" | "medium" | "high";
   links?: {

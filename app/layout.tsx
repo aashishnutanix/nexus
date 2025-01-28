@@ -29,6 +29,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={inter.className}>
+        {/*//@ts-ignore*/}
         <Providers session={session}>
           <main>
             <div className="flex h-screen">
