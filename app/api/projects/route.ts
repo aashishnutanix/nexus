@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchSkillByIds } from "../skills/skillByIds/route";
 import { fetchUserByIds } from "../profile/byIds/route";
-import { getProjectRequestsMapByUserId, getProjectRequestsMapByReferenceId } from "../request/route";
+import { getProjectRequestsMapByUserId, getProjectRequestsMapByReferenceId } from "../requests/route";
 import { getUpVoteMapByContext, getUpVoteMapByContextAndRefreferenceId } from "../upvote/route";
 export const dynamic = 'force-dynamic';
 

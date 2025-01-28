@@ -1,44 +1,100 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { getRequests, updateRequestStatus, createRequest } from '@/app/(services)/requests'
+import { getRequests, updateRequestStatus, createRequest, addContributorProjectMapping, addContributorMentorshipMapping, getPendingRequest, getPendingRequests, createMentorshipFromRequest } from '@/app/(services)/requests'
 import { getUserById } from '@/app/(services)/users'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ObjectId } from 'mongodb';
+
+interface Request {
+  _id: string;
+  userToId: ObjectId;
+  userFromId: ObjectId;
+  context: "PROJECT" | "MENTORSHIP" | "FEATURE";
+  referenceId: ObjectId;
+  message: string;
+  skillId: ObjectId,
+  status: "Pending" | "Accepted" | "Rejected";
+  createdAt: string; // ISO string
+  updatedAt: string; 
+}
+
+const REQUEST_HEADING = { 
+
+  mentorship: 'Mentorship Requests',
+  project: 'Project Requests'
+  
+}
+
+const REQUEST_CONTEXT = {
+  mentorship: 'MENTORSHIP',
+  project: 'PROJECT'
+}
 
 export default function RequestsPage () {
-  const [activeTab, setActiveTab] = useState('membership');
+  const [activeTab, setActiveTab] = useState('mentorship');
   const [activeSubTab, setActiveSubTab] = useState('pending');
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<Request[]>([]);
   const [users, setUsers] = useState({});
 
-  useEffect(() => {
-    async function fetchRequests() {
-      const data = await getRequests();
-      setRequests(data.requests);
-      const userIds = data.requests.map(request => request.userFromId);
-      const userDetails = await Promise.all(userIds.map(id => getUserById(id)));
-      const usersMap = userDetails.reduce((acc, user) => {
-        acc[user._id] = user.name;
-        return acc;
-      }, {});
-      setUsers(usersMap);
+  async function fetchRequests() {
+    const data = await getRequests();
+    setRequests(data.requests);
+    const userIds = data.requests.map(request => request.userFromId);
+    let userDetails = [];
+
+    for (let i = 0; i < userIds.length; i++) {
+      try{
+        const user = await getUserById(userIds[i]);
+        userDetails.push(user);
+      } catch (error) {
+        console.error("Error fetching user details", error);
+      } 
     }
+
+    const usersMap = userDetails.reduce((acc, user) => {
+      acc[user._id] = user.name;
+      return acc;
+    }, {});
+    setUsers(usersMap);
+  }
+
+  useEffect(() => {
     fetchRequests();
   }, []);
 
-  const handleUpdateStatus = async (id, status) => {
-    await updateRequestStatus(id, status);
-    setRequests(requests.map(request => request._id === id ? { ...request, status } : request));
-  };
+  const handleUpdate = async (request: Request, status: "Accepted" | "Rejected") => {
+    const { _id, context } = request;
+    await updateRequestStatus(_id, status);
 
-  const handleCreateRequest = async (data) => {
-    const newRequest = await createRequest(data);
-    setRequests([...requests, newRequest]);
+    let contributorMapping = { 
+      contributorId: request.userFromId,
+      status: 'active',
+      startDate: new Date().toISOString()
+
+    }
+    if (context === 'MENTORSHIP') {
+      await createMentorshipFromRequest( request );
+    } else {
+      await addContributorProjectMapping(  { 
+        ...contributorMapping,
+        projectId: request.referenceId } );
+    } 
+    fetchRequests();
   };
 
   const renderRequests = (requests) => {
+
+    if(requests.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-32">
+          <p className="text-muted-foreground">No requests found</p>
+        </div>
+      );
+    }
+
     return requests.map((request, index) => (
       <Card key={index} className="w-full m-2 p-4 border rounded-lg shadow-sm">
         <CardHeader className="flex items-center space-x-4">
@@ -53,7 +109,7 @@ export default function RequestsPage () {
             <>
               <button
                 className="bg-purple-500 text-white p-2 mr-2 rounded-full flex items-center justify-center"
-                onClick={() => handleUpdateStatus(request._id, "Accepted")}
+                onClick={() => handleUpdate(request, "Accepted")}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -61,7 +117,7 @@ export default function RequestsPage () {
               </button>
               <button
                 className="bg-black text-white p-2 rounded-full flex items-center justify-center"
-                onClick={() => handleUpdateStatus(request._id, "Rejected")}
+                onClick={() => handleUpdate(request, "Rejected")}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -84,7 +140,7 @@ export default function RequestsPage () {
       </div>
       <div className="flex flex-col space-y-4">
         <div className="flex justify-center space-x-4">
-          <Button onClick={() => setActiveTab('membership')} className={`py-2 px-4 ${activeTab === 'membership' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Membership</Button>
+          <Button onClick={() => setActiveTab('mentorship')} className={`py-2 px-4 ${activeTab === 'mentorship' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Mentorship</Button>
           <Button onClick={() => setActiveTab('project')} className={`py-2 px-4 ${activeTab === 'project' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}>Project</Button>
         </div>
         <div className="flex justify-center space-x-4">
@@ -93,22 +149,12 @@ export default function RequestsPage () {
         </div>
       </div>
       <div className="mt-8">
-        {activeTab === 'membership' && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Mentorship Requests {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">{REQUEST_HEADING[activeTab]} {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
             <div className="grid gap-6">
-              {renderRequests(requests.filter(request => request.context === 'MENTORSHIP'))}
+              {renderRequests(requests.filter(request => request.context ===  REQUEST_CONTEXT[activeTab] && ( activeSubTab === 'pending' ? request.status === 'Pending': request.status != 'Pending' ) ))}
             </div>
           </div>
-        )}
-        {activeTab === 'project' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Requests {activeSubTab === 'pending' ? 'Pending' : 'Done'}:</h2>
-            <div className="grid gap-6">
-              {renderRequests(requests.filter(request => request.context === 'PROJECT'))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

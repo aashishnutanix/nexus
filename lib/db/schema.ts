@@ -19,7 +19,7 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  skills: string[];
+  skills: ObjectId[];
   interests: string[];
   location: ObjectId;
   isAvailable: boolean;
@@ -84,7 +84,8 @@ export interface Request {
   context: "PROJECT" | "MENTORSHIP" | "FEATURE";
   referenceId: ObjectId;
   message: string;
-  skills: string[];
+  // To do : regression ?
+  skillId: ObjectId;
   status: "Pending" | "Accepted" | "Rejected";
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
@@ -108,7 +109,6 @@ export interface Feature {
     label: string;
     link: string;
   }[];
-  contributors?: string[];
 }
 
 export interface Skill {
@@ -117,71 +117,6 @@ export interface Skill {
   type: "Technical" | "Soft" | "Other"; // Type of skill (you can adjust these types as needed)
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
-}
-
-export interface UserDocument {
-  _id?: ObjectId;
-  name: string;
-  email: string;
-  image: string;
-  hashedPassword?: string;
-  team?: string;
-  dept?: string;
-  skillset?: string[];
-  manager?: string;
-  interests?: string[];
-  bio?: string;
-  offering?: {
-    freq: "days" | "weeks" | "biweekly" | "monthly";
-    type: "online" | "offline" | "both";
-    duration: number;
-  };
-  availability?: boolean;
-  designation?: string;
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
-}
-
-export interface ProjectDocument {
-  _id?: ObjectId;
-  name: string;
-  owner?: string;
-  description: string;
-  techStack: string[];
-  startDate: string; // ISO string
-  status:
-    | "Idea"
-    | "In Review"
-    | "Approved"
-    | "In Progress"
-    | "Completed"
-    | "Rejected";
-  feedbacks?: string[];
-  department?: string;
-  upVotes?: UpVote[];
-  contributors?: string[];
-  open?: boolean;
-  businessCritical: boolean;
-  features?: FeatureDocument[];
-}
-
-export interface FeatureDocument {
-  _id?: ObjectId;
-  name: string;
-  projectId: string;
-  timeline: number;
-  description: string;
-  status: "ideation" | "in_progress" | "under_review" | "completed";
-  startDate: string; // ISO string
-  feedback?: string[];
-  upvote?: UpVote[];
-  techStack: string[];
-  priority: "low" | "medium" | "high";
-  links?: {
-    label: string;
-    link: string;
-  }[];
-  contributors?: string[];
 }
 
 export interface UpVote{
@@ -200,6 +135,8 @@ export interface ContributorProjectMapping {
   featureId?: ObjectId; // Optional reference to a specific feature
   startDate: string; // ISO string representing the start date
   endDate?: string; // Optional ISO string representing the end date
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface Location {
