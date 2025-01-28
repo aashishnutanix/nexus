@@ -139,6 +139,7 @@ export const UpVoteSchema = z.object({
 });
 
 export const FeatureSchema = z.object({
+  featureId: z.string().optional(),
   name: z.string().min(1),
   projectId: z.string(),
   timeline: z.object({

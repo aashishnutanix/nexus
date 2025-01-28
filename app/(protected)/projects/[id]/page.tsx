@@ -159,7 +159,7 @@ export default function ProjectPage() {
                 ))}
               </div>
             </div>
-            <FeaturesList features={project.features} skillsIdMap={skillsIdMap} />
+            <FeaturesList features={project.features} skillsIdMap={skillsIdMap} projectId={projectId} />
             {canContribute(project) && (
               <Dialog open={requestModal} onOpenChange={setRequestModal}>
                 <DialogTrigger asChild>

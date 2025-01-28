@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,13 +8,27 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Feature } from "@/lib/db/schema";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { AddFeatureForm } from "@/components/add-feature-form";
 
 interface FeaturesListProps {
   features: Feature[];
   skillsIdMap: any;
+  projectId: string;
 }
 
-export default function FeaturesList({ features, skillsIdMap }: FeaturesListProps) {
+export default function FeaturesList({ features, skillsIdMap, projectId }: FeaturesListProps) {
+  const [editFeature, setEditFeature] = useState<Feature | null>(null);
+
   return (
     <div>
       <p className="text-sm font-medium mb-2">Features:</p>
@@ -26,9 +41,31 @@ export default function FeaturesList({ features, skillsIdMap }: FeaturesListProp
                   <CardTitle>{feature.name}</CardTitle>
                   <CardDescription>{feature.description}</CardDescription>
                 </div>
-                <Badge variant={feature.priority === "high" ? "destructive" : "secondary"}>
-                  {feature.priority} Priority
-                </Badge>
+                <div className="flex items-center space-x-2">
+                  <Badge variant={feature.priority === "high" ? "destructive" : "secondary"}>
+                    {feature.priority} Priority
+                  </Badge>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" onClick={() => setEditFeature(feature)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[600px]">
+                      <DialogHeader>
+                        <DialogTitle>Edit Feature</DialogTitle>
+                        <DialogDescription>
+                          Update the feature details below.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <AddFeatureForm
+                        projectId={projectId}
+                        feature={feature}
+                        onSuccess={() => setEditFeature(null)}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -43,7 +80,7 @@ export default function FeaturesList({ features, skillsIdMap }: FeaturesListProp
                 <div>
                   <p className="text-sm font-medium mb-2">Tech Stack:</p>
                   <div className="flex flex-wrap gap-2">
-                    {/* {feature.techStack.map((tech: any) => (
+                    {feature?.techStack?.map((tech: any) => (
                       <Badge
                         key={tech}
                         variant="secondary"
@@ -51,7 +88,7 @@ export default function FeaturesList({ features, skillsIdMap }: FeaturesListProp
                       >
                         {skillsIdMap[tech]?.name || tech}
                       </Badge>
-                    ))} */}
+                    ))}
                   </div>
                 </div>
                 {feature.links && (
@@ -73,6 +110,23 @@ export default function FeaturesList({ features, skillsIdMap }: FeaturesListProp
           </Card>
         ))}
       </div>
+      {editFeature && (
+        <Dialog open={!!editFeature} onOpenChange={() => setEditFeature(null)}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Edit Feature</DialogTitle>
+              <DialogDescription>
+                Update the feature details below.
+              </DialogDescription>
+            </DialogHeader>
+            <AddFeatureForm
+              projectId={projectId}
+              feature={editFeature}
+              onSuccess={() => setEditFeature(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
