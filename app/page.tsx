@@ -1,15 +1,25 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Users, GitPullRequest, Trophy, Blocks } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useSession } from "next-auth/react";
 import Link from 'next/link';
 
 export default function Home() {
+
+   const { data: session } = useSession();
+   const { user } = session || {};
+   const { id, image, name, team, designation } = user || {};
+   console.log("Name ->", name);
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, John!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Welcome back, {name} !</h1>
           <p className="text-muted-foreground">Here's what's happening in your hub.</p>
         </div>
       </div>

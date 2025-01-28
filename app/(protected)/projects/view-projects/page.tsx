@@ -8,7 +8,7 @@ export default function ViewProjectsPage() {
   const { data: fetchedProjects = {}, isLoading } = useQuery<any>({
     queryKey: ["fetch-all-projects"],
     queryFn: async () => {
-      const res = await fetch("/api/projects");
+      const res = await fetch("/api/projects?onlyMyProjects=false");
       return res.json();
     },
   });
