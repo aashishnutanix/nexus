@@ -18,6 +18,8 @@ export function Sidebar() {
 
   const { user } = session || {};
   const { id, image, name, team, designation } = user || {};
+  
+  console.log("designation -> ", designation)
 
   // useEffect(() => {
   //   async function fetchRequestCount() {
