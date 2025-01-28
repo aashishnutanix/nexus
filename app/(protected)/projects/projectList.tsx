@@ -46,7 +46,7 @@ export default function ProjectsPage({ projects, skillsIdMap, usersIdMap, reques
 
   const mutation = useMutation<any, unknown, UpVoteType>({
     mutationFn: upVote,
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fetch-all-projects"] });
     },
   });
@@ -56,7 +56,7 @@ export default function ProjectsPage({ projects, skillsIdMap, usersIdMap, reques
   };
 
   const handleCardClick = (id: string) => {
-    window.open(`/projects/${id}`, '_blank');
+    router.push(`/projects/${id}`);
   };
 
   const canContribute = (project: any) => {

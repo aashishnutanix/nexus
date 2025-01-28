@@ -11,16 +11,25 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { AddRequestForm } from "@/components/request-form";
 import { upVote } from "@/app/(services)/upvotes";
 import { RequestContextEnum, UpVoteType } from "@/lib/types";
-import { Project } from "@/lib/db/schema";
+import { Project, Feature } from "@/lib/db/schema";
+import FeaturesList from "@/app/(protected)/projects/featuresList";
+import { AddFeatureForm } from "@/components/add-feature-form";
 
 export default function ProjectPage() {
   const params = useParams<{ id: string }>();
@@ -28,6 +37,7 @@ export default function ProjectPage() {
   const { data: session } = useSession();
   const { user: loggedInUser } = session || {};
   const [requestModal, setRequestModal] = useState(false);
+  const [featureModal, setFeatureModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: projectData = {}, isLoading } = useQuery<any>({
@@ -50,17 +60,29 @@ export default function ProjectPage() {
   };
 
   const canContribute = (project: any) => {
-    return project.open && loggedInUser && loggedInUser.id !== project.createdBy;
+    return (
+      project.open && loggedInUser && loggedInUser.id !== project.createdBy
+    );
   };
 
   const canUpvote = (project: any) => {
     const projectUpvotes = upVoteMapByProjectId[project._id];
-    return projectUpvotes && loggedInUser && projectUpvotes.find((upvote: any) => upvote.userId === loggedInUser.id);
+    return (
+      projectUpvotes &&
+      loggedInUser &&
+      projectUpvotes.find((upvote: any) => upvote.userId === loggedInUser.id)
+    );
   };
 
   const canRequestForContribution = (project: any) => {
     const projectRequests = requestsMapByProjectId[project._id];
-    return projectRequests && loggedInUser && projectRequests.find((request: any) => request.userFromId === loggedInUser.id);
+    return (
+      projectRequests &&
+      loggedInUser &&
+      projectRequests.find(
+        (request: any) => request.userFromId === loggedInUser.id
+      )
+    );
   };
 
   const project: Project = get(projectData, "project", null);
@@ -77,6 +99,8 @@ export default function ProjectPage() {
     return <div>Project not found</div>;
   }
 
+  console.log("project", project);
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <Card className="border-l-4 border-l-primary">
@@ -86,7 +110,9 @@ export default function ProjectPage() {
               <CardTitle>{project.name}</CardTitle>
               <CardDescription>{project.description}</CardDescription>
             </div>
-            <Badge variant={project.businessCritical ? "destructive" : "secondary"}>
+            <Badge
+              variant={project.businessCritical ? "destructive" : "secondary"}
+            >
               {project.businessCritical ? "Business Critical" : ""}
             </Badge>
           </div>
@@ -133,29 +159,68 @@ export default function ProjectPage() {
                 ))}
               </div>
             </div>
+            <FeaturesList features={project.features} skillsIdMap={skillsIdMap} projectId={projectId} />
             {canContribute(project) && (
               <Dialog open={requestModal} onOpenChange={setRequestModal}>
                 <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90" disabled={canRequestForContribution(project)}>
+                  <Button
+                    className="bg-primary hover:bg-primary/90"
+                    disabled={canRequestForContribution(project)}
+                  >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Contribute
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
-                    <DialogTitle>Apply for contribution In {project.name}</DialogTitle>
+                    <DialogTitle>
+                      Apply for contribution In {project.name}
+                    </DialogTitle>
                     <DialogDescription>
-                      Request will go to project owner <b>{usersIdMap[project.createdBy.toString()]?.name}</b>
+                      Request will go to project owner{" "}
+                      <b>{usersIdMap[project.createdBy.toString()]?.name}</b>
                     </DialogDescription>
                   </DialogHeader>
-                  <AddRequestForm onSuccess={() => setRequestModal(false)} context={RequestContextEnum.enum.PROJECT} referenceId={project._id} userToId={project.createdBy} />
+                  <AddRequestForm
+                    onSuccess={() => setRequestModal(false)}
+                    context={RequestContextEnum.enum.PROJECT}
+                    referenceId={project._id}
+                    userToId={project.createdBy}
+                  />
                 </DialogContent>
               </Dialog>
             )}
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => handleUpvote({ refreferenceId: project._id.toString(), context: RequestContextEnum.enum.PROJECT })} disabled={canUpvote(project)}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={() =>
+                handleUpvote({
+                  refreferenceId: project._id.toString(),
+                  context: RequestContextEnum.enum.PROJECT,
+                })
+              }
+              disabled={canUpvote(project)}
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Upvote - {upVoteMapByProjectId[project._id.toString()]?.length}
             </Button>
+            here1
+            <Dialog open={featureModal} onOpenChange={setFeatureModal}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Feature here 2
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Feature</DialogTitle>
+                  <DialogDescription>
+                    Fill in the feature details below to add a new feature.
+                  </DialogDescription>
+                </DialogHeader>
+                <AddFeatureForm projectId={project._id.toString()} onSuccess={() => setFeatureModal(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
