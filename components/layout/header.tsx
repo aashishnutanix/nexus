@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { debounce } from 'lodash'; // Install lodash: `npm install lodash`
-import { ModeToggle } from '@/components/mode-toggle';
-import { Tabs, Tab, TabList, TabPanel } from '@/components/ui/tabs';
-import { search } from '@/app/(services)/search';
-import { Input } from '@/components/ui/input';
-import { Search as SearchIcon } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { debounce } from "lodash"; // Install lodash: `npm install lodash`
+import { ModeToggle } from "@/components/mode-toggle";
+import { Tabs, Tab, TabList, TabPanel } from "@/components/ui/tabs";
+import { search } from "@/app/(services)/search";
+import { Input } from "@/components/ui/input";
+import { Search as SearchIcon } from "lucide-react";
+import BreadcrumbCustom from "../breadcrumb-custom";
 
 type SearchResult = {
   [key: string]: Array<{
@@ -18,10 +19,10 @@ type SearchResult = {
 };
 
 export function Header() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>("");
 
   // Debounced Search Function
   const debouncedSearch = debounce(async (searchQuery: string) => {
@@ -40,10 +41,10 @@ export function Header() {
       if (Object.keys(data).length > 0) {
         setActiveTab(Object.keys(data)[0]);
       } else {
-        setActiveTab(''); // No results
+        setActiveTab(""); // No results
       }
     } catch (error) {
-      console.error('Error fetching search results:', error);
+      console.error("Error fetching search results:", error);
     } finally {
       setIsLoading(false);
     }
@@ -60,20 +61,23 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full border-b border-primary bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Header Content */}
       <div className="flex h-16 items-center px-6">
-      <div className="flex flex-1 items-center gap-x-4">
-        <div className="relative w-full max-w-md">
-          <SearchIcon className="absolute left-2 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search mentors, projects..."
-            className="w-full pl-8"
-          />
+        <div className="mr-auto">
+          <BreadcrumbCustom />
         </div>
-      </div>
+        <div className="flex items-center gap-x-4">
+          <div className="relative w-full max-w-md">
+            <SearchIcon className="absolute left-2 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search mentors, projects..."
+              className="w-full pl-8"
+            />
+          </div>
+        </div>
         <div className="flex items-center gap-x-4">
           <ModeToggle />
         </div>
@@ -93,8 +97,8 @@ export function Header() {
                   onClick={() => handleTabChange(key)}
                   className={`px-4 py-2 text-sm font-medium cursor-pointer ${
                     activeTab === key
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? "text-primary border-b-2 border-primary"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 />
               ))}
@@ -107,7 +111,7 @@ export function Header() {
                   key={key}
                   value={key}
                   isActive={activeTab === key}
-                  className={activeTab === key ? 'block' : 'hidden'}
+                  className={activeTab === key ? "block" : "hidden"}
                 >
                   <ul className="space-y-2">
                     {value.map((item) => (

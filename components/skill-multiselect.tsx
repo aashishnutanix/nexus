@@ -54,8 +54,6 @@ export function SkillsMultiSelect({
     },
   });
 
-  console.log("data ->>> ", data);
-
   // get skills array from options, skills array is type Skill[]
   const savedSkills: Skill[] = get(data, "skills", []);
   const skillsIdMap: { [key: string]: Skill } = {};

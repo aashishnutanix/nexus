@@ -6,24 +6,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Logo } from "@/components/ui/logo";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 
 import { routes } from "@/lib/constants";
 
 export function Sidebar() {
+  const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { user } = session || {};
-  const { id, image, name, team, designation} = user || {};
-  const { name: designationTitle } = (designation || {}) as { name?: string };;
-
-  console.log("User-> ", user); 
-  console.log("designation Title-> ", designation); 
+  const { id, image, name, team, designation } = user || {};
+  const { name: designationTitle } = (designation || {}) as { name?: string };
 
   // useEffect(() => {
   //   async function fetchRequestCount() {
@@ -34,19 +32,17 @@ export function Sidebar() {
   //   fetchRequestCount();
   // }, []);
 
-  console.log("user id - ", user);
-
   return (
     <div
       className={cn(
-        "relative flex flex-col h-full bg-card border-r pt-6 transition-all duration-300",
+        "relative flex flex-col h-full bg-card border-r border-primary pt-6 transition-all duration-300",
         isCollapsed ? "w-[80px]" : "w-[280px]"
       )}
     >
       <Button
         variant="ghost"
         size="icon"
-        className="absolute -right-4 top-4 h-8 w-8 rounded-full border bg-background z-50"
+        className="absolute -right-4 top-4 h-8 w-8 border border-primary rounded-full border bg-background z-50"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? (
@@ -65,18 +61,24 @@ export function Sidebar() {
       </div>
 
       <div
+        onClick={() => router.push("/profile")}
         className={cn(
-          "flex flex-col items-center px-6 mb-6",
+          "flex flex-col items-center px-6 mb-6 cursor-pointer",
           isCollapsed ? "px-2" : "px-6"
         )}
       >
-        <Avatar className="h-16 w-16 mb-1 p-1 text-3xl">
-          <AvatarImage
-            src={image || undefined}
-            style={{ objectFit: "cover", objectPosition: "center" }}
-          />
-          <AvatarFallback>{name?.[0]}</AvatarFallback>
-        </Avatar>
+        <div className="relative">
+          <Avatar className="h-16 w-16 mb-1 p-1 text-3xl border-primary border-2">
+            <AvatarImage
+              src={image || undefined}
+              style={{ objectFit: "cover", objectPosition: "center" }}
+            />
+            <AvatarFallback>{name?.[0]}</AvatarFallback>
+          </Avatar>
+          <div className="absolute bottom-0 right-0 text-white p-1 bg-primary rounded-full z-20">
+            <Pencil size={16} />
+          </div>
+        </div>
         {!isCollapsed && (
           <div className="flex flex-col items-center">
             <h2 className="text-lg font-semibold">{name}</h2>
