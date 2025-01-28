@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 import { createRequest } from "@/app/(services)/requests";
 import { useSession } from "next-auth/react";
+import { ObjectId } from "mongodb";
 
 function generateUniqueId() {
   return '_' + Math.random().toString(36).substr(2, 9);
@@ -18,7 +19,7 @@ export default function FindMentorPage() {
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [selectedSkillId, setSelectedSkillId] = useState([]);
   const [numSessions, setNumSessions] = useState(1);
   const [sessionDuration, setSessionDuration] = useState("30mins");
   const { data: session } = useSession();
@@ -26,11 +27,11 @@ export default function FindMentorPage() {
 
   const mentors = [
     {
-      _id: "1",
+      _id: "6797e53cec6da2de527b67cd",
       name: "John Doe",
       bio: "Experienced frontend developer with a passion for teaching.",
       designation: "Senior Developer",
-      skills: ["React", "JavaScript", "CSS"],
+      skills: ["6797282a2fed8a5461afd2a6", "67987b2721d1575b4d9dae3c"],
       interests: ["UI/UX Design", "Web Development"],
     },
     {
@@ -38,7 +39,7 @@ export default function FindMentorPage() {
       name: "Alice Johnson",
       bio: "Backend developer specializing in Node.js and databases.",
       designation: "Lead Developer",
-      skills: ["Node.js", "MongoDB", "SQL"],
+      skills: ["6797816eb085ca24650c8e59", "67978de98ac9f153d508b3a2"],
       interests: ["API Development", "Database Design"],
     },
   ];
@@ -57,9 +58,8 @@ export default function FindMentorPage() {
       userToId: selectedMentor._id,
       userFromId: currentUserId,
       context: "MENTORSHIP",
-      referenceId: selectedSkills[0] || selectedMentor._id,
       message,
-      skills: selectedSkills,
+      skillId: selectedSkillId,
       numSessions,
       sessionDuration,
       status: "Pending",
@@ -75,7 +75,7 @@ export default function FindMentorPage() {
   };
 
   const handleSkillChange = (event) => {
-    setSelectedSkills([event.target.value]);
+    setSelectedSkillId(event.target.value);
   };
 
   return (
@@ -153,7 +153,7 @@ export default function FindMentorPage() {
               <div>
                 <label className="block text-sm font-medium">Skill</label>
                 <select
-                  value={selectedSkills[0] || ""}
+                  value={selectedSkillId || ""}
                   onChange={handleSkillChange}
                   className="border rounded px-4 py-2 w-full"
                 >

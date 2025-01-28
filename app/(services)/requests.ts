@@ -1,6 +1,20 @@
 import { Request } from "@/lib/types";
 import { ObjectId } from "mongodb";
 
+
+export interface Mentorship {
+  name: string; // Name of the mentorship program or relationship
+  mentor: ObjectId; // Reference to the mentor (User)
+  mentee: ObjectId; // Reference to the mentee (User)
+  progress: number; // Progress of the mentorship (percentage or number)
+  status: string; // Current status of the mentorship (e.g., 'active', 'completed', 'paused')
+  startDate: string; // ISO string representing the start date of the mentorship
+  skillId: ObjectId; // Reference to the Skill
+  endDate?: string; // Optional ISO string representing the end date of the mentorship
+  duration?: number; // Optional duration of the mentorship in days, weeks, or months
+  description: string; // Description of the mentorship
+}
+
 interface ContributorProjectMapping {
   contributorId: ObjectId; // Reference to User
   projectId: ObjectId; // Reference to Project
@@ -30,20 +44,6 @@ export async function createRequest(data: Request) {
   }
 
   return res.json();
-}
-
-export async function getMentorshipRequestsRecieved() {
-
-  return [ {
-    userToId: 'mentor1',
-    userFromId: 'mentorCena'
-  }, {
-    userToId: 'mentor2',
-    userFromId: 'mentor5'
-  }, {
-    userToId: 'mentor3',
-    userFromId: 'mentor9'
-  } ];
 }
 
 export async function getRequests() {
@@ -111,21 +111,33 @@ export async function addContributorProjectMapping( contributorProjectMapping: C
 }
 
 
-export async function addContributorMentorshipMapping( contributorMentorshipMapping: ContributorMentorshipMapping) {
+export async function createMentorshipFromRequest( request: Request) {
 
-  const res = await fetch("/api/contributorMentorshipMappings", {
+
+  let mentorship: Mentorship = { 
+    // To do: Get user name instead of id
+    name: "Mentorship For " + request.skillId + " with " + request.userFromId,
+    // To do : Can we make it mentorId instead of mentor name ?
+    mentor: request.userToId,
+    mentee: request.userFromId,
+    progress: 0,
+    status: "active",
+    skillId: request.skillId,
+    startDate: new Date().toISOString(),
+  }
+
+  const res = await fetch("/api/mentorships", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(contributorMentorshipMapping),
+    body: JSON.stringify(mentorship),
   });
 
   if (!res.ok) {
-    throw new Error("Failed to add contributor mentorship mapping");
+    throw new Error("Failed to create mentorship");
   }
 
   return res.json();
 
 }
-

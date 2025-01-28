@@ -1,28 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 // import { MentorshipRequestSchema } from '@/lib/types';
 import clientPromise from '@/lib/db/client';
 import { collections } from '@/lib/db/schema';
 import { ObjectId } from 'mongodb';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 
-// export async function POST(request: Request) {
-//   try {
-//     const body = await request.json();
-//     const validatedData = MentorshipRequestSchema.parse(body);
-    
-//     const client = await clientPromise;
-//     const db = client.db();
-    
-//     const result = await db.collection(collections.mentorshipRequests).insertOne({
-//       ...validatedData,
-//       createdAt: new Date(),
-//       updatedAt: new Date()
-//     });
-    
-//     return NextResponse.json({ success: true, id: result.insertedId });
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-//   }
-// }
 
 // export async function PUT(request: Request) {
 //   try {
@@ -50,7 +33,7 @@ import { ObjectId } from 'mongodb';
 
 export async function GET(request: Request) {
   try {
-    console.log('GET /api/mentorship');
+    console.log('GET /api/mentorships');
     const { searchParams } = new URL(request.url);
     console.log('searchParams:', searchParams);
     const menteeId = searchParams.get('mentee');
@@ -72,5 +55,36 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch mentorships' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    // to implement the POST request
+    const body = await request.json();
+    
+    const validatedData = body;
+    console.log("Validated data:", validatedData);
+
+    const client = await clientPromise;
+    const db = client.db();
+
+
+    const result = await db.collection(collections.mentorships).insertOne(validatedData);
+
+    return NextResponse.json({ success: true, id: result.insertedId });
+  } catch (error) {
+    console.error("POST /api/mentorships error:", error);
+    return NextResponse.json(
+      { 
+        error: "Invalid request", 
+        details: error instanceof Error ? error.message : String(error)
+      }, 
+      { status: 400 }
+    );
   }
 }

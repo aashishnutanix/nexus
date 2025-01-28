@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { getRequests, updateRequestStatus, createRequest, addContributorProjectMapping, addContributorMentorshipMapping, getPendingRequest, getPendingRequests } from '@/app/(services)/requests'
+import { getRequests, updateRequestStatus, createRequest, addContributorProjectMapping, addContributorMentorshipMapping, getPendingRequest, getPendingRequests, createMentorshipFromRequest } from '@/app/(services)/requests'
 import { getUserById } from '@/app/(services)/users'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ interface Request {
   context: "PROJECT" | "MENTORSHIP" | "FEATURE";
   referenceId: ObjectId;
   message: string;
-  skills: string[];
+  skillId: ObjectId,
   status: "Pending" | "Accepted" | "Rejected";
   createdAt: string; // ISO string
   updatedAt: string; 
@@ -76,9 +76,7 @@ export default function RequestsPage () {
 
     }
     if (context === 'MENTORSHIP') {
-      await addContributorMentorshipMapping( { 
-        ...contributorMapping,
-        mentorshipId: request.referenceId } );
+      await createMentorshipFromRequest( request );
     } else {
       await addContributorProjectMapping(  { 
         ...contributorMapping,
