@@ -21,7 +21,7 @@ export function Sidebar() {
 
   // useEffect(() => {
   //   async function fetchRequestCount() {
-  //     const res = await fetch("/api/request/count");
+  //     const res = await fetch("/api/requests/count");
   //     const data = await res.json();
   //     setRequestCount(data.count);
   //   }
