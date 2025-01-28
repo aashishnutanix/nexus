@@ -56,7 +56,7 @@ export default function ProjectsPage({ projects, skillsIdMap, usersIdMap, reques
   };
 
   const handleCardClick = (id: string) => {
-    router.push(`/projects/${id}`);
+    window.open(`/projects/${id}`, '_blank');
   };
 
   const canContribute = (project: any) => {
@@ -80,7 +80,12 @@ export default function ProjectsPage({ projects, skillsIdMap, usersIdMap, reques
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{project.name} - {project.department}</CardTitle>
+                <CardTitle 
+                  onClick={() => handleCardClick(project._id)}
+                  className="cursor-pointer hover:underline"
+                >
+                  {project.name} - {project.department}
+                </CardTitle>
                 <CardDescription>{project.description}</CardDescription>
               </div>
               <Badge
