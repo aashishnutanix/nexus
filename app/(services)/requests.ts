@@ -1,5 +1,7 @@
-import { Request } from "@/lib/types";
 import { ObjectId } from "mongodb";
+import { getSkillName } from "./skills";
+import { getUserNameById } from "./users";
+import { Request } from "@/lib/types";
 
 
 export interface Mentorship {
@@ -115,8 +117,7 @@ export async function createMentorshipFromRequest( request: Request) {
 
 
   let mentorship: Mentorship = { 
-    // To do: Get user name instead of id
-    name: "Mentorship For " + request.skillId + " with " + request.userFromId,
+    name: "Mentorship For " + getSkillName(request.skillId) + " with " + getUserNameById(request.userFromId),
     // To do : Can we make it mentorId instead of mentor name ?
     mentor: request.userToId,
     mentee: request.userFromId,

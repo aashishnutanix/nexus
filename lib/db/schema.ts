@@ -85,7 +85,6 @@ export interface Request {
   context: "PROJECT" | "MENTORSHIP" | "FEATURE";
   referenceId: ObjectId;
   message: string;
-  // To do : regression ?
   skillId: ObjectId;
   status: "Pending" | "Accepted" | "Rejected";
   createdAt: string; // ISO string

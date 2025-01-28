@@ -15,3 +15,22 @@ export async function createSkill(data: Skill) {
 
   return res.json();
 }
+
+export async function getSkillName( skillId: String ) {
+
+  const res = await fetch(`/api/skills?_id=${skillId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch skill");
+  }
+
+  return await res.json().then((data) => {
+    return data.name;
+  });
+
+}
