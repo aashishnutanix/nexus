@@ -18,11 +18,12 @@ import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
-import { User } from "@/lib/types";
+import { User, Designation } from "@/lib/types";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
 import { SkillDisplays } from "@/components/skillDisplay";
 import { LocationCombobox } from "@/components/location-combobox";
+import { DesignationsCombobox } from "@/components/designations-combobox";
 import { Switch } from "@/components/ui/switch";
 
 import { Location } from "@/lib/types";
@@ -64,6 +65,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
+  const [designation, setDesignation] = useState<Designation | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,13 +73,14 @@ export default function ProfilePage() {
     if (profile) {
       setProfileData(profile);
       setLocation(profile.location || null);
+      setDesignation(profile.designation || null);
       setIsAvailable(profile.isAvailable || false);
     }
   }, [profile]);
 
   const handleSave = () => {
-    if (profileData && location) {
-      updateProfileMutation.mutate({ ...profileData, location, isAvailable });
+    if (profileData && location && designation) {
+      updateProfileMutation.mutate({ ...profileData, location, designation, isAvailable });
       setIsEditing(false);
     } else if (profileData) {
       updateProfileMutation.mutate({ ...profileData, isAvailable });
@@ -165,14 +168,7 @@ export default function ProfilePage() {
                       }
                       className="text-2xl font-bold"
                     />
-                    <Input
-                      value={profileData.role || ""}
-                      onChange={(e) =>
-                        setProfileData((prev) =>
-                          prev ? { ...prev, role: e.target.value } : prev
-                        )
-                      }
-                    />
+                    <DesignationsCombobox value={designation} onSelect={setDesignation} />
                     <Input
                       value={profileData.email}
                       onChange={(e) =>
@@ -210,7 +206,7 @@ export default function ProfilePage() {
                     <CardTitle className="text-2xl">
                       {profileData.name}
                     </CardTitle>
-                    <CardDescription>{profileData.role}</CardDescription>
+                    <CardDescription>{designation?.name}</CardDescription>
                     <p className="text-sm text-muted-foreground">
                       {profileData.email}
                     </p>

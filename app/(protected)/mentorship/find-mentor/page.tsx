@@ -168,7 +168,7 @@ export default function FindMentorPage() {
                 <input
                   type="number"
                   value={numSessions}
-                  onChange={(e) => setNumSessions(e.target.value)}
+                  onChange={(e) => setNumSessions(Number(e.currentTarget.value))}
                   min="1"
                   className="border rounded px-4 py-2 w-full"
                 />
