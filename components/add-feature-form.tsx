@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,22 +8,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FeatureType } from "@/lib/types";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
+import { Feature } from "@/lib/db/schema";
 
 interface AddFeatureFormProps {
   projectId: string;
+  feature?: Feature;
   onSuccess: () => void;
 }
 
-export function AddFeatureForm({ projectId, onSuccess }: AddFeatureFormProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [timelineValue, setTimelineValue] = useState(0);
-  const [timelineType, setTimelineType] = useState<"days" | "weeks" | "months">("days");
-  const [status, setStatus] = useState<"ideation" | "in_progress" | "under_review" | "completed">("ideation");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
-  const [startDate, setStartDate] = useState("");
-  const [techStack, setTechStack] = useState<string[]>([]);
-  const [links, setLinks] = useState<{ label: string; link: string }[]>([]);
+export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureFormProps) {
+  const [name, setName] = useState(feature?.name || "");
+  const [description, setDescription] = useState(feature?.description || "");
+  const [timelineValue, setTimelineValue] = useState(feature?.timeline.value || 0);
+  const [timelineType, setTimelineType] = useState<"days" | "weeks" | "months">(feature?.timeline.type || "days");
+  const [status, setStatus] = useState<"ideation" | "in_progress" | "under_review" | "completed">(feature?.status || "ideation");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">(feature?.priority || "low");
+  const [startDate, setStartDate] = useState(feature?.startDate || "");
+  const [techStack, setTechStack] = useState<string[]>(feature?.techStack || []);
+  const [links, setLinks] = useState<{ label: string; link: string }[]>(feature?.links || []);
   const [linkLabel, setLinkLabel] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [linkError, setLinkError] = useState("");
@@ -33,7 +35,7 @@ export function AddFeatureForm({ projectId, onSuccess }: AddFeatureFormProps) {
   const mutation = useMutation({
     mutationFn: async (newFeature: FeatureType) => {
       const res = await fetch("/api/projects/features", {
-        method: "POST",
+        method: feature ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,6 +61,11 @@ export function AddFeatureForm({ projectId, onSuccess }: AddFeatureFormProps) {
       priority,
       links,
     };
+
+    if (feature) {
+      newFeature.featureId = feature._id?.toString();
+    }
+
     mutation.mutate(newFeature);
   };
 
@@ -71,6 +78,13 @@ export function AddFeatureForm({ projectId, onSuccess }: AddFeatureFormProps) {
     } else {
       setLinkError("Invalid URL");
     }
+  };
+
+  const handleEditLink = (index: number) => {
+    const link = links[index];
+    setLinkLabel(link.label);
+    setLinkUrl(link.link);
+    setLinks(links.filter((_, i) => i !== index));
   };
 
   const isValidUrl = (url: string) => {
@@ -132,15 +146,17 @@ export function AddFeatureForm({ projectId, onSuccess }: AddFeatureFormProps) {
         <div className="space-y-1">
           {links.map((link, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <span>{link.label}:</span>
               <a href={link.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                {link.link}
+                {link.label}
               </a>
+              <Button variant="ghost" size="icon" onClick={() => handleEditLink(index)}>
+                Edit
+              </Button>
             </div>
           ))}
         </div>
       </div>
-      <Button onClick={handleAddFeature}>Add Feature</Button>
+      <Button onClick={handleAddFeature}>{feature ? "Update Feature" : "Add Feature"}</Button>
     </div>
   );
 }
