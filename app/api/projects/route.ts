@@ -125,6 +125,7 @@ export async function GET(request: NextRequest) {
     const db = client.db();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const session = await getServerSession(authOptions);
 
     if (id) {
       const project = dummyProjects.find((p) => p._id.toString() === id) || null;
@@ -133,35 +134,46 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({ success: true, project });
     } else {
-      const projects = await db
-      .collection(collections.projects)
-      .find({})
-      .toArray();
+      const onlyMyProjects = searchParams.get("onlyMyProjects") === "true";
+      let query = {};
 
-    // fetch all the skills by calling GET_SKILLS api route and pass projects.techStack as a query parameter
-    const techStackIds = projects.flatMap(project => project.techStack || []);
-    const skills = await fetchSkillByIds(techStackIds);
+      if (session) {
+        if (onlyMyProjects) {
+          query = { $or: [{ "members.userId": session.user.id }, { createdBy: session.user.id }] };
+        } else {
+          query = { $and: [{ "members.userId": { $ne: session.user.id } }, { createdBy: { $ne: session.user.id } }] };
+        }
+      }
 
-    const skillsIdMap: { [key: string]: any } = {};
-    skills.forEach((skill) => {
-      skillsIdMap[skill._id.toString()] = skill;
-    });
+      let projects = await db
+        .collection(collections.projects)
+        .find(query)
+        .toArray();
 
-    const userids = projects.flatMap(project => project.members.map((member: any) => member.userId));
-    const users = await fetchUserByIds(userids);
+      // fetch all the skills by calling GET_SKILLS api route and pass projects.techStack as a query parameter
+      const techStackIds = projects.flatMap(project => project.techStack || []);
+      const skills = await fetchSkillByIds(techStackIds);
 
-    const usersIdMap: { [key: string]: any } = {};
-    users.forEach((user) => {
-      usersIdMap[user._id.toString()] = user;
-    });
+      const skillsIdMap: { [key: string]: any } = {};
+      skills.forEach((skill) => {
+        skillsIdMap[skill._id.toString()] = skill;
+      });
 
-    const requestsMapByProjectId = await getProjectRequestsMapByUserId(RequestContextEnum.Enum.PROJECT);
-    const upVoteMapByProjectId = await getUpVoteMapByContext(RequestContextEnum.Enum.PROJECT);
+      const userids = projects.flatMap(project => project.members.map((member: any) => member.userId));
+      const users = await fetchUserByIds(userids);
 
-    if (projects.length === 0) {
-      return NextResponse.json({ success: true, projects: dummyProjects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
-    }
-    return NextResponse.json({ success: true, projects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
+      const usersIdMap: { [key: string]: any } = {};
+      users.forEach((user) => {
+        usersIdMap[user._id.toString()] = user;
+      });
+
+      const requestsMapByProjectId = await getProjectRequestsMapByUserId(RequestContextEnum.Enum.PROJECT);
+      const upVoteMapByProjectId = await getUpVoteMapByContext(RequestContextEnum.Enum.PROJECT);
+
+      if (projects.length === 0) {
+        return NextResponse.json({ success: true, projects: dummyProjects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
+      }
+      return NextResponse.json({ success: true, projects, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
     }
   } catch (error) {
     console.error("GET /api/projects error:", error);
