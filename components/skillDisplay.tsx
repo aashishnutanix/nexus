@@ -24,8 +24,6 @@ export function SkillDisplays({ skillIds }: SkillDisplayProps) {
     },
   });
 
-  console.log("data ->>> ", data);
-
   const savedSkills: Skill[] = get(data, "skills", []);
   const skillsIdMap: { [key: string]: Skill } = {};
   savedSkills.forEach((skill) => {

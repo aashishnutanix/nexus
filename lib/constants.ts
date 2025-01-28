@@ -41,11 +41,11 @@ export const routes = [
     icon: Trophy,
     href: "/leaderboard",
   },
-  {
-    label: "Profile",
-    icon: UserCircle,
-    href: "/profile",
-  },
+  // {
+  //   label: "Profile",
+  //   icon: UserCircle,
+  //   href: "/profile",
+  // },
   {
     label: "Logout",
     icon: LogOut,

@@ -18,13 +18,20 @@ import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
-import { User, Designation } from "@/lib/types";
+import { User, Designation, Offering, OfferingSchema } from "@/lib/types";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
 import { SkillDisplays } from "@/components/skillDisplay";
 import { LocationCombobox } from "@/components/location-combobox";
 import { DesignationsCombobox } from "@/components/designations-combobox";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Location } from "@/lib/types";
 
@@ -68,6 +75,7 @@ export default function ProfilePage() {
   const [designation, setDesignation] = useState<Designation | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [offering, setOffering] = useState<Offering | undefined>();
 
   useEffect(() => {
     if (profile) {
@@ -75,15 +83,22 @@ export default function ProfilePage() {
       setLocation(profile.location || null);
       setDesignation(profile.designation || null);
       setIsAvailable(profile.isAvailable || false);
+      setOffering(profile.offering || undefined);
     }
   }, [profile]);
 
   const handleSave = () => {
     if (profileData && location && designation) {
-      updateProfileMutation.mutate({ ...profileData, location, designation, isAvailable });
+      updateProfileMutation.mutate({
+        ...profileData,
+        location,
+        designation,
+        isAvailable,
+        offering,
+      });
       setIsEditing(false);
     } else if (profileData) {
-      updateProfileMutation.mutate({ ...profileData, isAvailable });
+      updateProfileMutation.mutate({ ...profileData, isAvailable, offering });
       setIsEditing(false);
     }
   };
@@ -129,7 +144,7 @@ export default function ProfilePage() {
             <div className="flex items-start space-x-6 ">
               <div className="relative">
                 {/* Avatar with Image Upload */}
-                <Avatar className="h-24 w-24 text-5xl relative">
+                <Avatar className="h-24 w-24 text-5xl border-primary border-2">
                   <AvatarImage
                     src={profileData.image || ""}
                     style={{ objectFit: "cover", objectPosition: "center" }}
@@ -168,7 +183,10 @@ export default function ProfilePage() {
                       }
                       className="text-2xl font-bold"
                     />
-                    <DesignationsCombobox value={designation} onSelect={setDesignation} />
+                    <DesignationsCombobox
+                      value={designation}
+                      onSelect={setDesignation}
+                    />
                     <Input
                       value={profileData.email}
                       onChange={(e) =>
@@ -189,16 +207,6 @@ export default function ProfilePage() {
                       rows={3}
                     />
                     <LocationCombobox value={location} onSelect={setLocation} />
-                    <div className="flex items-center space-x-2 mt-2">
-                      <label htmlFor="availability" className="text-sm">
-                        Available for invites
-                      </label>
-                      <Switch
-                        id="availability"
-                        checked={isAvailable}
-                        onCheckedChange={setIsAvailable}
-                      />
-                    </div>
                   </div>
                 ) : (
                   <>
@@ -216,12 +224,117 @@ export default function ProfilePage() {
                         ? `${location.city}, ${location.country}, ${location.region}`
                         : ""}
                     </p>
-                    <p className="text-sm mt-2">
-                      {isAvailable
-                        ? "Available for invites"
-                        : "Not available for invites"}
-                    </p>
                   </>
+                )}
+              </div>
+              <div className="space-y-1">
+                {isEditing ? (
+                  // Offering Section
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Offering</h3>
+                    <div className="space-y-2">
+                      <Select
+                        value={offering?.freq || ""}
+                        onValueChange={(value) =>
+                          setOffering((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  freq: value as Offering["freq"],
+                                }
+                              : prev
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select freq..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OfferingSchema.shape.freq.options.map(
+                            (freq: string) => (
+                              <SelectItem key={freq} value={freq}>
+                                {freq}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={offering?.type || ""}
+                        onValueChange={(value) =>
+                          setOffering((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  type: value as Offering["type"],
+                                }
+                              : prev
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OfferingSchema.shape.type.options.map(
+                            (type: string) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        //@ts-ignore
+                        value={offering?.duration || null}
+                        onChange={(e) =>
+                          setOffering((prev) =>
+                            prev
+                              ? { ...prev, duration: Number(e.target.value) }
+                              : prev
+                          )
+                        }
+                        className="w-full p-2 border rounded"
+                        placeholder="Duration (hours)"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  // Display Offering
+                  <div className="space-y-2">
+                    <h3 className="font-medium">Offering</h3>
+                    <div className="space-y-1">
+                      <p className="text-sm">Frequency: {offering?.freq}</p>
+                      <p className="text-sm">Type: {offering?.type}</p>
+                      <p className="text-sm">
+                        Duration: {offering?.duration} hours
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {isEditing ? (
+                  // {/* Availability Section */}
+                  <div className="flex items-center space-x-2 mt-2">
+                    <label htmlFor="availability" className="text-sm">
+                      Available for invites
+                    </label>
+                    <Switch
+                      id="availability"
+                      checked={isAvailable}
+                      onCheckedChange={(e) => {
+                        console.log("value - ", e);
+                        setIsAvailable(e);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm mt-2">
+                    {isAvailable
+                      ? "Available for invites"
+                      : "Not available for invites"}
+                  </p>
                 )}
               </div>
             </div>
@@ -301,7 +414,7 @@ export default function ProfilePage() {
               profileData.mentoring.map((mentee, i) => (
                 <div key={i} className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <Avatar>
+                    <Avatar className="border-primary border-2">
                       <AvatarImage src={mentee.image} />
                       <AvatarFallback>{mentee.name[0]}</AvatarFallback>
                     </Avatar>

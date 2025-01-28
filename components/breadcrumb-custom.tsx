@@ -1,37 +1,8 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
-
-// export default function BreadcrumbCustom() {
-//   const pathname = usePathname();
-//   const pathSegments = pathname.split("/").filter((segment) => segment);
-
-//   return (
-//     <Breadcrumb>
-//       <BreadcrumbItem>
-//         <BreadcrumbLink href="/">Home</BreadcrumbLink>
-//       </BreadcrumbItem>
-//       {pathSegments.map((segment, index) => {
-//         const isLast = index === pathSegments.length - 1;
-//         const href = "/" + pathSegments.slice(0, index + 1).join("/");
-
-//         return (
-//           <BreadcrumbItem key={index}>
-//             {isLast ? (
-//               <span>{segment}</span>
-//             ) : (
-//               <BreadcrumbLink href={href}>{segment}</BreadcrumbLink>
-//             )}
-//           </BreadcrumbItem>
-//         );
-//       })}
-//     </Breadcrumb>
-//   );
-// }
-
-
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -40,17 +11,21 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export default function BreadcrumbCustom() {
   const pathname = usePathname();
-  const pathSegments = pathname?.split("/").filter((segment) => segment);
+  const pathSegments = pathname?.split("/").filter((segment) => segment) || [];
+
+  const firstSegment = pathSegments?.[0];
+  const lastTwoSegments = pathSegments?.slice(-2);
+  const middleSegments = pathSegments?.slice(1, -2);
 
   return (
     <Breadcrumb>
@@ -58,30 +33,60 @@ export default function BreadcrumbCustom() {
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1">
-              <BreadcrumbEllipsis className="h-4 w-4" />
-              <span className="sr-only">Toggle menu</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem>Documentation</DropdownMenuItem>
-              <DropdownMenuItem>Themes</DropdownMenuItem>
-              <DropdownMenuItem>GitHub</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/docs/components">Components</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-        </BreadcrumbItem>
+        {firstSegment && (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={`/${firstSegment}`}>
+                {firstSegment}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </>
+        )}
+        {middleSegments && middleSegments.length > 0 && (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1">
+                  <BreadcrumbEllipsis className="h-4 w-4" />
+                  <span className="sr-only">Toggle menu</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {middleSegments.map((segment, index) => (
+                    <DropdownMenuItem key={index}>
+                      <Link
+                        href={`/${pathSegments.slice(0, index + 2).join("/")}`}
+                      >
+                        {segment}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </BreadcrumbItem>
+          </>
+        )}
+        {lastTwoSegments &&
+          lastTwoSegments.map((segment, index) => (
+            <React.Fragment key={index}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {index === lastTwoSegments.length - 1 ? (
+                  <BreadcrumbPage>{segment}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    href={`/${pathSegments
+                      .slice(0, pathSegments.length - 2 + index + 1)
+                      .join("/")}`}
+                  >
+                    {segment}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
+          ))}
       </BreadcrumbList>
     </Breadcrumb>
-  )
+  );
 }
-
