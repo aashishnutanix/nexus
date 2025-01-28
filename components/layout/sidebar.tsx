@@ -17,7 +17,11 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const { user } = session || {};
-  const { id, image, name, team, designation } = user || {};
+  const { id, image, name, team, designation} = user || {};
+  const { name: designationTitle } = (designation || {}) as { name?: string };;
+
+  console.log("User-> ", user); 
+  console.log("designation Title-> ", designation); 
 
   // useEffect(() => {
   //   async function fetchRequestCount() {
@@ -61,7 +65,7 @@ export function Sidebar() {
         {!isCollapsed && (
           <div className="flex flex-col items-center">
             <h2 className="text-lg font-semibold">{name}</h2>
-            <p className="text-sm text-muted-foreground">Senior Developer</p>
+            <p className="text-sm text-muted-foreground">{designationTitle}</p>
           </div>
         )}
       </div>
