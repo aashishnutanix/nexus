@@ -141,7 +141,10 @@ export const UpVoteSchema = z.object({
 export const FeatureSchema = z.object({
   name: z.string().min(1),
   projectId: z.string(),
-  timeline: z.number(),
+  timeline: z.object({
+    value: z.number(),
+    type: z.enum(["days", "weeks", "months"]),
+  }),
   description: z.string(),
   status: FeatureStatusEnum,
   startDate: z.string(), // ISO string
@@ -183,7 +186,7 @@ export const LocationSchema = z.object({
 export type Skill = z.infer<typeof SkillSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
-export type Feature = z.infer<typeof FeatureSchema>;
+export type FeatureType = z.infer<typeof FeatureSchema>;
 export type Request = z.infer<typeof RequestSchema>;
 export type UpVoteType = z.infer<typeof UpVoteSchema>;
 export type Location = z.infer<typeof LocationSchema>;
