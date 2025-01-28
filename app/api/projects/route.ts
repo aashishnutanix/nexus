@@ -7,8 +7,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchSkillByIds } from "../skills/skillByIds/route";
 import { fetchUserByIds } from "../profile/byIds/route";
-import { getProjectRequestsMapByUserId } from "../request/route";
-import { getUpVoteMapByContext } from "../upvote/route";
+import { getProjectRequestsMapByUserId, getProjectRequestsMapByReferenceId } from "../requests/route";
+import { getUpVoteMapByContext, getUpVoteMapByContextAndRefreferenceId } from "../upvote/route";
 export const dynamic = 'force-dynamic';
 
 const dummyProjects = [
@@ -119,6 +119,24 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+async function getSkillMapByIds(skillIds: ObjectId[]) {
+  const skills = await fetchSkillByIds(skillIds.map(id => id.toString()));
+  const skillsIdMap: { [key: string]: any } = {};
+  skills.forEach((skill) => {
+    skillsIdMap[skill._id.toString()] = skill;
+  });
+  return skillsIdMap;
+}
+
+async function getUserMapByIds(userIds: ObjectId[]) {
+  const users = await fetchUserByIds(userIds.map(id => id.toString()));
+  const usersIdMap: { [key: string]: any } = {};
+  users.forEach((user) => {
+    usersIdMap[user._id.toString()] = user;
+  });
+  return usersIdMap;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const client = await clientPromise;
@@ -127,12 +145,25 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get("id");
     const session = await getServerSession(authOptions);
 
+    console.log("id  id", id);
+
     if (id) {
-      const project = dummyProjects.find((p) => p._id.toString() === id) || null;
+      const project = await db.collection(collections.projects).findOne({ _id: new ObjectId(id) });
       if (!project) {
         return NextResponse.json({ error: "Project not found" }, { status: 404 });
       }
-      return NextResponse.json({ success: true, project });
+
+      const techStackIds = project.techStack || [];
+            const skillsIdMap = await getSkillMapByIds(techStackIds);
+
+      const userIds = project.members.map((member: any) => member.userId);
+      const usersIdMap = await getUserMapByIds(userIds);
+
+      const requestsMapByProjectId = await getProjectRequestsMapByReferenceId(RequestContextEnum.Enum.PROJECT, project._id.toString());
+      const upVoteMapByProjectId = await getUpVoteMapByContextAndRefreferenceId(RequestContextEnum.Enum.PROJECT, project._id.toString());
+
+
+      return NextResponse.json({ success: true, project, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
     } else {
       const onlyMyProjects = searchParams.get("onlyMyProjects") === "true";
       let query = {};
@@ -150,22 +181,11 @@ export async function GET(request: NextRequest) {
         .find(query)
         .toArray();
 
-      // fetch all the skills by calling GET_SKILLS api route and pass projects.techStack as a query parameter
       const techStackIds = projects.flatMap(project => project.techStack || []);
-      const skills = await fetchSkillByIds(techStackIds);
+      const userIds = projects.flatMap(project => project.members.map((member: any) => member.userId));
 
-      const skillsIdMap: { [key: string]: any } = {};
-      skills.forEach((skill) => {
-        skillsIdMap[skill._id.toString()] = skill;
-      });
-
-      const userids = projects.flatMap(project => project.members.map((member: any) => member.userId));
-      const users = await fetchUserByIds(userids);
-
-      const usersIdMap: { [key: string]: any } = {};
-      users.forEach((user) => {
-        usersIdMap[user._id.toString()] = user;
-      });
+      const skillsIdMap = await getSkillMapByIds(techStackIds);
+      const usersIdMap = await getUserMapByIds(userIds);
 
       const requestsMapByProjectId = await getProjectRequestsMapByUserId(RequestContextEnum.Enum.PROJECT);
       const upVoteMapByProjectId = await getUpVoteMapByContext(RequestContextEnum.Enum.PROJECT);

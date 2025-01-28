@@ -186,3 +186,59 @@ export async function GET_COUNT(request: NextRequest) {
     );
   }
 }
+
+export async function getProjectRequestsMapByUserId(context: string){
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const client = await clientPromise;
+  const db = client.db();
+
+  const projectRequests = await db
+    .collection(collections.requests)
+    .find({ userFromId: session.user.id, context})
+    .toArray();
+
+
+    console.log("projectRequests ", projectRequests);
+
+  const requestsMapByProjectId: { [key: string]: any } = {};
+  projectRequests.forEach((request) => {
+    requestsMapByProjectId[request.referenceId] = [
+      ...(requestsMapByProjectId[request.referenceId] || []),
+      request,
+    ]
+  });
+
+  return requestsMapByProjectId;
+}
+
+export async function getProjectRequestsMapByReferenceId(context: string, referenceId: string){
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const client = await clientPromise;
+  const db = client.db();
+
+  const projectRequests = await db
+    .collection(collections.requests)
+    .find({ referenceId, context})
+    .toArray();
+
+
+    console.log("projectRequests based on reference ", projectRequests);
+
+  const requestsMapByProjectId: { [key: string]: any } = {};
+  projectRequests.forEach((request) => {
+    requestsMapByProjectId[request.referenceId] = [
+      ...(requestsMapByProjectId[request.referenceId] || []),
+      request,
+    ]
+  });
+
+  return requestsMapByProjectId;
+}

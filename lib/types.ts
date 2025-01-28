@@ -30,7 +30,6 @@ export const FeatureStatusEnum = z.enum([
 ]);
 export const PriorityEnum = z.enum(["low", "medium", "high"]);
 
-
 // Small Schemas
 export const SkillSchema = z.object({
   name: z.string().min(1),
@@ -45,9 +44,20 @@ export const DesignationSchema = z.object({
 });
 
 export const OfferingSchema = z.object({
-  freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
+  freq: z.enum(["daily", "weekly", "biweekly", "monthly"]),
   type: z.enum(["online", "offline", "both"]),
   duration: z.number(),
+});
+
+export const FeedbackSchema = z.object({
+  userToId: z.string(),
+  userFromId: z.string(),
+  context: RequestContextEnum,
+  referenceId: z.string(),
+  feedback: z.string().min(10).max(500),
+  rating: z.number(),
+  createdAt: z.string(), // ISO string
+  updatedAt: z.string(), // ISO string
 });
 
 // Large Schemas
@@ -60,15 +70,7 @@ export const UserSchema = z.object({
   skills: z.array(z.string()).optional(),
   manager: z.string().optional(),
   interests: z.array(z.string()).optional(),
-  offering: z
-    .array(
-      z.object({
-        freq: z.enum(["days", "weeks", "biweekly", "monthly"]),
-        type: z.enum(["online", "offline", "both"]),
-        duration: z.number(),
-      })
-    )
-    .optional(),
+  offering: OfferingSchema.optional(),
   isAvailable: z.boolean().optional(),
   designation: DesignationSchema.optional(),
   hashedPassword: z.string().optional(),
@@ -139,7 +141,10 @@ export const UpVoteSchema = z.object({
 export const FeatureSchema = z.object({
   name: z.string().min(1),
   projectId: z.string(),
-  timeline: z.number(),
+  timeline: z.object({
+    value: z.number(),
+    type: z.enum(["days", "weeks", "months"]),
+  }),
   description: z.string(),
   status: FeatureStatusEnum,
   startDate: z.string(), // ISO string
@@ -181,12 +186,13 @@ export const LocationSchema = z.object({
 export type Skill = z.infer<typeof SkillSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
-export type Feature = z.infer<typeof FeatureSchema>;
+export type FeatureType = z.infer<typeof FeatureSchema>;
 export type Request = z.infer<typeof RequestSchema>;
 export type UpVoteType = z.infer<typeof UpVoteSchema>;
 export type Location = z.infer<typeof LocationSchema>;
 export type Offering = z.infer<typeof OfferingSchema>;
 export type Designation = z.infer<typeof DesignationSchema>;
+export type Feedback = z.infer<typeof FeedbackSchema>;
 
 declare module "next-auth" {
   interface User {

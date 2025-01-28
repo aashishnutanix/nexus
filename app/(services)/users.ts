@@ -66,7 +66,7 @@ export async function getUserById(id: string) {
 }
 
 export async function getMentorshipsForUser(userId: string) {
-  const res = await fetch(`/api/mentorship?mentee=${userId}`, {
+  const res = await fetch(`/api/mentorships?mentee=${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export async function getMentorshipsForUser(userId: string) {
 }
 
 export async function getMenteesForUser(userId: string) {
-  const res = await fetch(`/api/mentorship?mentor=${userId}`, {
+  const res = await fetch(`/api/mentorships?mentor=${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

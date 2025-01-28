@@ -62,3 +62,24 @@ export async function getUpVoteMapByContext(context: string){
 
   return upvotesMapByReferenceIdId;
 }
+
+export async function getUpVoteMapByContextAndRefreferenceId(context: string, refreferenceId: string){
+
+  const client = await clientPromise;
+  const db = client.db();
+
+  const upvotesData = await db
+    .collection(collections.upvotes)
+    .find({ refreferenceId, context})
+    .toArray();
+
+  const upvotesMapByReferenceIdId : { [key: string]: any } = {};
+  upvotesData.forEach((upvote) => {
+    upvotesMapByReferenceIdId[upvote.refreferenceId] = [
+      ...(upvotesMapByReferenceIdId[upvote.refreferenceId] || []),
+      upvote,
+    ];
+  });
+
+  return upvotesMapByReferenceIdId;
+}

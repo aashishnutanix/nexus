@@ -9,6 +9,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/u
 import { createRequest } from "@/app/(services)/requests";
 import { useSession } from "next-auth/react";
 import { searchMentors } from "@/app/(services)/searchMentors";
+import { ObjectId } from "mongodb";
 
 function generateUniqueId() {
   return '_' + Math.random().toString(36).substr(2, 9);
@@ -19,7 +20,7 @@ export default function FindMentorPage() {
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [selectedSkillId, setSelectedSkillId] = useState([]);
   const [numSessions, setNumSessions] = useState(1);
   const [sessionDuration, setSessionDuration] = useState("30mins");
   const { data: session } = useSession();
@@ -49,9 +50,8 @@ export default function FindMentorPage() {
       userToId: selectedMentor._id,
       userFromId: currentUserId,
       context: "MENTORSHIP",
-      referenceId: selectedSkills[0] || selectedMentor._id,
       message,
-      skills: selectedSkills,
+      skillId: selectedSkillId,
       numSessions,
       sessionDuration,
       status: "Pending",
@@ -67,7 +67,7 @@ export default function FindMentorPage() {
   };
 
   const handleSkillChange = (event) => {
-    setSelectedSkills([event.target.value]);
+    setSelectedSkillId(event.target.value);
   };
 
   return (
@@ -145,7 +145,7 @@ export default function FindMentorPage() {
               <div>
                 <label className="block text-sm font-medium">Skill</label>
                 <select
-                  value={selectedSkills[0] || ""}
+                  value={selectedSkillId || ""}
                   onChange={handleSkillChange}
                   className="border rounded px-4 py-2 w-full"
                 >
