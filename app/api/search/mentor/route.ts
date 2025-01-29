@@ -129,14 +129,15 @@ export async function GET(req: Request) {
     if (query) {
       const regex = new RegExp(query, 'i'); // Case-insensitive partial match
       const skills = await db.collection<Skill>("skills").find({ name: { $regex: regex } }).toArray();
-      const skillIds = skills.map(skill => skill._id);
+      const skillIds = skills.map(skill => new ObjectId(skill._id));
 
       console.log('skills:', skills);
+      console.log('skillIds:', skillIds);
 
       if (skillIds.length > 0) {
         mentors = await db.collection<User>("users")
           .aggregate([
-            { $match: { skills: { $in: skillIds }, isAvailable: true } },
+            { $match: { skills: { $in: skillIds }, isAvailable: true, _id: { $ne: currentUserId } } },
             {
               $lookup: {
                 from: 'skills',
@@ -161,9 +162,10 @@ export async function GET(req: Request) {
 
       // If no mentors found by skill, search by name
       if (mentors.length === 0) {
+        console.log('No mentors found by skill, searching by name');
         mentors = await db.collection<User>("users")
           .aggregate([
-            { $match: { name: { $regex: regex }, isAvailable: true } },
+            { $match: { name: { $regex: regex }, isAvailable: true, _id: { $ne: currentUserId } } },
             {
               $lookup: {
                 from: 'skills',
@@ -188,7 +190,7 @@ export async function GET(req: Request) {
     } else {
       mentors = await db.collection<User>("users")
         .aggregate([
-          { $match: { isAvailable: true } },
+          { $match: { isAvailable: true, _id: { $ne: currentUserId } } },
           {
             $lookup: {
               from: 'skills',
@@ -226,8 +228,8 @@ export async function GET(req: Request) {
       success: true,
       results: rankedMentors.map(r => ({
         ...r.mentor,
-        skills: r.mentor.skillsDetails.map(skill => skill.name),
-        interests: r.mentor.interestsDetails.map(interest => interest.name)
+        skills: r.mentor.skillsDetails?.map(skill => skill.name) || [],
+        interests: r.mentor.interestsDetails?.map(interest => interest.name) || []
       })),
     });
   } catch (error) {
