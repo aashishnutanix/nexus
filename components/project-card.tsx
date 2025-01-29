@@ -83,7 +83,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     bandwidthRequiredForContribution
   } = projectData;
   return (
-    <Card className="max-w-[375px]">
+    <Card className="w-[375px] flex flex-col justify-between ">
       <CardHeader className="gap-2 relative">
         {upvotes && (
           <Button
@@ -125,7 +125,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <Progress value={60} max={100} /> {`60%`}
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col">
+      <CardContent className="flex flex-col mt-auto">
         <Label className="mb-2">TECH STACK</Label>
         <div className="flex flex-wrap gap-2">
           {techStack.map((skill, index) => (
@@ -138,7 +138,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       {canContribute && (
         <CardFooter className="flex justify-between w-full">
           <Dialog open={requestModal} onOpenChange={setRequestModal}>
-            <DialogTrigger asChild >
+            <DialogTrigger asChild>
               <Button
                 className={cn(
                   "w-full gap-2",

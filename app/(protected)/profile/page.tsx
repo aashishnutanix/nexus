@@ -54,7 +54,7 @@ export default function ProfilePage() {
     },
   });
 
-  const { data } = useQuery<{ success: boolean; skills: Skill[] }>({
+  const { data  } = useQuery<{ success: boolean; skills: Skill[] }>({
     queryKey: ["skills"],
     queryFn: async () => {
       const res = await fetch("/api/skills");

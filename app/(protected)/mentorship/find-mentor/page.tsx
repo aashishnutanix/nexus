@@ -1,18 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { createRequest } from "@/app/(services)/requests";
 import { useSession } from "next-auth/react";
 import { searchMentors } from "@/app/(services)/searchMentors";
 import { ObjectId } from "mongodb";
+import MentorCard from "@/components/mentor-card";
+import { isEmpty } from "lodash";
+import { useQuery } from "@tanstack/react-query";
 
 function generateUniqueId() {
-  return '_' + Math.random().toString(36).substr(2, 9);
+  return "_" + Math.random().toString(36).substr(2, 9);
 }
 
 export default function FindMentorPage() {
@@ -26,6 +45,13 @@ export default function FindMentorPage() {
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
   const [mentors, setMentors] = useState([]);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetch-all-mentors"],
+    queryFn: searchMentors(query, 10, 1, currentUserId),
+  });
+
+  console.log("mentors data from api - ", data);
 
   const handleSearch = async () => {
     try {
@@ -70,12 +96,39 @@ export default function FindMentorPage() {
     setSelectedSkillId(event.target.value);
   };
 
+  if (isEmpty(mentors)) {
+    return (
+      <div className="container mx-auto p-6 space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Recommended Mentors
+            </h2>
+            <p className="text-muted-foreground">
+              Search and connect with mentors
+            </p>
+          </div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search mentors..."
+            className="border rounded px-4 py-2 w-full max-w-md"
+          />
+        </div>
+        <p className="text-2xl font-bold text-center">No mentors found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Find a Mentor</h2>
-          <p className="text-muted-foreground">Search and connect with mentors</p>
+          <p className="text-muted-foreground">
+            Search and connect with mentors
+          </p>
         </div>
         <input
           type="text"
@@ -86,46 +139,58 @@ export default function FindMentorPage() {
         />
       </div>
 
-      <div className="grid gap-6">
-        {mentors.map((mentor) => (
-          <Card key={mentor._id} className="border-l-4 border-l-primary">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{mentor.name}</CardTitle>
-                  <CardDescription>{mentor.bio}</CardDescription>
-                </div>
-                <Badge variant="outline">{mentor?.designation?.name}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium mb-2">Skills:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {mentor.skills?.map((skill, index) => (
-                      <Badge key={index} variant="secondary">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-2">Interests:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {mentor.interests?.map((interest, index) => (
-                      <Badge key={index} variant="secondary">
-                        {interest}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => handleApply(mentor)}>Apply</Button>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+        {/* <MentorCard
+          userData={mentors[0]}
+          onContactClick={() => {
+            console.log("first");
+          }}
+        /> */}
+        {mentors.map((mentor, i) => (
+          <MentorCard
+            userData={mentor}
+            onContactClick={() => {
+              console.log("first");
+            }}
+          />
+          // <Card key={mentor?._id || i} className="border-l-4 border-l-primary">
+          //   <CardHeader>
+          //     <div className="flex items-center justify-between">
+          //       <div>
+          //         <CardTitle>{mentor.name}</CardTitle>
+          //         <CardDescription>{mentor.bio}</CardDescription>
+          //       </div>
+          //       <Badge variant="outline">{mentor?.designation?.name}</Badge>
+          //     </div>
+          //   </CardHeader>
+          //   <CardContent>
+          //     <div className="space-y-4">
+          //       <div>
+          //         <p className="text-sm font-medium mb-2">Skills:</p>
+          //         <div className="flex flex-wrap gap-2">
+          //           {mentor.skills?.map((skill, index) => (
+          //             <Badge key={index} variant="secondary">
+          //               {skill}
+          //             </Badge>
+          //           ))}
+          //         </div>
+          //       </div>
+          //       <div>
+          //         <p className="text-sm font-medium mb-2">Interests:</p>
+          //         <div className="flex flex-wrap gap-2">
+          //           {mentor.interests?.map((interest, index) => (
+          //             <Badge key={index} variant="secondary">
+          //               {interest}
+          //             </Badge>
+          //           ))}
+          //         </div>
+          //       </div>
+          //     </div>
+          //     <div className="flex justify-end mt-4">
+          //       <Button onClick={() => handleApply(mentor)}>Apply</Button>
+          //     </div>
+          //   </CardContent>
+          // </Card>
         ))}
       </div>
 
@@ -149,24 +214,36 @@ export default function FindMentorPage() {
                   onChange={handleSkillChange}
                   className="border rounded px-4 py-2 w-full"
                 >
-                  <option value="" disabled>Select a skill</option>
-                  {mentors.flatMap(mentor => mentor.skills).map((skill, index) => (
-                    <option key={index} value={skill}>{skill}</option>
-                  ))}
+                  <option value="" disabled>
+                    Select a skill
+                  </option>
+                  {mentors
+                    .flatMap((mentor) => mentor.skills)
+                    .map((skill, index) => (
+                      <option key={index} value={skill}>
+                        {skill}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium">Number of Sessions</label>
+                <label className="block text-sm font-medium">
+                  Number of Sessions
+                </label>
                 <input
                   type="number"
                   value={numSessions}
-                  onChange={(e) => setNumSessions(Number(e.currentTarget.value))}
+                  onChange={(e) =>
+                    setNumSessions(Number(e.currentTarget.value))
+                  }
                   min="1"
                   className="border rounded px-4 py-2 w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Session Duration</label>
+                <label className="block text-sm font-medium">
+                  Session Duration
+                </label>
                 <select
                   value={sessionDuration}
                   onChange={(e) => setSessionDuration(e.target.value)}
@@ -177,7 +254,8 @@ export default function FindMentorPage() {
                   <option value="2hr">2 hours</option>
                 </select>
               </div>
-              <div className="mt-4"></div> {/* Add space after session duration */}
+              <div className="mt-4"></div>{" "}
+              {/* Add space after session duration */}
             </div>
           </ModalBody>
           <ModalFooter>

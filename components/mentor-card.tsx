@@ -33,7 +33,7 @@ const MentorCard: React.FC<MentorCardProps> = ({
 }) => {
   const { name, bio, image, designation } = userData;
   return (
-    <Card className="max-w-[375px]">
+    <Card className="w-[375px] flex flex-col justify-between ">
       <CardHeader className="gap-2">
         <div className="flex items-center gap-2">
           <Avatar className="h-14 w-14 border-2 border-=[#CFFAFE]">
@@ -56,7 +56,7 @@ const MentorCard: React.FC<MentorCardProps> = ({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col">
+      <CardContent className="flex flex-col mt-auto">
         <Label className="mb-2">SKILLS</Label>
         <div className="flex flex-wrap gap-2">
           {["React", "Java", "Node", "Next"].map((skill, index) => (

@@ -41,6 +41,7 @@ export const DesignationSchema = z.object({
   name: z.string(),
   level: z.string(),
   type: z.string(),
+  code: z.string(),
 });
 
 export const OfferingSchema = z.object({
