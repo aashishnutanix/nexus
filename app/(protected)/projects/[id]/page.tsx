@@ -174,7 +174,7 @@ export default function ProjectPage() {
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>
-                      Apply for contribution In {project.name}
+                      Apply for contribution In {project.name} (X% bandwidth per week)
                     </DialogTitle>
                     <DialogDescription>
                       Request will go to project owner{" "}

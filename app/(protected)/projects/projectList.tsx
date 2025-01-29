@@ -13,6 +13,7 @@ interface Project {
   team: string[];
   priority: string;
   techStack: string[];
+  bandwidthRequiredForContribution: number;
 }
 
 interface ProjectsPageProps {
@@ -85,6 +86,7 @@ export default function ProjectsPage({
             canUpvote={canUpvote(project)}
             upvotes={Object.keys(upVoteMapByProjectId).length}
             projectData={project}
+            bandwidthRequiredForContribution={project.bandwidthRequiredForContribution}
             handleUpvote={handleUpvote}
             context={RequestContextEnum.options.values().toArray()[0]}
             canContribute={canContribute(project)}

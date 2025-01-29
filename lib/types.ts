@@ -131,6 +131,7 @@ export const ProjectSchema = z.object({
   upVotes: z.number().optional(),
   contributors: z.array(z.string()).optional(),
   open: z.boolean().optional(),
+  bandwidthRequiredForContribution: z.number(),
 });
 
 export const UpVoteSchema = z.object({
@@ -162,6 +163,7 @@ export const FeatureSchema = z.object({
     )
     .optional(),
   contributors: z.array(z.string()).optional(),
+  bandwidthRequiredForContribution: z.number(),
 });
 
 export const RequestSchema = z.object({

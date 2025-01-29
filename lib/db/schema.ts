@@ -61,6 +61,7 @@ export interface Project {
     joinedAt: string; // ISO string
   }[];
   features: Feature[];
+  bandwidthRequiredForContribution: number; // Percentage of bandwidth required per week
   createdBy: ObjectId;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
@@ -109,6 +110,7 @@ export interface Feature {
     label: string;
     link: string;
   }[];
+  bandwidthRequiredForContribution: number; // Percentage of bandwidth required per week
 }
 
 export interface Skill {
