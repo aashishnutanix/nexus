@@ -23,14 +23,7 @@ export function Sidebar() {
   const { id, image, name, team, designation } = user || {};
   const { name: designationTitle } = (designation || {}) as { name?: string };
 
-  // useEffect(() => {
-  //   async function fetchRequestCount() {
-  //     const res = await fetch("/api/requests/count");
-  //     const data = await res.json();
-  //     setRequestCount(data.count);
-  //   }
-  //   fetchRequestCount();
-  // }, []);
+  const points = 1400;
 
   return (
     <div
@@ -83,6 +76,7 @@ export function Sidebar() {
           <div className="flex flex-col items-center">
             <h2 className="text-lg font-semibold">{name}</h2>
             <p className="text-sm text-muted-foreground">{designationTitle}</p>
+            <p className="text-sm text-muted-foreground">Points: {points}</p>
           </div>
         )}
       </div>
@@ -162,6 +156,48 @@ export function Sidebar() {
               </div>
             );
           })}
+          {/* Redeem Section */}
+          {/* <div>
+            <Link
+              href="/redeem"
+              className={cn(
+                "flex items-center gap-x-2 text-base font-semibold px-3 py-2 rounded-lg transition-all hover:bg-primary hover:text-white",
+                pathname?.startsWith("/redeem")
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground",
+                isCollapsed && "justify-center"
+              )}
+            >
+              <ChevronRight className="h-5 w-5" />
+              {!isCollapsed && <span>Redeem</span>}
+            </Link>
+            {!isCollapsed && (
+              <div className="ml-6 mt-2 space-y-1 border-l-2 border-primary">
+                <Link
+                  href="/redeem/rewards"
+                  className={cn(
+                    "block text-sm font-medium px-3 py-1 rounded-md transition-all hover:bg-accent hover:text-accent-foreground",
+                    pathname === "/redeem/rewards"
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  Rewards
+                </Link>
+                <Link
+                  href="/redeem/certifications"
+                  className={cn(
+                    "block text-sm font-medium px-3 py-1 rounded-md transition-all hover:bg-accent hover:text-accent-foreground",
+                    pathname === "/redeem/certifications"
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  Certifications
+                </Link>
+              </div>
+            )}
+          </div> */}
         </div>
       </ScrollArea>
     </div>

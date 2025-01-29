@@ -6,6 +6,7 @@ import {
   UserCircle,
   Blocks,
   LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -41,11 +42,14 @@ export const routes = [
     icon: Trophy,
     href: "/leaderboard",
   },
-  // {
-  //   label: "Profile",
-  //   icon: UserCircle,
-  //   href: "/profile",
-  // },
+  {
+    label: "Redeem",
+    icon: ChevronRight,
+    subRoutes: [
+      { label: "Rewards", href: "/redeem/rewards" },
+      { label: "Certifications", href: "/redeem/certifications" },
+    ],
+  },
   {
     label: "Logout",
     icon: LogOut,
