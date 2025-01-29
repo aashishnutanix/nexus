@@ -4,6 +4,8 @@ import {
   GitPullRequest,
   Trophy,
   Blocks,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 
 export const routes = [
