@@ -29,6 +29,7 @@ import { ObjectId } from "mongodb";
 import MentorCard from "@/components/mentor-card";
 import { isEmpty } from "lodash";
 import { useQuery } from "@tanstack/react-query";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 function generateUniqueId() {
   return "_" + Math.random().toString(36).substr(2, 9);
@@ -77,7 +78,7 @@ export default function FindMentorPage() {
       userFromId: currentUserId,
       context: "MENTORSHIP",
       message,
-      skillId: '6797282a2fed8a5461afd2a6',// selectedSkillId,
+      skillId: "6797282a2fed8a5461afd2a6", // selectedSkillId,
       numSessions,
       sessionDuration,
       status: "Pending",
@@ -95,6 +96,10 @@ export default function FindMentorPage() {
   const handleSkillChange = (event) => {
     setSelectedSkillId(event.target.value);
   };
+
+  if (isEmpty(mentors) && isLoading) {
+    return <LoadingSpinner />;
+  }
 
   if (isEmpty(mentors)) {
     return (

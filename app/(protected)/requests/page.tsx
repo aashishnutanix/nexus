@@ -30,11 +30,13 @@ import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { ObjectId } from "mongodb";
 import { RequestCard } from "./request-card";
-import { RequestContextEnum, User } from "@/lib/types";
+import { RequestContextEnum, UserType } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { isEmpty, set } from "lodash";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { FilterTabs } from "@/components/filter-tabs";
+import { cn } from "@/lib/utils";
 
 interface Request {
   _id: string;
@@ -60,7 +62,7 @@ const REQUEST_CONTEXT = {
 };
 
 export default function RequestsPage() {
-  const [activeMainTab, setActiveMainTab] = useState("received");
+  const [activeMainTab, setActiveMainTab] = useState("Recieved");
   const [activeTab, setActiveTab] = useState("mentorship");
   const [activeSubTab, setActiveSubTab] = useState("pending");
   const { data: session } = useSession();
@@ -71,13 +73,28 @@ export default function RequestsPage() {
   async function fetchRequests() {
     const data = await getRequests();
     const requests: Request[] = data.requests;
-    const userIds: Set<ObjectId> = new Set(requests.map((request) => request.userFromId))
-    requests.map((request) => request.userToId).forEach((id) => userIds.add(id));
-    let userDetails = await getUserByIds(Array.from(userIds));
-    let usersMap = userDetails?.users.reduce((acc, user) => {
-      acc[user._id] = user;
-      return acc;
-    }, {});
+
+    // Collect user IDs from requests
+    const userIds = requests.flatMap((request) => [
+      request.userFromId,
+      request.userToId,
+    ]);
+
+    // Remove duplicates
+    const uniqueUserIds = Array.from(
+      new Set(userIds.map((id) => id.toString()))
+    );
+
+    // Fetch user details by IDs
+    const userDetails = await getUserByIds(uniqueUserIds);
+    const usersMap: { [key: string]: UserType } = userDetails?.users.reduce(
+      (acc: { [key: string]: UserType }, user: UserType) => {
+        acc[user._id.toString()] = user;
+        return acc;
+      },
+      {}
+    );
+
     return { requests, users: usersMap };
   }
   const queryClient = useQueryClient();
@@ -98,10 +115,9 @@ export default function RequestsPage() {
 
   const handleUpdate = async (
     request: Request,
-    profile:any,
+    profile: any,
     status: "Accepted" | "Rejected"
   ) => {
-
     const { _id, context } = request;
     await updateRequestStatus(_id, status);
 
@@ -126,73 +142,83 @@ export default function RequestsPage() {
   }
 
   const renderTabContent = () => {
+    return RequestContextEnum.options.map((context) => {
+      const filteredRequests = requests.filter((request) => {
+        if (activeMainTab === "received") {
+          return (
+            request.context === context &&
+            request.userToId.toString() === currentUserId &&
+            request.status === "Pending"
+          );
+        } else {
+          return (
+            request.context === context &&
+            request.userFromId.toString() === currentUserId &&
+            request.status === "Pending"
+          );
+        }
+      });
 
-    return RequestContextEnum.options.map( ( context ) => {
+      const requestCards = filteredRequests.map((request) => {
+        const userId =
+          activeMainTab === "received"
+            ? request.userFromId.toString()
+            : request.userToId.toString();
 
-      if(activeMainTab === "received") {
-        return (
-          <TabsContent
-            key={context}
-            value={context}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 justify-items-center"
-          >
-            {requests
-              .filter((request) => request.context === context  && request.userToId === currentUserId && request.status === "Pending" )
-              .map((request) => {
-                if (request?.userFromId && users[request?.userFromId.toString()]) {
-                  return (
-                    <RequestCard
-                      key={request?._id}
-                      profile={users[request?.userFromId?.toString()]}
-                      request={request}
-                      acceptVisible={true}
-                      onAccept={(profile) => handleUpdate(request, profile, "Accepted")}
-                      onReject={(profile) => handleUpdate(request, profile, "Rejected")}
-                    />
-                  );
-                }
-                return null;
-              })}
-          </TabsContent>
-        );
-        
-      } else {
-        return (
-          <TabsContent
-            key={context}
-            value={context}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 justify-items-center"
-          >
-            {requests
-              .filter((request) => request.context === context  && request.userFromId === currentUserId && request.status === "Pending" )
-              .map((request) => {
-                if (request?.userToId && users[request?.userToId.toString()]) {
-                  return (
-                    <RequestCard
-                      key={request?._id}
-                      profile={users[request?.userToId?.toString()]}
-                      request={request}
-                      acceptVisible={false}
-                    />
-                  );
-                }
-                return null;
-              })}
-          </TabsContent>
-        );
-      }
-    } )
-  }
+        if (users[userId]) {
+          return (
+            <RequestCard
+              key={request._id}
+              profile={users[userId]}
+              request={request}
+              acceptVisible={activeMainTab === "received"}
+              onAccept={(profile) => handleUpdate(request, profile, "Accepted")}
+              onReject={(profile) => handleUpdate(request, profile, "Rejected")}
+            />
+          );
+        }
+        return null;
+      });
 
+      return (
+        <TabsContent
+          key={context}
+          value={context}
+          className={cn(
+            requestCards.length > 0
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 justify-items-center"
+              : "flex items-center justify-center h-full"
+          )}
+        >
+          {requestCards.length > 0 ? (
+            requestCards
+          ) : (
+            <div className="text-center text-gray-500">
+              No Requests to take action on
+            </div>
+          )}
+        </TabsContent>
+      );
+    });
+  };
   const renderUI = () => (
-    <Tabs ref={tabRef} defaultValue="PROJECT" className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="PROJECT">Projects</TabsTrigger>
-        <TabsTrigger value="MENTORSHIP">Mentorships</TabsTrigger>
-        <TabsTrigger value="FEATURE">Features</TabsTrigger>
-      </TabsList>
+    <div className="w-full flex items-center justify-between">
+      <Tabs ref={tabRef} defaultValue="PROJECT" className="space-y-6 w-full">
+        <div className="flex items-center justify-between w-full">
+          <TabsList>
+            <TabsTrigger value="PROJECT">Projects</TabsTrigger>
+            <TabsTrigger value="MENTORSHIP">Mentorships</TabsTrigger>
+            <TabsTrigger value="FEATURE">Features</TabsTrigger>
+          </TabsList>
+          <FilterTabs
+            options={["Recieved", "Sent"]}
+            value={activeMainTab}
+            onChange={setActiveMainTab}
+          />
+        </div>
         {renderTabContent()}
-    </Tabs>
+      </Tabs>
+    </div>
   );
 
   return (
@@ -204,20 +230,8 @@ export default function RequestsPage() {
             Manage your project and mentorship requests.
           </p>
         </div>
-        <div className="flex" >
-          <Tabs onValueChange={ (value)=> setActiveMainTab(value) } value={activeMainTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="received">Received</TabsTrigger>
-              <TabsTrigger value="sent">Sent</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
       </div>
-      {!isEmpty(requests) ? (
-        renderUI()
-      ) : (
-        <p>No Requests pending</p>
-      )}
+      {!isEmpty(requests) ? renderUI() : <p>No Requests pending</p>}
     </div>
   );
 }
