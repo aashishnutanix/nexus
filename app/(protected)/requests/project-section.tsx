@@ -1,10 +1,10 @@
 import { RequestCard } from "./request-card";
-import { User } from "@/lib/types";
+import { UserType, ProjectType } from "@/lib/types";
 import { ArrowUpCircle } from "lucide-react"
 
 
 interface ProjectSectionProps {
-  project: Project;
+  project: ProjectType;
   onAcceptProfile: (profileId: string) => void;
 }
 

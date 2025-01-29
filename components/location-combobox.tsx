@@ -20,12 +20,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Location } from "@/lib/types";
+import { LocationType } from "@/lib/types";
 import { getLocations } from "@/app/(services)/locations";
 
 interface LocationComboboxProps {
-  value: Location | null;
-  onSelect: (value: Location) => void;
+  value: LocationType | null;
+  onSelect: (value: LocationType) => void;
 }
 
 export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
@@ -33,7 +33,7 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
 
   const { data: locationsData } = useQuery<{
     success: boolean;
-    locations: Location[];
+    locations: LocationType[];
   }>({
     queryKey: ["locations"],
     queryFn: getLocations,
@@ -92,7 +92,7 @@ export function LocationCombobox({ value, onSelect }: LocationComboboxProps) {
   );
 }
 
-export function RenderLocation({ location }: { location: Location }) {
+export function RenderLocation({ location }: { location: LocationType }) {
   return (
     <p className="text-sm mt-2">
       {location

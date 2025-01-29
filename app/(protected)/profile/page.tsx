@@ -18,7 +18,7 @@ import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
-import { User, Designation, Offering, OfferingSchema } from "@/lib/types";
+import { UserType, DesignationType, OfferingType, OfferingSchema } from "@/lib/types";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
 import { SkillDisplays } from "@/components/skillDisplay";
@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Location } from "@/lib/types";
+import { LocationType } from "@/lib/types";
 
 interface Skill {
   _id: string;
@@ -42,7 +42,7 @@ interface Skill {
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
-  const { data: profile, isLoading } = useQuery<User>({
+  const { data: profile, isLoading } = useQuery<UserType>({
     queryKey: ["profile"],
     queryFn: getProfile,
   });
@@ -70,12 +70,12 @@ export default function ProfilePage() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState<User | null>(null);
-  const [location, setLocation] = useState<Location | null>(null);
-  const [designation, setDesignation] = useState<Designation | null>(null);
+  const [profileData, setProfileData] = useState<UserType | null>(null);
+  const [location, setLocation] = useState<LocationType | null>(null);
+  const [designation, setDesignation] = useState<DesignationType | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [offering, setOffering] = useState<Offering | undefined>();
+  const [offering, setOffering] = useState<OfferingType | undefined>();
 
   useEffect(() => {
     if (profile) {
@@ -240,7 +240,7 @@ export default function ProfilePage() {
                             prev
                               ? {
                                   ...prev,
-                                  freq: value as Offering["freq"],
+                                  freq: value as OfferingType["freq"],
                                 }
                               : prev
                           )
@@ -266,7 +266,7 @@ export default function ProfilePage() {
                             prev
                               ? {
                                   ...prev,
-                                  type: value as Offering["type"],
+                                  type: value as OfferingType["type"],
                                 }
                               : prev
                           )

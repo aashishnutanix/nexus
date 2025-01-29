@@ -1,14 +1,15 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { User } from "@/lib/types";
+import { UserType } from "@/lib/types";
 import { AvatarImage } from "@radix-ui/react-avatar";
 
 interface RequestCardProps {
-  profile: User;
+  profile: UserType;
   request: any;
-  onAccept: (profile: User) => void;
-  onReject: (profile: User) => void;
+  acceptVisible: boolean;
+  onAccept: (profile: UserType) => void;
+  onReject: (profile: UserType) => void;
 }
 
 export function RequestCard({ profile, request, onAccept, acceptVisible }: RequestCardProps) {

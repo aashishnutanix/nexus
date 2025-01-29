@@ -20,12 +20,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Designation } from "@/lib/types";
+import { DesignationType } from "@/lib/types";
 import { getDesignations } from "@/app/(services)/designations";
 
 interface DesignationsComboboxProps {
-  value: Designation | null;
-  onSelect: (value: Designation) => void;
+  value: DesignationType | null;
+  onSelect: (value: DesignationType) => void;
 }
 
 export function DesignationsCombobox({ value, onSelect }: DesignationsComboboxProps) {
@@ -33,7 +33,7 @@ export function DesignationsCombobox({ value, onSelect }: DesignationsComboboxPr
 
   const { data: designationsData } = useQuery<{
     success: boolean;
-    designations: Designation[];
+    designations: DesignationType[];
   }>({
     queryKey: ["designations"],
     queryFn: getDesignations,
@@ -86,7 +86,7 @@ export function DesignationsCombobox({ value, onSelect }: DesignationsComboboxPr
   );
 }
 
-export function RenderDesignation({ designation }: { designation: Designation }) {
+export function RenderDesignation({ designation }: { designation: DesignationType }) {
   return (
     <p className="text-sm mt-2">
       {designation ? designation.name : ""}

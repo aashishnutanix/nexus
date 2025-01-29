@@ -20,7 +20,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Textarea } from "@/components/ui/textarea";
 import { searchAllUsers } from "@/app/(services)/searchMentors"; // Import searchAllUsers method
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/lib/types";
+import { UserType } from "@/lib/types";
 import { get } from "lodash";
 
 interface InviteUsersProps {
@@ -56,8 +56,8 @@ const InviteUsers: React.FC<InviteUsersProps> = ({ projectId, projectName, users
     setSearchResults(users);
   }
 
-  const userIdMap: { [key: string]: User } = {};
-users.forEach((userItem: User) => {
+  const userIdMap: { [key: string]: UserType } = {};
+users.forEach((userItem: UserType) => {
     userIdMap[userItem._id.toString()] = userItem;
 });
 

@@ -11,10 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "./ui/badge";
 import { Label } from "./ui/label";
-import { User } from "@/lib/types";
+import { UserType } from "@/lib/types";
+import Tile from "./tile";
 
 interface MentorCardProps {
-  userData: User;
+  userData: UserType;
   onContactClick: () => void;
 }
 
@@ -37,16 +38,13 @@ const MentorCard: React.FC<MentorCardProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2 justify-start flex-wrap">
-          {designation && (
-            <span className="py-2 px-3 text-sm rounded-lg bg-[#CFFAFE] text-[#164E63]">
-              {designation?.name}
-            </span>
-          )}
-          {userData?.dept && (
-            <span className="py-2 px-3 text-sm rounded-lg bg-[#DBEAFE] text-[#1E3A8A]">
-              R&D SaaS Engineering
-            </span>
-          )}
+          <Tile value={designation?.name} visible={!!designation} />
+          <Tile
+            value={userData?.dept}
+            visible={!!userData?.dept}
+            bgColor="#DBEAFE"
+            textColor="#1E3A8A"
+          />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">

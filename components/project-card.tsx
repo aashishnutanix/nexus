@@ -22,6 +22,7 @@ import { Label } from "./ui/label";
 import { CircleArrowUp, CircleCheckBig } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { cn } from "@/lib/utils";
+import Tile from "./tile";
 
 interface ProjectCardProps {
   projectData?: {
@@ -81,7 +82,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     techStack,
     businessCritical,
     createdBy,
-    bandwidthRequiredForContribution
+    bandwidthRequiredForContribution,
   } = projectData;
 
   return (
@@ -106,20 +107,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </CardTitle>
         <CardDescription>{description}</CardDescription>
         <div className="flex items-center gap-2 justify-start flex-wrap">
-          <Button
-            size="sm"
-            className="bg-[#E9D5FF] text-[#4C1D95] hover:bg-[#E9D5FF] cursor-default"
-          >
-            {status}
-          </Button>
-          {businessCritical && (
-            <Button
-              size="sm"
-              className="bg-[#FEE2E2] text-[#7F1D1D] hover:bg-[#FEE2E2] cursor-default"
-            >
-              Business Critical
-            </Button>
-          )}
+          <Tile
+            value={status}
+            visible={!!status}
+            bgColor="#E9D5FF"
+            textColor="#4C1D95"
+          />
+          <Tile
+            value={"Business Critical"}
+            visible={businessCritical}
+            bgColor="#FEE2E2"
+            textColor="#7F1D1D"
+          />
         </div>
         <div className="flex gap-2 items-center text-xs text-slate-500">
           <Progress value={60} max={100} className="bg-[#E9D5FF]" /> {`60%`}
@@ -159,7 +158,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   Request will go to project owner{" "}
                   <b>{usersIdMap[createdBy].name}</b>
                   <p></p>
-                  <p>{bandwidthRequiredForContribution ? `You need to have ${bandwidthRequiredForContribution}% bandwidth per week`: null}</p>
+                  <p>
+                    {bandwidthRequiredForContribution
+                      ? `You need to have ${bandwidthRequiredForContribution}% bandwidth per week`
+                      : null}
+                  </p>
                 </DialogDescription>
               </DialogHeader>
               <AddRequestForm
