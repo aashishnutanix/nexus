@@ -6,8 +6,10 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Tabs, Tab, TabList, TabPanel } from "@/components/ui/tabs";
 import { search } from "@/app/(services)/search";
 import { Input } from "@/components/ui/input";
-import { Search as SearchIcon } from "lucide-react";
+import { LogOut, Search as SearchIcon } from "lucide-react";
 import BreadcrumbCustom from "../breadcrumb-custom";
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
 
 type SearchResult = {
   [key: string]: Array<{
@@ -80,6 +82,12 @@ export function Header() {
         </div>
         <div className="flex items-center gap-x-4">
           <ModeToggle />
+          <Button variant="ghost" size="icon">
+            <LogOut
+              className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+              onClick={() => signOut({ callbackUrl: "/signin" })}
+            />
+          </Button>
         </div>
       </div>
 

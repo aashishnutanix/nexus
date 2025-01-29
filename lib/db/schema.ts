@@ -175,7 +175,8 @@ export interface Designation {
   _id: ObjectId; // Unique identifier for the designation
   name: string; // Name of the designation (e.g., 'Software Engineer', 'Manager')
   level: number; // Level of the designation (e.g., 1 for junior, 2 for mid, 3 for senior)
-  domain: string; // Domain to which the designation belongs (e.g., 'Engineering', 'Sales', 'HR')
+  code: string; // Code representing the designation (e.g., 'SE1', 'MGR')
+  type: string; // Domain to which the designation belongs (e.g., 'Engineering', 'Sales', 'HR')
 }
 
 export interface Contact {
