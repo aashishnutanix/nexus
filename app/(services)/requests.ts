@@ -113,11 +113,12 @@ export async function addContributorProjectMapping( contributorProjectMapping: C
 }
 
 
-export async function createMentorshipFromRequest( request: Request) {
+export async function createMentorshipFromRequest( request: Request, profile: any) {
+
 
 
   let mentorship: Mentorship = { 
-    name: "Mentorship For " + getSkillName(request.skillId) + " with " + getUserNameById(request.userFromId),
+    name: "Mentorship For " + "JavaScript" + " with " + profile.name,
     // To do : Can we make it mentorId instead of mentor name ?
     mentor: request.userToId,
     mentee: request.userFromId,

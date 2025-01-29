@@ -163,14 +163,23 @@ export async function GET(request: NextRequest) {
       const upVoteMapByProjectId = await getUpVoteMapByContextAndRefreferenceId(RequestContextEnum.Enum.PROJECT, project._id.toString());
 
 
+
       return NextResponse.json({ success: true, project, skillsIdMap, usersIdMap, requestsMapByProjectId, upVoteMapByProjectId });
     } else {
       const onlyMyProjects = searchParams.get("onlyMyProjects") === "true";
       let query = {};
 
+
+
       if (session) {
+        const projectContributions = await db
+        .collection(collections.contributorProjectMappings ).find({ 'contributorId': session.user.id }).toArray();
+        const projectIds = projectContributions.map((projectContribution) => new ObjectId( projectContribution.projectId));
+
+        console.log("projectIds", projectIds);
+  
         if (onlyMyProjects) {
-          query = { $or: [{ "members.userId": session.user.id }, { createdBy: session.user.id }] };
+          query = { $or: [{ "members.userId": session.user.id }, { createdBy: session.user.id }, { _id: { $in: projectIds } }] };
         } else {
           query = { $and: [{ "members.userId": { $ne: session.user.id } }, { createdBy: { $ne: session.user.id } }] };
         }

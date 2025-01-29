@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
 
     const createRequestObj = {
       ...validatedData,
+      status: "Pending",
       userFromId: session.user.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
