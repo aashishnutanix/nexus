@@ -65,6 +65,21 @@ export async function getUserById(id: string) {
   return res.json();
 }
 
+export async function getUserByIds(ids: string[]) {
+  const res = await fetch(`/api/users?ids=${ids.join(",")}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch users");
+  }
+
+  return res.json();
+}
+
 export async function getMentorshipsForUser(userId: string) {
   const res = await fetch(`/api/mentorships?mentee=${userId}`, {
     method: "GET",
