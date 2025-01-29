@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     
     // const validatedData = RequestSchema.parse(body);
     const validatedData = body;
-    console.log("Validated data:", validatedData);
+    console.log("Validated data -->>:", validatedData);
 
     const client = await clientPromise;
     const db = client.db();
