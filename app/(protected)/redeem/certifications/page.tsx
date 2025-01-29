@@ -24,8 +24,13 @@ export default function CertificationsPage() {
       </div>
       <div className="grid gap-6">
         {certifications.map((certification: any) => (
-          <div key={certification.id} className="p-4 border rounded-lg flex justify-between items-center">
-            <div>
+          <div key={certification.id} className="p-4 border rounded-lg flex items-center">
+            <div className="flex-shrink-0 h-full flex items-center justify-center">
+              <div className="w-16 h-16 flex items-center justify-center rounded-full border">
+                <span className="text-3xl">{certification.icon}</span>
+              </div>
+            </div>
+            <div className="ml-4 flex-grow">
               <h3 className="text-xl font-semibold">{certification.name}</h3>
               <p className="text-muted-foreground">{certification.description}</p>
               <p className="text-muted-foreground">Mentored Students: {certification.mentoredStudents}</p>
@@ -35,7 +40,7 @@ export default function CertificationsPage() {
               className="bg-purple-600 text-white px-4 py-2 rounded-lg"
               download
             >
-              Download
+              Download Certificate
             </a>
           </div>
         ))}
