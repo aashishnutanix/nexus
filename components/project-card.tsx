@@ -32,6 +32,7 @@ interface ProjectCardProps {
     techStack: string[];
     businessCritical: boolean;
     createdBy: string;
+    bandwidthRequiredForContribution: number;
   };
   upvotes: number;
   handleUpvote: (upvoteData: any) => void;
@@ -42,6 +43,7 @@ interface ProjectCardProps {
   handleCardClick: (id: string) => void;
   usersIdMap: any;
   skillsIdMap: any;
+  bandwidthRequiredForContribution: number;
 }
 
 const projectDataDummy = {
@@ -54,6 +56,7 @@ const projectDataDummy = {
   businessCritical: true,
   upvotes: ["user1", "user2", "user3"],
   createdBy: "60d5ec49f8d2b320d8e4f8b5",
+  bandwidthRequiredForContribution: 2,
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -69,6 +72,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   upvotes,
 }) => {
   const [requestModal, setRequestModal] = useState(false);
+
   const {
     _id,
     name,
@@ -77,7 +81,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     techStack,
     businessCritical,
     createdBy,
+    bandwidthRequiredForContribution
   } = projectData;
+
   return (
     <Card className="w-[375px] flex flex-col justify-between ">
       <CardHeader className="gap-2 relative">
@@ -154,6 +160,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <DialogDescription>
                   Request will go to project owner{" "}
                   <b>{usersIdMap[createdBy].name}</b>
+                  <p></p>
+                  <p>{bandwidthRequiredForContribution ? `You need to have ${bandwidthRequiredForContribution}% bandwidth per week`: null}</p>
                 </DialogDescription>
               </DialogHeader>
               <AddRequestForm

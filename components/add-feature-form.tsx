@@ -10,7 +10,10 @@ import { FeatureType } from "@/lib/types";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
 import { Feature } from "@/lib/db/schema";
 import { Pencil, X } from "lucide-react";
-
+import { Slider } from "@/components/ui/slider";
+import {
+  FormLabel
+} from "@/components/ui/form";
 interface AddFeatureFormProps {
   projectId: string;
   feature?: Feature;
@@ -27,6 +30,7 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
   const [startDate, setStartDate] = useState(feature?.startDate || "");
   const [techStack, setTechStack] = useState<string[]>(feature?.techStack || []);
   const [links, setLinks] = useState<{ label: string; link: string }[]>(feature?.links || []);
+  const [bandwidthRequiredForContribution, setBandwidthRequiredForContribution] = useState<number>(feature?.bandwidthRequiredForContribution || 0);
   const [linkLabel, setLinkLabel] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [linkError, setLinkError] = useState("");
@@ -61,6 +65,7 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
       techStack,
       priority,
       links,
+      bandwidthRequiredForContribution,
     };
 
     if (feature) {
@@ -143,6 +148,16 @@ export function AddFeatureForm({ projectId, feature, onSuccess }: AddFeatureForm
         <Input type="date" placeholder="Start Date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
       </div>
       <SkillsMultiSelect selected={techStack} onSelectionChange={setTechStack} />
+      <div className="space-y-2">
+        <label>Bandwidth Required (%)</label>
+        <Slider
+          value={[bandwidthRequiredForContribution]}
+          onValueChange={(value) => setBandwidthRequiredForContribution(value[0])}
+          max={100}
+          step={1}
+        />
+        <div>{bandwidthRequiredForContribution}%</div>
+      </div>
       <div className="space-y-2">
         <div className="flex space-x-2">
           <Input placeholder="Link Label" value={linkLabel} onChange={(e) => setLinkLabel(e.target.value)} />
