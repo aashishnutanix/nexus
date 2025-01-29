@@ -3,12 +3,10 @@ import {
   Users,
   GitPullRequest,
   Trophy,
-  UserCircle,
   Blocks,
   LogOut,
   ChevronRight,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
 
 export const routes = [
   {
@@ -42,17 +40,14 @@ export const routes = [
     icon: Trophy,
     href: "/leaderboard",
   },
-  {
-    label: "Redeem",
-    icon: ChevronRight,
-    subRoutes: [
-      { label: "Rewards", href: "/redeem/rewards" },
-      { label: "Certifications", href: "/redeem/certifications" },
-    ],
-  },
-  {
-    label: "Logout",
-    icon: LogOut,
-    onClick: () => signOut({ callbackUrl: "/signin" }),
-  },
+  // {
+  //   label: "Profile",
+  //   icon: UserCircle,
+  //   href: "/profile",
+  // },
+  // {
+  //   label: "Logout",
+  //   icon: LogOut,
+  //   onClick: () => signOut({ callbackUrl: "/signin" }),
+  // },
 ];
