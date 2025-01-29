@@ -32,6 +32,7 @@ interface ProjectCardProps {
     techStack: string[];
     businessCritical: boolean;
     createdBy: string;
+    bandwidthRequiredForContribution: number;
   };
   upvotes: number;
   handleUpvote: (upvoteData: any) => void;
@@ -42,6 +43,7 @@ interface ProjectCardProps {
   handleCardClick: (id: string) => void;
   usersIdMap: any;
   skillsIdMap: any;
+  bandwidthRequiredForContribution: number;
 }
 
 const projectDataDummy = {
@@ -54,6 +56,7 @@ const projectDataDummy = {
   businessCritical: true,
   upvotes: ["user1", "user2", "user3"],
   createdBy: "60d5ec49f8d2b320d8e4f8b5",
+  bandwidthRequiredForContribution: 2,
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -69,6 +72,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   upvotes,
 }) => {
   const [requestModal, setRequestModal] = useState(false);
+
   const {
     _id,
     name,
@@ -77,9 +81,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     techStack,
     businessCritical,
     createdBy,
+    bandwidthRequiredForContribution
   } = projectData;
+
   return (
-    <Card className="w-[375px] flex flex-col justify-between ">
+    <Card className="w-full sm:w-[375px] flex flex-col justify-between border-gray-300 border">
       <CardHeader className="gap-2 relative">
         {upvotes && (
           <Button
@@ -92,7 +98,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <CircleArrowUp size={16} /> {`(${upvotes})`}
           </Button>
         )}
-        {/* <div className="flex items-center gap-2"> */}
         <CardTitle
           className="cursor-pointer hover:underline"
           onClick={() => handleCardClick(_id)}
@@ -100,11 +105,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {name}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
-        {/* </div> */}
         <div className="flex items-center gap-2 justify-start flex-wrap">
           <Button
             size="sm"
-            className="bg-[#FEF9C3] text-[#713F12] hover:bg-[#FEF9C3] cursor-default"
+            className="bg-[#E9D5FF] text-[#4C1D95] hover:bg-[#E9D5FF] cursor-default"
           >
             {status}
           </Button>
@@ -118,7 +122,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
         </div>
         <div className="flex gap-2 items-center text-xs text-slate-500">
-          <Progress value={60} max={100} /> {`60%`}
+          <Progress value={60} max={100} className="bg-[#E9D5FF]" /> {`60%`}
         </div>
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">
@@ -139,7 +143,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 className={cn(
                   "w-full gap-2",
                   canRequestForContribution &&
-                    "bg-[#BBF7D0] text=[#166534] opacity-100"
+                    "bg-[#C4B5FD] text-[#4C1D95] opacity-100"
                 )}
                 variant="outline"
                 disabled={canRequestForContribution}
@@ -154,6 +158,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <DialogDescription>
                   Request will go to project owner{" "}
                   <b>{usersIdMap[createdBy].name}</b>
+                  <p></p>
+                  <p>{bandwidthRequiredForContribution ? `You need to have ${bandwidthRequiredForContribution}% bandwidth per week`: null}</p>
                 </DialogDescription>
               </DialogHeader>
               <AddRequestForm

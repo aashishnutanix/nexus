@@ -5,11 +5,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Feature } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, CircleCheckBig } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { AddFeatureForm } from "@/components/add-feature-form";
+import { AddRequestForm } from "@/components/request-form";
+import { cn } from "@/lib/utils";
 
 interface FeaturesListProps {
   features: Feature[];
@@ -28,6 +31,18 @@ interface FeaturesListProps {
 
 export default function FeaturesList({ features, skillsIdMap, projectId }: FeaturesListProps) {
   const [editFeature, setEditFeature] = useState<Feature | null>(null);
+  const [requestModal, setRequestModal] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
+
+  const canContribute = (feature: Feature) => {
+    // Add your logic to determine if the user can contribute to the feature
+    return true; // Placeholder
+  };
+
+  const canRequestForContribution = (feature: Feature) => {
+    // Add your logic to determine if the user can request for contribution to the feature
+    return false; // Placeholder
+  };
 
   return (
     <div>
@@ -107,6 +122,44 @@ export default function FeaturesList({ features, skillsIdMap, projectId }: Featu
                 )}
               </div>
             </CardContent>
+            {canContribute(feature) && (
+              <CardFooter className="flex justify-between w-full">
+                <Dialog open={requestModal} onOpenChange={setRequestModal}>
+                  <DialogTrigger asChild>
+                    <Button
+                      className={cn(
+                        "w-full gap-2",
+                        canRequestForContribution(feature) &&
+                          "bg-[#BBF7D0] text=[#166534] opacity-100"
+                      )}
+                      variant="outline"
+                      disabled={canRequestForContribution(feature)}
+                      onClick={() => {
+                        setSelectedFeature(feature);
+                        setRequestModal(true);
+                      }}
+                    >
+                      {canRequestForContribution(feature) && <CircleCheckBig size={16} />}
+                      Apply Now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Apply for contribution In {feature.name}</DialogTitle>
+                      <DialogDescription>
+                        Request will go to project owner
+                      </DialogDescription>
+                    </DialogHeader>
+                    <AddRequestForm
+                      onSuccess={() => setRequestModal(false)}
+                      context="FEATURE"
+                      referenceId={feature._id}
+                      userToId={feature.projectId}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </CardFooter>
+            )}
           </Card>
         ))}
       </div>

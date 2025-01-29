@@ -63,6 +63,7 @@ export const FeedbackSchema = z.object({
 
 // Large Schemas
 export const UserSchema = z.object({
+  _id: z.string(),
   name: z.string().min(1),
   email: z.string().email(),
   role: z.string().optional(),
@@ -132,6 +133,7 @@ export const ProjectSchema = z.object({
   upVotes: z.number().optional(),
   contributors: z.array(z.string()).optional(),
   open: z.boolean().optional(),
+  bandwidthRequiredForContribution: z.number(),
 });
 
 export const UpVoteSchema = z.object({
@@ -163,6 +165,7 @@ export const FeatureSchema = z.object({
     )
     .optional(),
   contributors: z.array(z.string()).optional(),
+  bandwidthRequiredForContribution: z.number(),
 });
 
 export const RequestSchema = z.object({
@@ -175,6 +178,7 @@ export const RequestSchema = z.object({
   status: RequestStatusEnum.default("Pending"),
   createdAt: z.string(), // ISO string
   updatedAt: z.string(), // ISO string
+  userIds: z.array(z.string()).optional(),
 });
 
 export const LocationSchema = z.object({

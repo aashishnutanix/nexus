@@ -139,64 +139,19 @@ export default function FindMentorPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
-        {/* <MentorCard
-          userData={mentors[0]}
-          onContactClick={() => {
-            console.log("first");
-          }}
-        /> */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 justify-items-center">
         {mentors.map((mentor, i) => (
           <MentorCard
+            key={mentor?._id || i}
             userData={mentor}
-            onContactClick={() => {
-              console.log("first");
-            }}
+            onContactClick={() => handleApply(mentor)}
           />
-          // <Card key={mentor?._id || i} className="border-l-4 border-l-primary">
-          //   <CardHeader>
-          //     <div className="flex items-center justify-between">
-          //       <div>
-          //         <CardTitle>{mentor.name}</CardTitle>
-          //         <CardDescription>{mentor.bio}</CardDescription>
-          //       </div>
-          //       <Badge variant="outline">{mentor?.designation?.name}</Badge>
-          //     </div>
-          //   </CardHeader>
-          //   <CardContent>
-          //     <div className="space-y-4">
-          //       <div>
-          //         <p className="text-sm font-medium mb-2">Skills:</p>
-          //         <div className="flex flex-wrap gap-2">
-          //           {mentor.skills?.map((skill, index) => (
-          //             <Badge key={index} variant="secondary">
-          //               {skill}
-          //             </Badge>
-          //           ))}
-          //         </div>
-          //       </div>
-          //       <div>
-          //         <p className="text-sm font-medium mb-2">Interests:</p>
-          //         <div className="flex flex-wrap gap-2">
-          //           {mentor.interests?.map((interest, index) => (
-          //             <Badge key={index} variant="secondary">
-          //               {interest}
-          //             </Badge>
-          //           ))}
-          //         </div>
-          //       </div>
-          //     </div>
-          //     <div className="flex justify-end mt-4">
-          //       <Button onClick={() => handleApply(mentor)}>Apply</Button>
-          //     </div>
-          //   </CardContent>
-          // </Card>
         ))}
       </div>
 
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <ModalHeader>Apply for Mentorship</ModalHeader>
+          <ModalHeader>Request Mentorship</ModalHeader>
           <ModalBody>
             <div className="space-y-4">
               <div>

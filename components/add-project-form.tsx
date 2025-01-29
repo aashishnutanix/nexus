@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { createProject } from "@/app/(services)/projects";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
+import { Slider } from "@/components/ui/slider";
 
 interface AddProjectFormProps {
   onSuccess: () => void;
@@ -45,6 +46,7 @@ interface ProjectData {
   upVotes?: number;
   contributors?: string[];
   open?: boolean;
+  bandwidthRequiredForContribution: number;
 }
 
 // Define a type for the response of createProject
@@ -67,6 +69,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
       businessCritical: false,
       department: "",
       open: true,
+      bandwidthRequiredForContribution: 0,
     },
   });
 
@@ -80,6 +83,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
   });
 
   const handleButtonClick = (data: ProjectData) => {
+    console.log("data", data);
     mutation.mutate(data);
   };
 
@@ -104,7 +108,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
-<FormField
+        <FormField
           control={form.control}
           name="department"
           render={({ field }) => (
@@ -174,8 +178,7 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
-
-    <FormField
+        <FormField
           control={form.control}
           name="open"
           render={({ field }) => (
@@ -196,12 +199,30 @@ export function AddProjectForm({ onSuccess }: AddProjectFormProps) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="bandwidthRequiredForContribution"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <>
+                  <Slider
+                    value={[field.value]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    max={100}
+                    step={1}
+                  />
+                  <p></p>
+                  <FormLabel>Bandwidth Required {field.value}%</FormLabel>
+                </>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-primary/90"
-            // onClick={handleButtonClick}
-          >
+          <Button type="submit" className="bg-primary hover:bg-primary/90">
             Create Project
           </Button>
         </div>

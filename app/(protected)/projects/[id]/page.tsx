@@ -30,6 +30,14 @@ import { RequestContextEnum, UpVoteType } from "@/lib/types";
 import { Project, Feature } from "@/lib/db/schema";
 import FeaturesList from "@/app/(protected)/projects/featuresList";
 import { AddFeatureForm } from "@/components/add-feature-form";
+import InviteUsers from "@/components/invite-users"; // Import InviteUsers component
+import { searchAllUsers } from "@/app/(services)/searchMentors"; // Import searchAllUsers method
+import { createRequest } from "@/app/(services)/requests";
+
+interface CreateRequestResponse {
+  success: boolean;
+  id: string; // Adjust this based on your actual response structure
+}
 
 export default function ProjectPage() {
   const params = useParams<{ id: string }>();
@@ -38,6 +46,8 @@ export default function ProjectPage() {
   const { user: loggedInUser } = session || {};
   const [requestModal, setRequestModal] = useState(false);
   const [featureModal, setFeatureModal] = useState(false);
+  const [inviteModal, setInviteModal] = useState(false); // State for invite modal
+  const [inviteMessage, setInviteMessage] = useState(""); // State for invite message
   const queryClient = useQueryClient();
 
   const { data: projectData = {}, isLoading } = useQuery<any>({
@@ -55,9 +65,40 @@ export default function ProjectPage() {
     },
   });
 
+  
+
+    const mutationOfRequest = useMutation<CreateRequestResponse, Error, any>({
+      mutationFn: createRequest,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["fetch-project-by-id"] });
+      },
+    });
+
   const handleUpvote = (upvoteData: UpVoteType) => {
     mutation.mutate(upvoteData);
   };
+
+  const handleInviteSubmit = (selectedUsers: string[], inviteMessage: string) => {
+    // Logic to save multiple requests in requests schema
+    interface InviteRequest {
+      message: string;
+      context: string;
+      referenceId: string;
+      userIds: string[];
+    }
+
+      const requests: InviteRequest & { refreferenceId: string } = {
+        message: inviteMessage,
+        context: RequestContextEnum.enum.PROJECT,
+        referenceId: projectId,
+        userIds: selectedUsers,
+        refreferenceId: projectId,
+      };
+
+      console.log("submitting data", requests);
+      mutation.mutate(requests);
+
+    };
 
   const canContribute = (project: any) => {
     return (
@@ -174,7 +215,7 @@ export default function ProjectPage() {
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>
-                      Apply for contribution In {project.name}
+                      Apply for contribution In {project.name} (X% bandwidth per week)
                     </DialogTitle>
                     <DialogDescription>
                       Request will go to project owner{" "}
@@ -203,12 +244,17 @@ export default function ProjectPage() {
               <PlusCircle className="mr-2 h-4 w-4" />
               Upvote - {upVoteMapByProjectId[project._id.toString()]?.length}
             </Button>
-            here1
+            <InviteUsers
+              projectId={projectId}
+              projectName={project.name}
+              usersIdMap={usersIdMap}
+              onInviteSubmit={handleInviteSubmit}
+            />
             <Dialog open={featureModal} onOpenChange={setFeatureModal}>
               <DialogTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Feature here 2
+                  Add Feature
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
