@@ -36,6 +36,14 @@ export const routes = [
     href: "/requests",
   },
   {
+    label: "Redeem",
+    icon: ChevronRight,
+    subRoutes: [
+      { label: "Rewards", href: "/redeem/rewards" },
+      { label: "Certifications", href: "/redeem/certifications" },
+    ],
+  },
+  {
     label: "Leaderboard",
     icon: Trophy,
     href: "/leaderboard",
