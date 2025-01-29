@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectValue,
 } from "@/components/ui/select";
 import { createRequest } from "@/app/(services)/requests";
 import { useSession } from "next-auth/react";
@@ -30,6 +31,17 @@ import MentorCard from "@/components/mentor-card";
 import { isEmpty } from "lodash";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 function generateUniqueId() {
   return "_" + Math.random().toString(36).substr(2, 9);
@@ -40,7 +52,7 @@ export default function FindMentorPage() {
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [selectedSkillId, setSelectedSkillId] = useState([]);
+  const [selectedSkillId, setSelectedSkillId] = useState<string>();
   const [numSessions, setNumSessions] = useState(1);
   const [sessionDuration, setSessionDuration] = useState("30mins");
   const { data: session } = useSession();
@@ -93,8 +105,8 @@ export default function FindMentorPage() {
     }
   };
 
-  const handleSkillChange = (event) => {
-    setSelectedSkillId(event.target.value);
+  const handleSkillChange = (value: string) => {
+    setSelectedSkillId(value);
   };
 
   if (isEmpty(mentors) && isLoading) {
@@ -126,6 +138,11 @@ export default function FindMentorPage() {
     );
   }
 
+  console.log(
+    "first mentor - ",
+    mentors.flatMap((mentor) => mentor.skills)
+  );
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -154,78 +171,74 @@ export default function FindMentorPage() {
         ))}
       </div>
 
-      {isModalOpen && (
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <ModalHeader>Request Mentorship</ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Message</label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="border rounded px-4 py-2 w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Skill</label>
-                <select
-                  value={selectedSkillId || ""}
-                  onChange={handleSkillChange}
-                  className="border rounded px-4 py-2 w-full"
-                >
-                  <option value="" disabled>
-                    Select a skill
-                  </option>
-                  {mentors
-                    .flatMap((mentor) => mentor.skills)
-                    .map((skill, index) => (
-                      <option key={index} value={skill}>
-                        {skill}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Number of Sessions
-                </label>
-                <input
-                  type="number"
-                  value={numSessions}
-                  onChange={(e) =>
-                    setNumSessions(Number(e.currentTarget.value))
-                  }
-                  min="1"
-                  className="border rounded px-4 py-2 w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Session Duration
-                </label>
-                <select
-                  value={sessionDuration}
-                  onChange={(e) => setSessionDuration(e.target.value)}
-                  className="border rounded px-4 py-2 w-full"
-                >
-                  <option value="30mins">30 mins</option>
-                  <option value="1hr">1 hour</option>
-                  <option value="2hr">2 hours</option>
-                </select>
-              </div>
-              <div className="mt-4"></div>{" "}
-              {/* Add space after session duration */}
+      <Dialog open={isModalOpen} onOpenChange={() => setIsModalOpen(false)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Request Mentorship</DialogTitle>
+            <DialogDescription>
+              Fill out the form below to request mentorship.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type your message here."
+              />
             </div>
-          </ModalBody>
-          <ModalFooter>
-            <div className="flex justify-between w-full">
-              <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-              <Button onClick={handleSubmit}>Submit</Button>
+            <div className="grid gap-2">
+              <Label htmlFor="skill">Skill</Label>
+              <Select value={selectedSkillId} onValueChange={handleSkillChange}>
+                <SelectTrigger id="skill">
+                  <SelectValue placeholder="Select a skill" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedMentor?.skills.map((skill, index) => (
+                    <SelectItem key={index} value={skill}>
+                      {skill}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </ModalFooter>
-        </Modal>
-      )}
+            <div className="grid gap-2">
+              <Label htmlFor="numSessions">Number of Sessions</Label>
+              <Input
+                id="numSessions"
+                type="number"
+                value={numSessions}
+                onChange={(e) => setNumSessions(Number(e.target.value))}
+                min={1}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="sessionDuration">Session Duration</Label>
+              <Select
+                value={sessionDuration}
+                onValueChange={setSessionDuration}
+              >
+                <SelectTrigger id="sessionDuration">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30mins">30 mins</SelectItem>
+                  <SelectItem value="1hr">1 hour</SelectItem>
+                  <SelectItem value="2hr">2 hours</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

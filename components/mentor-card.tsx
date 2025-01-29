@@ -13,6 +13,7 @@ import { Badge } from "./ui/badge";
 import { Label } from "./ui/label";
 import { UserType } from "@/lib/types";
 import Tile from "./tile";
+import { isEmpty } from "lodash";
 
 interface MentorCardProps {
   userData: UserType;
@@ -49,13 +50,17 @@ const MentorCard: React.FC<MentorCardProps> = ({
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">
         <Label className="mb-2">SKILLS</Label>
-        <div className="flex flex-wrap gap-2">
-          {["React", "Java", "Node", "Next"].map((skill, index) => (
-            <Badge key={index} variant="secondary" className="py-1 px-3">
-              {skill}
-            </Badge>
-          ))}
-        </div>
+        {!isEmpty(userData?.skills) ? (
+          <div className="flex flex-wrap gap-2">
+            {userData?.skills?.map((skill, index) => (
+              <Badge key={index} variant="secondary" className="py-1 px-3">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm">No skills added</p>
+        )}
       </CardContent>
       <CardFooter className="flex justify-between w-full">
         <Button

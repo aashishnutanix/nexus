@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import React from "react";
 
 interface TileProps {
-  value: string;
+  value: string | undefined;
   visible?: boolean;
   bgColor?: string;
   textColor?: string;
