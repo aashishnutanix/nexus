@@ -70,7 +70,10 @@ export async function GET(request: NextRequest) {
       const client = await clientPromise;
       const db = client.db();
 
-      const user = await db.collection(collections.users).findOne({ _id: new ObjectId(id) });
+      //To handle comma seperated list of ids
+      const ids = id.split(",").map((id) => new ObjectId(id));
+
+      const user = await db.collection(collections.users).find({ _id: { $in: ids } }).toArray();
 
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
