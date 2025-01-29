@@ -92,3 +92,18 @@ export async function upVoteProject(projectId: string) {
 
   return res.json();
 }
+
+export async function getRecentProjects() {
+  const res = await fetch("/api/projects/recent", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create project");
+  }
+
+  return res.json();
+}
