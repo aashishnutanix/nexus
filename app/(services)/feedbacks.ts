@@ -1,6 +1,6 @@
-import { Feedback } from "@/lib/types";
+import { FeedbackType } from "@/lib/types";
 
-export async function createFeedback(data: Feedback) {
+export async function createFeedback(data: FeedbackType) {
   const res = await fetch("/api/feedbacks", {
     method: "POST",
     headers: {

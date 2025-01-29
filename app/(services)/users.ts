@@ -1,9 +1,9 @@
-import { User, Mentorship } from "@/lib/types";
+import { UserType } from "@/lib/types";
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
-export async function editUser(id: string, data: User) {
+export async function editUser(id: string, data: UserType) {
   const res = await fetch(`/api/users/${id}`, {
     method: "PUT",
     headers: {

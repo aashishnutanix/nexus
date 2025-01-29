@@ -1,4 +1,4 @@
-import { User } from "@/lib/types";
+import { UserType } from "@/lib/types";
 
 export async function getProfile() {
   const res = await fetch("/api/profile", {
@@ -15,7 +15,7 @@ export async function getProfile() {
   return res.json();
 }
 
-export async function updateProfile(data: Partial<User>) {
+export async function updateProfile(data: Partial<UserType>) {
   const res = await fetch("/api/profile", {
     method: "PUT",
     headers: {

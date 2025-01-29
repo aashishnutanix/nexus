@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { get } from "lodash";
@@ -6,11 +6,19 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { AddProjectForm } from "@/components/add-project-form";
 import ProjectsPage from "@/app/(protected)/projects/projectList";
 import { upVote } from "@/app/(services)/upvotes";
 import { UpVoteType } from "@/lib/types";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 export default function MyProjectsPage() {
   const [open, setOpen] = useState(false);
@@ -23,10 +31,18 @@ export default function MyProjectsPage() {
     },
   });
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   const myProjects = get(fetchedProjects, "projects", []);
   const skillsIdMap = get(fetchedProjects, "skillsIdMap", {});
   const usersIdMap = get(fetchedProjects, "usersIdMap", {});
-  const requestsMapByProjectId = get(fetchedProjects, "requestsMapByProjectId", {});
+  const requestsMapByProjectId = get(
+    fetchedProjects,
+    "requestsMapByProjectId",
+    {}
+  );
   const upVoteMapByProjectId = get(fetchedProjects, "upVoteMapByProjectId", {});
 
   console.log("myProjects -->>> ", myProjects);
@@ -36,7 +52,9 @@ export default function MyProjectsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">My Projects</h2>
-          <p className="text-muted-foreground">Projects where you are actively involved</p>
+          <p className="text-muted-foreground">
+            Projects where you are actively involved
+          </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -58,7 +76,7 @@ export default function MyProjectsPage() {
       </div>
 
       <div className="grid gap-6">
-        <ProjectsPage 
+        <ProjectsPage
           projects={myProjects}
           skillsIdMap={skillsIdMap}
           usersIdMap={usersIdMap}

@@ -45,6 +45,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AddRequestForm } from "@/components/request-form";
 import { cn } from "@/lib/utils";
+import Tile from "@/components/tile";
 
 interface ProjectHeaderProps {
   title: string;
@@ -199,12 +200,16 @@ export default function ProjectPageNew() {
     priority: feature.priority,
     taskCount: 12,
     status: feature.status,
-    startDate: feature.startDate ? format(new Date(feature.startDate), "MMM dd, yyyy") : "Invalid Date",
+    startDate: feature.startDate
+      ? format(new Date(feature.startDate), "MMM dd, yyyy")
+      : "Invalid Date",
     timeline: {
       value: feature.timeline.value,
       type: feature.timeline.type,
     },
-    techStack: feature.techStack?.map((tech: string) => skillsIdMap[tech]?.name),
+    techStack: feature.techStack?.map(
+      (tech: string) => skillsIdMap[tech]?.name
+    ),
     links: feature.links,
   }));
 
@@ -333,9 +338,13 @@ export function FeatureCard({ feature, projectId, isOwner }: FeatureCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">
-        <span className="rounded-full bg-[#FFF8E6] px-3 py-1 text-xs font-medium text-[#B98900] w-fit">
-          {status}
-        </span>
+        <Tile
+          value={status}
+          visible={!!status}
+          bgColor="#FFF8E6"
+          textColor="#B98900"
+          className="w-fit"
+        />
         <br />
         <Label className="mb-2">TECH STACK</Label>
         <div className="flex flex-wrap gap-2">
@@ -440,15 +449,18 @@ export function ProjectHeader({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         <div className="flex gap-2">
-          <span className="rounded-full bg-[#FFF8E6] px-3 py-1 text-xs font-medium text-[#B98900]">
-            {status}
-          </span>
-
-          {businessCritical && (
-            <span className="rounded-full bg-[#FFE9E9] px-3 py-1 text-xs font-medium text-[#D92D20]">
-              Business Critical
-            </span>
-          )}
+          <Tile
+            value={status}
+            visible={!!status}
+            bgColor="#FFF8E6"
+            textColor="#B98900"
+          />
+          <Tile
+            value={"Business Critical"}
+            visible={businessCritical}
+            bgColor="#FFE9E9"
+            textColor="#D92D20"
+          />
         </div>
       </div>
       <p className="text-muted-foreground">{description}</p>

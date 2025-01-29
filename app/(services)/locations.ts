@@ -1,6 +1,6 @@
-import { Location } from "@/lib/types";
+import { LocationType } from "@/lib/types";
 
-export async function createLocation(data: Location) {
+export async function createLocation(data: LocationType) {
   const res = await fetch("/api/locations", {
     method: "POST",
     headers: {

@@ -1,6 +1,6 @@
-import { Skill } from "@/lib/types";
+import { SkillType } from "@/lib/types";
 
-export async function createSkill(data: Skill) {
+export async function createSkill(data: SkillType) {
   const res = await fetch("/api/skills", {
     method: "POST",
     headers: {

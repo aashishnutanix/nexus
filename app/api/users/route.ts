@@ -4,13 +4,13 @@ import clientPromise from "@/lib/db/client";
 import { collections } from "@/lib/db/schema";
 import { ObjectId } from "mongodb";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log("Received body:", body);
-    
+
     const validatedData = UserSchema.parse(body);
     console.log("Validated data:", validatedData);
 
@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("POST /api/users error:", error);
     return NextResponse.json(
-      { 
-        error: "Invalid request", 
-        details: error instanceof Error ? error.message : String(error)
-      }, 
+      {
+        error: "Invalid request",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 400 }
     );
   }
@@ -73,7 +73,10 @@ export async function GET(request: NextRequest) {
       //To handle comma seperated list of ids
       const ids = id.split(",").map((id) => new ObjectId(id));
 
-      const user = await db.collection(collections.users).find({ _id: { $in: ids } }).toArray();
+      const user = await db
+        .collection(collections.users)
+        .find({ _id: { $in: ids } })
+        .toArray();
 
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -81,7 +84,10 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({ success: true, user });
     } catch (error) {
-      return NextResponse.json({ error: "Failed to fetch user", details: (error as Error).message }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to fetch user", details: (error as Error).message },
+        { status: 500 }
+      );
     }
   } else {
     try {
@@ -90,10 +96,7 @@ export async function GET(request: NextRequest) {
       const client = await clientPromise;
       const db = client.db();
 
-      const users = await db
-        .collection(collections.users)
-        .find({})
-        .toArray();
+      const users = await db.collection(collections.users).find({}).toArray();
       console.log("Fetched users:", users);
 
       return NextResponse.json({ success: true, users });

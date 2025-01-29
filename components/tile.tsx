@@ -8,16 +8,17 @@ interface TileProps {
   textColor?: string;
 }
 
-const Tile = ({ value, visible = true, bgColor, textColor }: TileProps) => {
-  const bgColorValue = bgColor || "#CFFAFE";
-  const textColorValue = textColor || "#164E63";
+const Tile = ({
+  value,
+  visible = true,
+  bgColor = "#CFFAFE",
+  textColor = "#164E63",
+}: TileProps) => {
   if (visible) {
     return (
       <span
-        className={cn(
-          "py-2 px-3 text-sm rounded-lg",
-          `bg-[${bgColorValue}] text-[${textColorValue}]`
-        )}
+        className={cn("py-2 px-3 text-sm rounded-lg")}
+        style={{ backgroundColor: bgColor, color: textColor }}
       >
         {value}
       </span>

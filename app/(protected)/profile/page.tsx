@@ -18,7 +18,12 @@ import { Pencil, Check, Upload } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getProfile, updateProfile } from "@/app/(services)/profile";
 import { SkillsMultiSelect } from "@/components/skill-multiselect";
-import { UserType, DesignationType, OfferingType, OfferingSchema } from "@/lib/types";
+import {
+  UserType,
+  DesignationType,
+  OfferingType,
+  OfferingSchema,
+} from "@/lib/types";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { get } from "lodash";
 import { SkillDisplays } from "@/components/skillDisplay";
@@ -34,6 +39,8 @@ import {
 } from "@/components/ui/select";
 
 import { LocationType } from "@/lib/types";
+import Tile from "@/components/tile";
+import { Label } from "@/components/ui/label";
 
 interface Skill {
   _id: string;
@@ -54,7 +61,7 @@ export default function ProfilePage() {
     },
   });
 
-  const { data  } = useQuery<{ success: boolean; skills: Skill[] }>({
+  const { data } = useQuery<{ success: boolean; skills: Skill[] }>({
     queryKey: ["skills"],
     queryFn: async () => {
       const res = await fetch("/api/skills");
@@ -103,6 +110,10 @@ export default function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    handleSave();
+  }, [offering, isAvailable]);
+
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -135,271 +146,270 @@ export default function ProfilePage() {
     return <div>No profile data available</div>;
   }
 
+  const mentorshipPreferences = () => (
+    <Card className="space-y-1">
+      <CardHeader>
+        <CardTitle className="flex justify-between items-center">
+          Mentorship Preferences
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="availability"
+              checked={isAvailable}
+              onCheckedChange={(e) => setIsAvailable(e)}
+            />
+            <Label htmlFor="availability">Available to Mentor</Label>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-2 flex-1">
+            <Label>Frequency</Label>
+            <Select
+              value={offering?.freq || ""}
+              onValueChange={(value) =>
+                setOffering((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        freq: value as OfferingType["freq"],
+                      }
+                    : prev
+                )
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select freq..." />
+              </SelectTrigger>
+              <SelectContent>
+                {OfferingSchema.shape.freq.options.map((freq: string) => (
+                  <SelectItem key={freq} value={freq}>
+                    {freq}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <Label>Mode</Label>
+            <Select
+              value={offering?.type || ""}
+              onValueChange={(value) =>
+                setOffering((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        type: value as OfferingType["type"],
+                      }
+                    : prev
+                )
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select type..." />
+              </SelectTrigger>
+              <SelectContent>
+                {OfferingSchema.shape.type.options.map((type: string) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <Label>Hours</Label>
+            <Input
+              type="number"
+              //@ts-ignore
+              value={offering?.duration || null}
+              onChange={(e) =>
+                setOffering((prev) =>
+                  prev ? { ...prev, duration: Number(e.target.value) } : prev
+                )
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Duration (hours)"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Profile Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-6 ">
-              <div className="relative">
-                {/* Avatar with Image Upload */}
-                <Avatar className="h-24 w-24 text-5xl border-primary border-2">
-                  <AvatarImage
-                    src={profileData.image || ""}
-                    style={{ objectFit: "cover", objectPosition: "center" }}
+          <div className="flex items-start justify-start gap-6">
+            <div className="">
+              {/* Avatar with Image Upload */}
+              <Avatar className="h-24 w-24 text-5xl border-primary border-2">
+                <AvatarImage
+                  src={profileData.image || ""}
+                  style={{ objectFit: "cover", objectPosition: "center" }}
+                />
+                <AvatarFallback>{profileData.name[0]}</AvatarFallback>
+              </Avatar>
+              {isEditing && (
+                <div className="absolute rounded-full bottom-[-8px] right-[-8px]">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    ref={fileInputRef}
                   />
-                  <AvatarFallback>{profileData.name[0]}</AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <div className="absolute rounded-full bottom-[-8px] right-[-8px]">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      ref={fileInputRef}
+                  <Button
+                    variant="default"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-start gap-1 flex-1">
+              {isEditing ? (
+                <div className="space-y-2">
+                  {/* Editable Profile Fields */}
+                  <Input
+                    value={profileData.name}
+                    onChange={(e) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, name: e.target.value } : prev
+                      )
+                    }
+                    className="text-2xl font-bold"
+                  />
+                  <DesignationsCombobox
+                    value={designation}
+                    onSelect={setDesignation}
+                  />
+                  <Input
+                    value={profileData.dept}
+                    onChange={(e) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, dept: e.target.value } : prev
+                      )
+                    }
+                  />
+                  <Input
+                    value={profileData.email}
+                    onChange={(e) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, email: e.target.value } : prev
+                      )
+                    }
+                    type="email"
+                  />
+                  <Textarea
+                    value={profileData.bio || ""}
+                    onChange={(e) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, bio: e.target.value } : prev
+                      )
+                    }
+                    className="mt-2"
+                    rows={3}
+                  />
+                  <LocationCombobox value={location} onSelect={setLocation} />
+                </div>
+              ) : (
+                <>
+                  {/* Display Profile Fields */}
+                  <CardTitle className="text-2xl">{profileData.name}</CardTitle>
+                  <CardDescription className="ml-0">
+                    {profileData?.bio}
+                  </CardDescription>
+                  <p className="text-sm text-muted-foreground">
+                    {profileData.email}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {location
+                      ? `${location.city}, ${location.country}, ${location.region}`
+                      : ""}
+                  </p>
+                  <div className="flex gap-2">
+                    <Tile value={designation?.code} visible={!!designation} />
+                    <Tile
+                      value={profileData?.dept}
+                      visible={!!profileData?.dept}
+                      bgColor="#DBEAFE"
+                      textColor="#1E3A8A"
                     />
-                    <Button
-                      variant="default"
-                      size="icon"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Button>
                   </div>
-                )}
-              </div>
-              <div className="space-y-1">
+                </>
+              )}
+              {/* Edit/Save Button */}
+              <Button
+                variant="outline"
+                className="gap-2 mt-3"
+                onClick={() => {
+                  if (isEditing) {
+                    handleSave();
+                  } else {
+                    setIsEditing(true);
+                  }
+                }}
+              >
                 {isEditing ? (
-                  <div className="space-y-2">
-                    {/* Editable Profile Fields */}
-                    <Input
-                      value={profileData.name}
-                      onChange={(e) =>
-                        setProfileData((prev) =>
-                          prev ? { ...prev, name: e.target.value } : prev
-                        )
-                      }
-                      className="text-2xl font-bold"
-                    />
-                    <DesignationsCombobox
-                      value={designation}
-                      onSelect={setDesignation}
-                    />
-                    <Input
-                      value={profileData.email}
-                      onChange={(e) =>
-                        setProfileData((prev) =>
-                          prev ? { ...prev, email: e.target.value } : prev
-                        )
-                      }
-                      type="email"
-                    />
-                    <Textarea
-                      value={profileData.bio || ""}
-                      onChange={(e) =>
-                        setProfileData((prev) =>
-                          prev ? { ...prev, bio: e.target.value } : prev
-                        )
-                      }
-                      className="mt-2"
-                      rows={3}
-                    />
-                    <LocationCombobox value={location} onSelect={setLocation} />
-                  </div>
+                  <>
+                    <Check className="h-4 w-4" />
+                    Save
+                  </>
                 ) : (
                   <>
-                    {/* Display Profile Fields */}
-                    <CardTitle className="text-2xl">
-                      {profileData.name}
-                    </CardTitle>
-                    <CardDescription>{designation?.name}</CardDescription>
-                    <p className="text-sm text-muted-foreground">
-                      {profileData.email}
-                    </p>
-                    <p className="text-sm mt-2">{profileData.bio}</p>
-                    <p className="text-sm mt-2">
-                      {location
-                        ? `${location.city}, ${location.country}, ${location.region}`
-                        : ""}
-                    </p>
+                    <Pencil className="h-4 w-4" />
+                    Edit
                   </>
                 )}
-              </div>
-              <div className="space-y-1">
-                {isEditing ? (
-                  // Offering Section
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Offering</h3>
-                    <div className="space-y-2">
-                      <Select
-                        value={offering?.freq || ""}
-                        onValueChange={(value) =>
-                          setOffering((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  freq: value as OfferingType["freq"],
-                                }
-                              : prev
-                          )
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select freq..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {OfferingSchema.shape.freq.options.map(
-                            (freq: string) => (
-                              <SelectItem key={freq} value={freq}>
-                                {freq}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={offering?.type || ""}
-                        onValueChange={(value) =>
-                          setOffering((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  type: value as OfferingType["type"],
-                                }
-                              : prev
-                          )
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select type..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {OfferingSchema.shape.type.options.map(
-                            (type: string) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        //@ts-ignore
-                        value={offering?.duration || null}
-                        onChange={(e) =>
-                          setOffering((prev) =>
-                            prev
-                              ? { ...prev, duration: Number(e.target.value) }
-                              : prev
-                          )
-                        }
-                        className="w-full p-2 border rounded"
-                        placeholder="Duration (hours)"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  // Display Offering
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Offering</h3>
-                    <div className="space-y-1">
-                      <p className="text-sm">Frequency: {offering?.freq}</p>
-                      <p className="text-sm">Type: {offering?.type}</p>
-                      <p className="text-sm">
-                        Duration: {offering?.duration} hours
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {isEditing ? (
-                  // {/* Availability Section */}
-                  <div className="flex items-center space-x-2 mt-2">
-                    <label htmlFor="availability" className="text-sm">
-                      Available for invites
-                    </label>
-                    <Switch
-                      id="availability"
-                      checked={isAvailable}
-                      onCheckedChange={(e) => {
-                        console.log("value - ", e);
-                        setIsAvailable(e);
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <p className="text-sm mt-2">
-                    {isAvailable
-                      ? "Available for invites"
-                      : "Not available for invites"}
-                  </p>
-                )}
-              </div>
+              </Button>
             </div>
-            {/* Edit/Save Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (isEditing) {
-                  handleSave();
-                } else {
-                  setIsEditing(true);
-                }
-              }}
-            >
-              {isEditing ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Pencil className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Skills</h3>
+            <div className="space-y-4 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium">Skills</h3>
+                </div>
+                {isEditing && (
+                  <SkillsMultiSelect
+                    selected={profileData.skills || []}
+                    onSelectionChange={(skills) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, skills } : prev
+                      )
+                    }
+                  />
+                )}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <SkillDisplays skillIds={profileData.skills || []} />
+                </div>
               </div>
-              {isEditing && (
-                <SkillsMultiSelect
-                  selected={profileData.skills || []}
-                  onSelectionChange={(skills) =>
-                    setProfileData((prev) =>
-                      prev ? { ...prev, skills } : prev
-                    )
-                  }
-                />
-              )}
-              <div className="flex flex-wrap gap-2 mt-2">
-                <SkillDisplays skillIds={profileData.skills || []} />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Learning Interests</h3>
-              </div>
-              {isEditing && (
-                <SkillsMultiSelect
-                  selected={profileData.interests || []}
-                  onSelectionChange={(interests) =>
-                    setProfileData((prev) =>
-                      prev ? { ...prev, interests } : prev
-                    )
-                  }
-                />
-              )}
-              <div className="flex flex-wrap gap-2 mt-2">
-                <SkillDisplays skillIds={profileData.interests || []} />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium">Learning Interests</h3>
+                </div>
+                {isEditing && (
+                  <SkillsMultiSelect
+                    selected={profileData.interests || []}
+                    onSelectionChange={(interests) =>
+                      setProfileData((prev) =>
+                        prev ? { ...prev, interests } : prev
+                      )
+                    }
+                  />
+                )}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <SkillDisplays skillIds={profileData.interests || []} />
+                </div>
               </div>
             </div>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
-
+      {mentorshipPreferences()}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Mentoring Section */}
         <Card>

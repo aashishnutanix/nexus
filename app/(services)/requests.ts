@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getSkillName } from "./skills";
 import { getUserNameById } from "./users";
-import { Request } from "@/lib/types";
+import { RequestType } from "@/lib/types";
 
 
 export interface Mentorship {
@@ -113,7 +113,7 @@ export async function addContributorProjectMapping( contributorProjectMapping: C
 }
 
 
-export async function createMentorshipFromRequest( request: Request, profile: any) {
+export async function createMentorshipFromRequest( request: RequestType, profile: any) {
 
 
 

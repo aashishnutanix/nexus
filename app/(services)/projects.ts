@@ -1,6 +1,6 @@
-import { Project } from "@/lib/types";
+import { ProjectType } from "@/lib/types";
 
-export async function createProject(data: Project) {
+export async function createProject(data: ProjectType) {
   const res = await fetch("/api/projects", {
     method: "POST",
     headers: {
@@ -16,7 +16,7 @@ export async function createProject(data: Project) {
   return res.json();
 }
 
-export async function editProject(id: string, data: Project) {
+export async function editProject(id: string, data: ProjectType) {
   const res = await fetch(`/api/projects/${id}`, {
     method: "PUT",
     headers: {
