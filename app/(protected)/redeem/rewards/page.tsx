@@ -2,11 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { get } from "lodash";
-import { FaAmazon } from "react-icons/fa";
-import { FaSpotify } from "react-icons/fa";
-// import { FaNetflix } from "react-icons/fa";
-import { FaApple } from "react-icons/fa";
-import { FaGooglePlay } from "react-icons/fa";
+import { useState } from "react";
+import { FaAmazon, FaSpotify, FaApple, FaGooglePlay, FaPlane, FaTshirt, FaCar } from "react-icons/fa";
 
 const iconMap: { [key: string]: JSX.Element } = {
   FaAmazon: <FaAmazon />,
@@ -14,6 +11,9 @@ const iconMap: { [key: string]: JSX.Element } = {
   FaNetflix: <></>,
   FaApple: <FaApple />,
   FaGooglePlay: <FaGooglePlay />,
+  FaPlane: <FaPlane />,
+  FaTshirt: <FaTshirt />,
+  FaCar: <FaCar />,
 };
 
 export default function RewardsPage() {
@@ -26,6 +26,10 @@ export default function RewardsPage() {
   });
 
   const rewards = get(fetchedRewards, "rewards", []);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = ["All", "Shopping", "Entertainment", "Travel", "Apparel"];
+  const filteredRewards = selectedCategory === "All" ? rewards : rewards.filter((reward: any) => reward.category === selectedCategory);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -35,8 +39,19 @@ export default function RewardsPage() {
           <p className="text-muted-foreground">Redeem your points for rewards</p>
         </div>
       </div>
+      <div className="flex space-x-4">
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={`px-4 py-2 rounded ${selectedCategory === category ? "bg-purple-500 text-white" : "bg-gray-200"}`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {rewards.map((reward: any) => (
+        {filteredRewards.map((reward: any) => (
           <div key={reward.id} className="p-4 border rounded-lg flex flex-col items-center text-center">
             <div className="text-4xl mb-4">
               {iconMap[reward.icon]}
