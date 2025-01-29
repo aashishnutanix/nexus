@@ -1,18 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { getMentorshipsForUser, getMenteesForUser, getUserById } from "@/app/(services)/users";
+import {
+  getMentorshipsForUser,
+  getMenteesForUser,
+  getUserById,
+} from "@/app/(services)/users";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function MentorshipDashboardPage() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<string>("ongoing");
   const [mentorships, setMentorships] = useState<any[]>([]);
   const [mentees, setMentees] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -54,21 +66,33 @@ export default function MentorshipDashboardPage() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Mentorship Dashboard</h2>
-          <p className="text-muted-foreground">Manage and explore your mentorships</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Mentorship Dashboard
+          </h2>
+          <p className="text-muted-foreground">
+            Manage and explore your mentorships
+          </p>
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <button
-            className={`px-4 py-2 ${activeTab === "ongoing" ? "bg-primary text-white" : "bg-muted-foreground text-muted"}`}
+            className={`px-4 py-2 ${
+              activeTab === "ongoing"
+                ? "bg-primary text-white"
+                : "bg-muted-foreground text-muted"
+            }`}
             onClick={() => handleTabChange("ongoing")}
           >
             Ongoing Mentorships
           </button>
           <button
-            className={`px-4 py-2 ${activeTab === "mentees" ? "bg-primary text-white" : "bg-muted-foreground text-muted"}`}
+            className={`px-4 py-2 ${
+              activeTab === "mentees"
+                ? "bg-primary text-white"
+                : "bg-muted-foreground text-muted"
+            }`}
             onClick={() => handleTabChange("mentees")}
           >
             Mentees
@@ -78,12 +102,18 @@ export default function MentorshipDashboardPage() {
         {activeTab === "ongoing" && (
           <div className="grid gap-6">
             {mentorships.map((mentorship) => (
-              <Card key={mentorship._id} className="border-l-4 border-l-primary">
+              <Card
+                key={mentorship._id}
+                className="border-l-4 border-l-primary"
+                onClick={() => router.push(`/mentorship/${mentorship._id}`)}
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>{mentorship.name}</CardTitle>
-                      <CardDescription>{mentorship.description}</CardDescription>
+                      <CardDescription>
+                        {mentorship.description}
+                      </CardDescription>
                     </div>
                     <Badge variant="outline">{mentorship.status}</Badge>
                   </div>
@@ -92,18 +122,31 @@ export default function MentorshipDashboardPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        Mentor: <Link href={`/profile/${mentorship.mentor}`}>{mentorship.mentorName}</Link>
+                        Mentor:{" "}
+                        <Link href={`/profile/${mentorship.mentor}`}>
+                          {mentorship.mentorName}
+                        </Link>
                       </p>
                       <p className="text-sm font-medium">
-                        Mentee: <Link href={`/profile/${mentorship.mentee}`}>{mentorship.menteeName}</Link>
+                        Mentee:{" "}
+                        <Link href={`/profile/${mentorship.mentee}`}>
+                          {mentorship.menteeName}
+                        </Link>
                       </p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">Progress</p>
-                        <p className="text-sm font-medium">{mentorship.progress}%</p>
+                        <p className="text-sm text-muted-foreground">
+                          Progress
+                        </p>
+                        <p className="text-sm font-medium">
+                          {mentorship.progress}%
+                        </p>
                       </div>
-                      <Progress value={mentorship.progress} className="bg-secondary" />
+                      <Progress
+                        value={mentorship.progress}
+                        className="bg-secondary"
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -129,18 +172,31 @@ export default function MentorshipDashboardPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        Mentor: <Link href={`/profile/${mentee.mentor}`}>{session?.user?.name}</Link>
+                        Mentor:{" "}
+                        <Link href={`/profile/${mentee.mentor}`}>
+                          {session?.user?.name}
+                        </Link>
                       </p>
                       <p className="text-sm font-medium">
-                        Mentee: <Link href={`/profile/${mentee._id}`}>{mentee.menteeName}</Link>
+                        Mentee:{" "}
+                        <Link href={`/profile/${mentee._id}`}>
+                          {mentee.menteeName}
+                        </Link>
                       </p>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">Progress</p>
-                        <p className="text-sm font-medium">{mentee.progress}%</p>
+                        <p className="text-sm text-muted-foreground">
+                          Progress
+                        </p>
+                        <p className="text-sm font-medium">
+                          {mentee.progress}%
+                        </p>
                       </div>
-                      <Progress value={mentee.progress} className="bg-secondary" />
+                      <Progress
+                        value={mentee.progress}
+                        className="bg-secondary"
+                      />
                     </div>
                   </div>
                 </CardContent>
