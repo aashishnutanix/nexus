@@ -85,7 +85,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   } = projectData;
 
   return (
-    <Card className="w-[375px] flex flex-col justify-between ">
+    <Card className="w-full sm:w-[375px] flex flex-col justify-between border-gray-300 border">
       <CardHeader className="gap-2 relative">
         {upvotes && (
           <Button
@@ -98,7 +98,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <CircleArrowUp size={16} /> {`(${upvotes})`}
           </Button>
         )}
-        {/* <div className="flex items-center gap-2"> */}
         <CardTitle
           className="cursor-pointer hover:underline"
           onClick={() => handleCardClick(_id)}
@@ -106,11 +105,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {name}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
-        {/* </div> */}
         <div className="flex items-center gap-2 justify-start flex-wrap">
           <Button
             size="sm"
-            className="bg-[#FEF9C3] text-[#713F12] hover:bg-[#FEF9C3] cursor-default"
+            className="bg-[#E9D5FF] text-[#4C1D95] hover:bg-[#E9D5FF] cursor-default"
           >
             {status}
           </Button>
@@ -124,7 +122,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
         </div>
         <div className="flex gap-2 items-center text-xs text-slate-500">
-          <Progress value={60} max={100} /> {`60%`}
+          <Progress value={60} max={100} className="bg-[#E9D5FF]" /> {`60%`}
         </div>
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">
@@ -145,7 +143,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 className={cn(
                   "w-full gap-2",
                   canRequestForContribution &&
-                    "bg-[#BBF7D0] text=[#166534] opacity-100"
+                    "bg-[#C4B5FD] text-[#4C1D95] opacity-100"
                 )}
                 variant="outline"
                 disabled={canRequestForContribution}
