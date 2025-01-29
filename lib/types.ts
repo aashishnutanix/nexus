@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DefaultSession } from "next-auth";
+import { ObjectId } from "mongodb";
 
 // Enums
 export const UserRoleEnum = z.enum(["user", "admin", "manager"]);
@@ -122,26 +123,13 @@ export const UserSchema = z.object({
     .optional(),
 });
 
-export const ProjectSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(10),
-  techStack: z.array(z.string()).min(1),
-  status: ProjectStatusEnum,
-  startDate: z.string(),
-  businessCritical: z.boolean(),
-  department: z.string().optional(),
-  upVotes: z.number().optional(),
-  contributors: z.array(z.string()).optional(),
-  open: z.boolean().optional(),
-  bandwidthRequiredForContribution: z.number(),
-});
-
 export const UpVoteSchema = z.object({
   refreferenceId: z.string(),
   context: z.string(),
 });
 
 export const FeatureSchema = z.object({
+  _id: z.string().optional(),
   featureId: z.string().optional(),
   name: z.string().min(1),
   projectId: z.string(),
@@ -168,6 +156,23 @@ export const FeatureSchema = z.object({
   bandwidthRequiredForContribution: z.number(),
 });
 
+export const ProjectSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(10),
+  techStack: z.array(z.string()).min(1),
+  status: ProjectStatusEnum,
+  startDate: z.string(),
+  businessCritical: z.boolean(),
+  department: z.string().optional(),
+  upVotes: z.number().optional(),
+  contributors: z.array(z.string()).optional(),
+  open: z.boolean().optional(),
+  bandwidthRequiredForContribution: z.number(),
+  createdBy: z.string(),
+  members: z.array(UserSchema).min(0),
+  features: z.array(FeatureSchema).min(0),
+});
+
 export const RequestSchema = z.object({
   userToId: z.string(),
   userFromId: z.string(),
@@ -189,16 +194,17 @@ export const LocationSchema = z.object({
 });
 
 // Types
-export type Skill = z.infer<typeof SkillSchema>;
-export type User = z.infer<typeof UserSchema>;
-export type Project = z.infer<typeof ProjectSchema>;
+export type SkillType = z.infer<typeof SkillSchema>;
+export type UserType = z.infer<typeof UserSchema>;
+export type ProjectType = z.infer<typeof ProjectSchema>;
 export type FeatureType = z.infer<typeof FeatureSchema>;
-export type Request = z.infer<typeof RequestSchema>;
+export type RequestType = z.infer<typeof RequestSchema>;
 export type UpVoteType = z.infer<typeof UpVoteSchema>;
-export type Location = z.infer<typeof LocationSchema>;
-export type Offering = z.infer<typeof OfferingSchema>;
-export type Designation = z.infer<typeof DesignationSchema>;
-export type Feedback = z.infer<typeof FeedbackSchema>;
+export type LocationType = z.infer<typeof LocationSchema>;
+export type OfferingType = z.infer<typeof OfferingSchema>;
+export type DesignationType = z.infer<typeof DesignationSchema>;
+export type FeedbackType = z.infer<typeof FeedbackSchema>;
+export type ProjectStatusType = z.infer<typeof ProjectStatusEnum>;
 
 declare module "next-auth" {
   interface User {

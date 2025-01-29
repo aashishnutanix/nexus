@@ -11,19 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "./ui/badge";
 import { Label } from "./ui/label";
+import { User } from "@/lib/types";
 
 interface MentorCardProps {
-  userData: {
-    _id: string;
-    name: string;
-    image?: string;
-    bio: string;
-    designation: {
-      name: string;
-    };
-    skills: string[];
-    interests: string[];
-  };
+  userData: User;
   onContactClick: () => void;
 }
 
@@ -47,13 +38,15 @@ const MentorCard: React.FC<MentorCardProps> = ({
         </div>
         <div className="flex items-center gap-2 justify-start flex-wrap">
           {designation && (
-            <Button size="sm" className="bg-[#CFFAFE] text-[#164E63]">
+            <span className="py-2 px-3 text-sm rounded-lg bg-[#CFFAFE] text-[#164E63]">
               {designation?.name}
-            </Button>
+            </span>
           )}
-          <Button size="sm" className="bg-[#DBEAFE] text-[#1E3A8A]">
-            R&D SaaS Engineering
-          </Button>
+          {userData?.dept && (
+            <span className="py-2 px-3 text-sm rounded-lg bg-[#DBEAFE] text-[#1E3A8A]">
+              R&D SaaS Engineering
+            </span>
+          )}
         </div>
       </CardHeader>
       <CardContent className="flex flex-col mt-auto">
@@ -67,7 +60,10 @@ const MentorCard: React.FC<MentorCardProps> = ({
         </div>
       </CardContent>
       <CardFooter className="flex justify-between w-full">
-        <Button className="w-full bg-purple-500 text-white" onClick={onContactClick}>
+        <Button
+          className="w-full bg-purple-500 text-white"
+          onClick={onContactClick}
+        >
           Request Mentorship
         </Button>
       </CardFooter>

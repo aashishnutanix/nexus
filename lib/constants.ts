@@ -1,12 +1,4 @@
-import {
-  Home,
-  Users,
-  GitPullRequest,
-  Trophy,
-  Blocks,
-  LogOut,
-  ChevronRight,
-} from "lucide-react";
+import { Home, Users, GitPullRequest, Trophy, Blocks, Gem } from "lucide-react";
 
 export const routes = [
   {
@@ -37,7 +29,7 @@ export const routes = [
   },
   {
     label: "Redeem",
-    icon: ChevronRight,
+    icon: Gem,
     subRoutes: [
       { label: "Rewards", href: "/redeem/rewards" },
       { label: "Certifications", href: "/redeem/certifications" },
@@ -48,14 +40,4 @@ export const routes = [
     icon: Trophy,
     href: "/leaderboard",
   },
-  // {
-  //   label: "Profile",
-  //   icon: UserCircle,
-  //   href: "/profile",
-  // },
-  // {
-  //   label: "Logout",
-  //   icon: LogOut,
-  //   onClick: () => signOut({ callbackUrl: "/signin" }),
-  // },
 ];
