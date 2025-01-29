@@ -43,11 +43,13 @@ export async function GET(request: Request) {
     const db = client.db();
 
     if (menteeId) {
-      const mentorships = await db.collection(collections.mentorships).find({ mentee: new ObjectId(menteeId) }).toArray();
+      const mentorships = await db
+      .collection(collections.mentorships ).find({ 'mentee': menteeId }).toArray();
       console.log('mentorships:', mentorships);
       return NextResponse.json(mentorships);
     } else if (mentorId) {
-      const mentorships = await db.collection(collections.mentorships).find({ mentor: new ObjectId(mentorId) }).toArray();
+      const mentorships = await db
+      .collection(collections.mentorships ).find({ 'mentor': mentorId }).toArray();      
       console.log('mentorships:', mentorships);
       return NextResponse.json(mentorships);
     } else {

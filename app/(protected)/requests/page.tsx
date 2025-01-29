@@ -34,6 +34,7 @@ import { RequestContextEnum, User } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { isEmpty, set } from "lodash";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Request {
   _id: string;
@@ -79,6 +80,7 @@ export default function RequestsPage() {
     }, {});
     return { requests, users: usersMap };
   }
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["requests"],
@@ -96,8 +98,10 @@ export default function RequestsPage() {
 
   const handleUpdate = async (
     request: Request,
+    profile:any,
     status: "Accepted" | "Rejected"
   ) => {
+
     const { _id, context } = request;
     await updateRequestStatus(_id, status);
 
@@ -107,14 +111,14 @@ export default function RequestsPage() {
       startDate: new Date().toISOString(),
     };
     if (context === "MENTORSHIP") {
-      await createMentorshipFromRequest(request);
+      await createMentorshipFromRequest(request, profile);
     } else {
       await addContributorProjectMapping({
         ...contributorMapping,
         projectId: request.referenceId,
       });
     }
-    fetchRequests();
+    queryClient.invalidateQueries({ queryKey: ["requests"] });
   };
 
   if (isLoading) {
@@ -142,8 +146,8 @@ export default function RequestsPage() {
                       profile={users[request?.userFromId?.toString()]}
                       request={request}
                       acceptVisible={true}
-                      onAccept={() => handleUpdate(request, "Accepted")}
-                      onReject={() => handleUpdate(request, "Rejected")}
+                      onAccept={(profile) => handleUpdate(request, profile, "Accepted")}
+                      onReject={(profile) => handleUpdate(request, profile, "Rejected")}
                     />
                   );
                 }

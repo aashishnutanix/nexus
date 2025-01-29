@@ -77,7 +77,7 @@ export default function FindMentorPage() {
       userFromId: currentUserId,
       context: "MENTORSHIP",
       message,
-      skillId: selectedSkillId,
+      skillId: '6797282a2fed8a5461afd2a6',// selectedSkillId,
       numSessions,
       sessionDuration,
       status: "Pending",

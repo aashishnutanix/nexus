@@ -61,7 +61,11 @@ export function AddRequestForm({ onSuccess, context, userToId, referenceId }: Re
 
   const handleButtonClick = (data: any) => {
     console.log("submitting data", data);
-    mutation.mutate(data);
+    const requestData = {
+      ...data,
+      skillId:'6797282a2fed8a5461afd2a6' // selectedSkillId
+    }
+    mutation.mutate(requestData);
   };
 
   return (
