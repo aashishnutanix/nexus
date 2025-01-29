@@ -72,6 +72,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   upvotes,
 }) => {
   const [requestModal, setRequestModal] = useState(false);
+
   const {
     _id,
     name,
@@ -82,6 +83,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     createdBy,
     bandwidthRequiredForContribution
   } = projectData;
+
   return (
     <Card className="w-[375px] flex flex-col justify-between ">
       <CardHeader className="gap-2 relative">
