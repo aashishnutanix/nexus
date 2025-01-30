@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
-import { getRecentProjects } from "@/app/(services)/projects";
+import { getRecentProjects, getActiveProjects } from "@/app/(services)/projects";
 import { useState, useEffect } from "react";
 import { Project } from "@/lib/db/schema";
 
@@ -27,6 +27,12 @@ import { format } from "date-fns";
 export default function Home() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([]); // State to hold the fetched projects
   const [loading, setLoading] = useState(true); // Loading state to handle UI during fetch
+  const [ activeUserProjects, setActiveUserProjects ] = useState(0);
+
+  const { data: session } = useSession();
+  const { user } = session || {};
+  const { id, image, name, team, designation } = user || {};
+  console.log("Name ->", name);
 
   useEffect(() => {
     // Define an async function inside useEffect
@@ -45,10 +51,25 @@ export default function Home() {
     fetchRecentProjects(); // Call the async function
   }, []); // Empty dependency array makes sure it runs once when the component mounts
 
-  const { data: session } = useSession();
-  const { user } = session || {};
-  const { id, image, name, team, designation } = user || {};
-  console.log("Name ->", name);
+  useEffect(() => {
+    // Define an async function inside useEffect
+    const fetchActiveUserProjects = async () => {
+      try {
+        const res = await getActiveProjects(id!); // Await the async function
+        const { success, activeProjectCount } = res;
+        console.log("Recent Projects Fetched From Service-> ", recentProjects);
+        setActiveUserProjects(activeProjectCount); // Set the state with fetched data
+      } catch (error) {
+        console.error("Error fetching projects:", error); // Error handling
+      } finally {
+        setLoading(false); // Set loading to false once fetching is done
+      }
+    };
+    fetchActiveUserProjects(); // Call the async function
+  }, []); 
+  
+
+
 
   console.log("Recent Projects---> ", recentProjects);
 
@@ -74,7 +95,7 @@ export default function Home() {
             <Blocks className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">{activeUserProjects}</div>
             <p className="text-xs text-muted-foreground">
               +2 projects this month
             </p>

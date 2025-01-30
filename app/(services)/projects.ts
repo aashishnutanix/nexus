@@ -107,3 +107,19 @@ export async function getRecentProjects() {
 
   return res.json();
 }
+
+export async function getActiveProjects(id: string) {
+  const res = await fetch(`/api/projects/user/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create project");
+  }
+
+  return res.json();
+}
+
