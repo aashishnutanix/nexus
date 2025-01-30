@@ -158,12 +158,10 @@ export default function MentorshipDashboardPage() {
         {activeTab === "mentees" && (
           <div className="grid gap-6">
             {mentees.map((mentee) => (
-              <Card
-                key={mentee._id}
-                className="border-l-4 border-l-primary"
-                onClick={() => router.push(`/mentorship/2398579237928}`)}
-              >
-                <CardHeader>
+              <Card key={mentee._id} className="border-l-4 border-l-primary">
+                <CardHeader
+                  onClick={() => router.push(`/mentorship/2398579237928}`)}
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>{mentee.name}</CardTitle>

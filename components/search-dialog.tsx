@@ -1,37 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { FolderKey, Handshake, SearchIcon, User } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { LoadingSpinner } from "./loading-spinner";
-import { SearchResultType } from "@/lib/types";
-
-// Mock data - replace with real data in production
-const USERS = [
-  { id: 1, name: "John Doe", role: "Developer" },
-  { id: 2, name: "Jane Smith", role: "Designer" },
-  { id: 3, name: "Mike Johnson", role: "Product Manager" },
-];
-
-const PROJECTS = [
-  { id: 1, name: "Website Redesign", status: "In Progress" },
-  { id: 2, name: "Mobile App", status: "Completed" },
-  { id: 3, name: "API Integration", status: "Planning" },
-];
-
-const MENTORSHIPS = [
-  { id: 1, mentor: "Alice Brown", expertise: "React" },
-  { id: 2, mentor: "Bob Wilson", expertise: "Node.js" },
-  { id: 3, mentor: "Carol White", expertise: "UI/UX" },
-];
+import { CustomSearchDialog } from "./custom-command-dialog";
+import type { SearchResultType } from "@/lib/types";
 
 interface SearchDialogProps {
   results: SearchResultType | null;
@@ -74,101 +47,14 @@ export function SearchDialog({
           <span className="text-xs">⌘</span>K
         </kbd>
       </Button>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput
-          placeholder="Search Users, Projects, Mentorships"
-          value={query}
-          onValueChange={setQuery}
-        />
-        {isLoading ? (
-          <CommandEmpty>
-            <div className="h-[250px] flex w-full items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          </CommandEmpty>
-        ) : (
-          <CommandList>
-            {isLoading && (
-              <CommandEmpty>
-                {/* <div className="h-[250px] flex w-full items-center justify-center"> */}
-                <LoadingSpinner />
-                {/* </div> */}
-              </CommandEmpty>
-            )}
-            {results && Object.keys(results).length > 0 && (
-              <CommandEmpty>No results found.</CommandEmpty>
-            )}
-            {results && results.users && results.users.length > 0 && (
-              <CommandGroup
-                heading={
-                  <div className="flex items-center gap-2">
-                    <User size={14} />
-                    <span>Users</span>
-                  </div>
-                }
-              >
-                {results.users.map((user) => (
-                  <CommandItem
-                    key={user._id}
-                    className="flex items-center justify-between"
-                  >
-                    <span>{user.name}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {user.email}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {results && results.projects && results.projects.length > 0 && (
-              <CommandGroup
-                heading={
-                  <div className="flex items-center gap-2">
-                    <FolderKey size={14} />
-                    <span>Projects</span>
-                  </div>
-                }
-              >
-                {results.projects.map((project) => (
-                  <CommandItem
-                    key={project._id}
-                    className="flex items-center justify-between"
-                  >
-                    <span>{project.name}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {project.description}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {results &&
-              results.mentorships &&
-              results.mentorships.length > 0 && (
-                <CommandGroup
-                  heading={
-                    <div className="flex items-center gap-2">
-                      <Handshake size={14} />
-                      <span>Mentorships</span>
-                    </div>
-                  }
-                >
-                  {results.mentorships.map((mentorship) => (
-                    <CommandItem
-                      key={mentorship._id}
-                      className="flex items-center justify-between"
-                    >
-                      <span>{mentorship.name}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {mentorship.description}
-                      </span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-          </CommandList>
-        )}
-      </CommandDialog>
+      <CustomSearchDialog
+        isOpen={open}
+        onOpenChange={setOpen}
+        results={results}
+        query={query}
+        setQuery={setQuery}
+        isLoading={isLoading}
+      />
     </>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -11,7 +12,7 @@ import { CircleCheckBig, CircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +47,8 @@ import { Badge } from "@/components/ui/badge";
 import { AddRequestForm } from "@/components/request-form";
 import { cn } from "@/lib/utils";
 import Tile from "@/components/tile";
+import { FeedbackCard } from "@/components/feedback-card";
+import { TooltipWrapper } from "@/components/tooltip-wrapper";
 
 interface ProjectHeaderProps {
   title: string;
@@ -64,6 +67,7 @@ interface ProjectMetaProps {
 interface TeamSectionProps {
   label: string;
   members: UserType[];
+  router: any;
 }
 
 interface TechStackProps {
@@ -77,6 +81,7 @@ interface CreateRequestResponse {
 }
 
 export default function ProjectPageNew() {
+  const router = useRouter();
   const params = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
@@ -192,7 +197,18 @@ export default function ProjectPageNew() {
     (member) => usersIdMap[member.userId]
   );
 
-  const features = project.features.map((feature: FeatureType) => ({
+  const feedbacks = Array(6).fill({
+    date: new Date("2024-01-14"),
+    message:
+      "I believe I would be able to extend my expertise in Generative AI for this project. This aligns with my aspirations.",
+    rating: 4,
+    provider: {
+      name: "Daniel Smith",
+      role: "Senior Staff Engineer",
+    },
+  });
+
+  const features = project.features?.map((feature: FeatureType) => ({
     name: feature.name,
     projectId: feature.projectId,
     bandwidthRequiredForContribution: feature.bandwidthRequiredForContribution,
@@ -234,7 +250,7 @@ export default function ProjectPageNew() {
         />
 
         <div className="space-y-4">
-          <TeamSection label="Team" members={teamMembers} />
+          <TeamSection label="Team" members={teamMembers} router={router} />
           <TechStack
             label="Tech Stack"
             technologies={project.techStack.map(
@@ -274,22 +290,35 @@ export default function ProjectPageNew() {
           </div>
 
           <TabsContent value="features" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              {features.map((feature, index) => (
-                <FeatureCard
-                  key={index}
-                  feature={feature}
-                  projectId={projectId}
-                  isOwner={isOwner}
-                />
-              ))}
-            </div>
+            {features?.length ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {features?.map((feature, index) => (
+                  <FeatureCard
+                    key={index}
+                    feature={feature}
+                    projectId={projectId}
+                    isOwner={isOwner}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                No Features yet
+              </div>
+            )}
           </TabsContent>
-
           <TabsContent value="feedback">
-            <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-              No feedback yet
-            </div>
+            {feedbacks?.length ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {feedbacks?.map((feedback, index) => (
+                  <FeedbackCard key={index} feedback={feedback} />
+                ))}
+              </div>
+            ) : (
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                No feedback yet
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -518,17 +547,44 @@ export function ProjectMeta({
   );
 }
 
-export function TeamSection({ label, members }: TeamSectionProps) {
+export function TeamSection({ label, members, router }: TeamSectionProps) {
   return (
     <div className="flex items-center gap-4 bg-[#F8FAFC] rounded-lg border border-gray-200 p-4">
       <p className="text-sm font-medium">{label}</p>
-      <div className="flex -space-x-2">
-        {members.map((member, index) => (
-          <Avatar key={index} className="border-2 border-background">
-            <AvatarImage src={member.image} alt={member.name} />
-            <AvatarFallback>{member.name[0]}</AvatarFallback>
-          </Avatar>
-        ))}
+      <div className="flex space-x-2">
+        {[...members, ...members, ...members, ...members].map(
+          (member, index, arr) => (
+            <TooltipWrapper value={member.name} key={index}>
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.2 }}
+                onHoverStart={() => {
+                  if (index > 0) arr[index - 1].hovered = true;
+                  if (index < arr.length - 1) arr[index + 1].hovered = true;
+                }}
+                onHoverEnd={() => {
+                  if (index > 0) arr[index - 1].hovered = false;
+                  if (index < arr.length - 1) arr[index + 1].hovered = false;
+                }}
+                className="relative"
+              >
+                <motion.div
+                  animate={{ x: member.hovered ? -10 : 0 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Avatar
+                    key={index}
+                    className="border-2 border-background cursor-pointer"
+                    onClick={() => router.push(`/profile/${member._id}`)}
+                  >
+                    <AvatarImage src={member.image} alt={member.name} />
+                    <AvatarFallback>{member.name[0]}</AvatarFallback>
+                  </Avatar>
+                </motion.div>
+              </motion.div>
+            </TooltipWrapper>
+          )
+        )}
       </div>
     </div>
   );
