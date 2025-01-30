@@ -207,7 +207,7 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
-      <div className="w-full flex items-center justify-center !mt-36">
+      <div className="w-full flex items-center justify-center !mt-30">
         <p className="text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} Nutanix Inc, All rights reserved
         </p>

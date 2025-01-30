@@ -94,6 +94,8 @@ export async function GET(request: NextRequest) {
       location: user.location, // Add the location details to the profile data
       offering: user.offering,
       isAvailable: user.isAvailable,
+      dept: user.dept,
+      designation: user.designation,
       mentoring: mentees.map((mentee) => ({
         name: mentee.name,
         image: mentee.image,

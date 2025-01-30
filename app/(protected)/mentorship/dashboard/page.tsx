@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { FilterTabs } from "@/components/filter-tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function MentorshipDashboardPage() {
   const { data: session } = useSession();
@@ -66,6 +67,9 @@ export default function MentorshipDashboardPage() {
     setActiveTab(tab);
   };
 
+  console.log("mentees - ", mentees);
+  console.log("mentorships - ", mentorships);
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -86,7 +90,7 @@ export default function MentorshipDashboardPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      {/* <div className="space-y-6">
         {activeTab === "Ongoing" && (
           <div className="grid gap-6">
             {mentorships.map((mentorship) => (
@@ -139,7 +143,7 @@ export default function MentorshipDashboardPage() {
                 <CardHeader className="gap-2">
                   <div className="flex items-center gap-2 cursor-pointer">
                     <Avatar className="h-14 w-14 border-2 border-[#CFFAFE]">
-                      <AvatarFallback>{mentee.menteeName[0]}</AvatarFallback>
+                      <AvatarFallback>{mentee.name[0]}</AvatarFallback>
                       <AvatarImage src={mentee.menteeImage} alt={mentee.menteeName} />
                     </Avatar>
                     <div className="flex flex-col items-start justify-start gap-2 h-full">
@@ -168,7 +172,7 @@ export default function MentorshipDashboardPage() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
