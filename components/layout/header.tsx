@@ -10,9 +10,8 @@ import { LogOut, Search as SearchIcon } from "lucide-react";
 import BreadcrumbCustom from "../breadcrumb-custom";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-import { CommandDialogDemo, SearchDialog } from "../search-dialog";
+import { SearchDialog } from "../search-dialog";
 import { SearchResultType } from "@/lib/types";
-
 
 export function Header() {
   const [query, setQuery] = useState("");
@@ -64,7 +63,7 @@ export function Header() {
           <BreadcrumbCustom />
         </div>
         <div className="flex items-center gap-x-4">
-          <div className="relative w-full max-w-md">
+          {/* <div className="relative w-full max-w-md">
             <SearchIcon className="absolute left-2 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               value={query}
@@ -72,7 +71,7 @@ export function Header() {
               placeholder="Search mentors, projects..."
               className="w-full pl-8"
             />
-          </div>
+          </div> */}
           <SearchDialog
             results={results}
             query={query}
@@ -93,58 +92,58 @@ export function Header() {
 
       {/* Search Results */}
       {results && (
-        <div className="w-full px-6 py-4 bg-muted/10">
-          <Tabs>
-            {/* Tabs List */}
-            <TabList className="flex border-b border-muted-foreground">
-              {Object.keys(results).map((key) => (
-                <Tab
-                  key={key}
-                  title={capitalize(key)}
-                  value={key}
-                  onClick={() => handleTabChange(key)}
-                  className={`px-4 py-2 text-sm font-medium cursor-pointer ${
-                    activeTab === key
-                      ? "text-primary border-b-2 border-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                />
-              ))}
-            </TabList>
+        <></>
+        // <div className="w-full px-6 py-4 bg-muted/10">
+        //   <Tabs>
+        //     <TabList className="flex border-b border-muted-foreground">
+        //       {Object.keys(results).map((key) => (
+        //         <Tab
+        //           key={key}
+        //           title={capitalize(key)}
+        //           value={key}
+        //           onClick={() => handleTabChange(key)}
+        //           className={`px-4 py-2 text-sm font-medium cursor-pointer ${
+        //             activeTab === key
+        //               ? "text-primary border-b-2 border-primary"
+        //               : "text-muted-foreground hover:text-foreground"
+        //           }`}
+        //         />
+        //       ))}
+        //     </TabList>
 
-            {/* Tabs Content */}
-            <div className="mt-4 max-h-64 overflow-y-auto">
-              {Object.entries(results).map(([key, value]) => (
-                <TabPanel
-                  key={key}
-                  value={key}
-                  isActive={activeTab === key}
-                  className={activeTab === key ? "block" : "hidden"}
-                >
-                  <ul className="space-y-2">
-                    {value.map((item) => (
-                      <li
-                        key={item._id}
-                        className="flex items-center gap-x-2 p-2 bg-background rounded-md shadow-sm hover:shadow-md transition"
-                      >
-                        <div>
-                          <p className="font-semibold text-foreground">
-                            {item.name || item.description || item.email}
-                          </p>
-                          {item.description && (
-                            <p className="text-sm text-muted-foreground">
-                              {item.description}
-                            </p>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </TabPanel>
-              ))}
-            </div>
-          </Tabs>
-        </div>
+        //     {/* Tabs Content */}
+        //     <div className="mt-4 max-h-64 overflow-y-auto">
+        //       {Object.entries(results).map(([key, value]) => (
+        //         <TabPanel
+        //           key={key}
+        //           value={key}
+        //           isActive={activeTab === key}
+        //           className={activeTab === key ? "block" : "hidden"}
+        //         >
+        //           <ul className="space-y-2">
+        //             {value.map((item) => (
+        //               <li
+        //                 key={item._id}
+        //                 className="flex items-center gap-x-2 p-2 bg-background rounded-md shadow-sm hover:shadow-md transition"
+        //               >
+        //                 <div>
+        //                   <p className="font-semibold text-foreground">
+        //                     {item.name || item.description || item.email}
+        //                   </p>
+        //                   {item.description && (
+        //                     <p className="text-sm text-muted-foreground">
+        //                       {item.description}
+        //                     </p>
+        //                   )}
+        //                 </div>
+        //               </li>
+        //             ))}
+        //           </ul>
+        //         </TabPanel>
+        //       ))}
+        //     </div>
+        //   </Tabs>
+        // </div>
       )}
     </header>
   );

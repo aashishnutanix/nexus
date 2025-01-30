@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FolderKey, Handshake, Search } from "lucide-react";
+import { FolderKey, Handshake, SearchIcon, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -11,6 +11,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { LoadingSpinner } from "./loading-spinner";
+import { SearchResultType } from "@/lib/types";
 
 // Mock data - replace with real data in production
 const USERS = [
@@ -62,9 +64,10 @@ export function SearchDialog({
     <>
       <Button
         variant="outline"
-        className="relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64"
+        className="relative h-9 w-full items-center justify-start rounded-[0.5rem] text-sm text-muted-foreground gap-2 sm:pr-12 md:w-40 lg:w-64"
         onClick={() => setOpen(true)}
       >
+        <SearchIcon size={16} className="text-muted-foreground" />
         <span className="hidden lg:inline-flex">Search...</span>
         <span className="inline-flex lg:hidden">Search...</span>
         <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
@@ -88,11 +91,13 @@ export function SearchDialog({
             {isLoading && (
               <CommandEmpty>
                 {/* <div className="h-[250px] flex w-full items-center justify-center"> */}
-                  <LoadingSpinner />
+                <LoadingSpinner />
                 {/* </div> */}
               </CommandEmpty>
             )}
-            {results && Object.keys(results).length > 0 && <CommandEmpty>No results found.</CommandEmpty>}
+            {results && Object.keys(results).length > 0 && (
+              <CommandEmpty>No results found.</CommandEmpty>
+            )}
             {results && results.users && results.users.length > 0 && (
               <CommandGroup
                 heading={
@@ -163,84 +168,6 @@ export function SearchDialog({
               )}
           </CommandList>
         )}
-      </CommandDialog>
-    </>
-  );
-}
-
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
-
-import { CommandSeparator, CommandShortcut } from "@/components/ui/command";
-import { LoadingSpinner } from "./loading-spinner";
-import type { SearchResultType } from "@/lib/types";
-
-export function CommandDialogDemo() {
-  const [open, setOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
-      }
-    };
-
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
-
-  return (
-    <>
-      <p className="text-sm text-muted-foreground">
-        Press{" "}
-        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-          <span className="text-xs">⌘</span>J
-        </kbd>
-      </p>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <CommandItem>
-              <Calendar />
-              <span>Calendar</span>
-            </CommandItem>
-            <CommandItem>
-              <Smile />
-              <span>Search Emoji</span>
-            </CommandItem>
-            <CommandItem>
-              <Calculator />
-              <span>Calculator</span>
-            </CommandItem>
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Settings">
-            <CommandItem>
-              <User />
-              <span>Profile</span>
-              <CommandShortcut>⌘P</CommandShortcut>
-            </CommandItem>
-            <CommandItem>
-              <CreditCard />
-              <span>Billing</span>
-              <CommandShortcut>⌘B</CommandShortcut>
-            </CommandItem>
-            <CommandItem>
-              <Settings />
-              <span>Settings</span>
-              <CommandShortcut>⌘S</CommandShortcut>
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>
       </CommandDialog>
     </>
   );
