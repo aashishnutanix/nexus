@@ -99,7 +99,7 @@ export default function MentorshipPage() {
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
         </TabsList>
         <TabsContent value="feedback" className="grid gap-4 md:grid-cols-2">
-          {DUMMY_DATA.feedbacks.map((feedback, i) => (
+          {DUMMY_DATA.feedbacks?.map((feedback, i) => (
             <FeedbackCard key={i} feedback={feedback} />
           ))}
         </TabsContent>
