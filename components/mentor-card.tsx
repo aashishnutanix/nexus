@@ -26,7 +26,7 @@ const MentorCard: React.FC<MentorCardProps> = ({
 }) => {
   const { name, bio, image, designation } = userData;
   return (
-    <Card className="w-full max-w-[375px] flex flex-col justify-between border border-black">
+    <Card className="w-full max-w-[375px] flex flex-col justify-between border">
       <CardHeader className="gap-2">
         <div className="flex items-center gap-2">
           <Avatar className="h-14 w-14 border-2 border-=[#CFFAFE]">
@@ -35,11 +35,10 @@ const MentorCard: React.FC<MentorCardProps> = ({
           </Avatar>
           <div className="flex flex-col items-start justify-start gap-2 h-full">
             <CardTitle>{name}</CardTitle>
-            <CardDescription>{bio}</CardDescription>
+            <CardDescription>{designation?.name}</CardDescription>
           </div>
         </div>
         <div className="flex items-center gap-2 justify-start flex-wrap">
-          <Tile value={designation?.name} visible={!!designation} />
           <Tile
             value={userData?.dept}
             visible={!!userData?.dept}
@@ -64,7 +63,7 @@ const MentorCard: React.FC<MentorCardProps> = ({
       </CardContent>
       <CardFooter className="flex justify-between w-full">
         <Button
-          className="w-full bg-purple-500 text-white"
+          className="w-full bg-violet-500 text-white"
           onClick={onContactClick}
         >
           Request Mentorship
