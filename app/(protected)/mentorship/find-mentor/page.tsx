@@ -143,6 +143,12 @@ export default function FindMentorPage() {
     mentors.flatMap((mentor) => mentor.skills)
   );
 
+  const skillsHard = {
+    skills:[
+      "Javascript","Story telling", "Product Management"
+    ]
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -196,7 +202,7 @@ export default function FindMentorPage() {
                   <SelectValue placeholder="Select a skill" />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedMentor?.skills.map((skill, index) => (
+                  {skillsHard.skills.map((skill, index) => (
                     <SelectItem key={index} value={skill}>
                       {skill}
                     </SelectItem>
