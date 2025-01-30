@@ -90,7 +90,7 @@ class MentorRecommendationEngine {
     return score;
   }
 
-  recommendMentors(mentee: User, skillsMap: Map<ObjectId, string>, topN: number = 5): RecommendationScore[] {
+  recommendMentors(mentee: User, skillsMap: Map<ObjectId, string>, topN: number = 10): RecommendationScore[] {
     const rankedMentors = this.mentors
       .filter(mentor => mentor._id !== mentee._id && mentor.isAvailable)
       .map(mentor => ({
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const query = url.searchParams.get('query') || '';
-    const limit = parseInt(url.searchParams.get('limit') || '10', 10);
+    const limit = parseInt(url.searchParams.get('limit') || '6', 10);
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const currentUserId = new ObjectId(url.searchParams.get('currentUserId') || '');
 
@@ -220,7 +220,7 @@ export async function GET(req: Request) {
     const skillsMap = new Map(skills.map(skill => [skill._id, skill.name]));
 
     const recommendationEngine = new MentorRecommendationEngine(mentors);
-    const rankedMentors = recommendationEngine.recommendMentors(mentee, skillsMap);
+    const rankedMentors = recommendationEngine.recommendMentors(mentee, skillsMap, limit);
 
     console.log('rankedMentors:', rankedMentors);
 
