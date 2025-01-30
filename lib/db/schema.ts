@@ -27,7 +27,7 @@ export interface User {
     freq: "days" | "weeks" | "biweekly" | "monthly";
     type: "online" | "offline" | "both";
     duration: number;
-  }[];
+  };
   designation: {
     _id: ObjectId;
     name: string;
