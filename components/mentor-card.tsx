@@ -23,6 +23,7 @@ const MentorCard: React.FC<MentorCardProps> = ({
   onContactClick,
 }) => {
   const { name, bio, image, designation } = userData;
+  console.log("userData", userData);
   return (
     <Card className="w-full max-w-[375px] flex flex-col justify-between border border-black">
       <CardHeader className="gap-2">
