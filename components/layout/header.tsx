@@ -10,19 +10,13 @@ import { LogOut, Search as SearchIcon } from "lucide-react";
 import BreadcrumbCustom from "../breadcrumb-custom";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
+import { CommandDialogDemo, SearchDialog } from "../search-dialog";
+import { SearchResultType } from "@/lib/types";
 
-type SearchResult = {
-  [key: string]: Array<{
-    _id: string;
-    name?: string;
-    description?: string;
-    email?: string;
-  }>;
-};
 
 export function Header() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult | null>(null);
+  const [results, setResults] = useState<SearchResultType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
 
@@ -36,7 +30,7 @@ export function Header() {
     setIsLoading(true);
     try {
       const response = await search(searchQuery);
-      const data: SearchResult = response.results;
+      const data: SearchResultType = response.results;
       setResults(data);
 
       // Set the first tab as active if results exist
@@ -79,6 +73,12 @@ export function Header() {
               className="w-full pl-8"
             />
           </div>
+          <SearchDialog
+            results={results}
+            query={query}
+            setQuery={setQuery}
+            isLoading={isLoading}
+          />
         </div>
         <div className="flex items-center gap-x-4">
           <ModeToggle />

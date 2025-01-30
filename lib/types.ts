@@ -46,8 +46,8 @@ export const DesignationSchema = z.object({
 });
 
 export const OfferingSchema = z.object({
-  freq: z.enum(["daily", "weekly", "biweekly", "monthly"]),
-  type: z.enum(["online", "offline", "both"]),
+  freq: z.enum(["Daily", "Weekly", "Biweekly", "Monthly"]),
+  type: z.enum(["Virtually", "In-Person", "Both"]),
   duration: z.number(),
 });
 
@@ -205,6 +205,14 @@ export type OfferingType = z.infer<typeof OfferingSchema>;
 export type DesignationType = z.infer<typeof DesignationSchema>;
 export type FeedbackType = z.infer<typeof FeedbackSchema>;
 export type ProjectStatusType = z.infer<typeof ProjectStatusEnum>;
+export type SearchResultType = {
+  [key: string]: Array<{
+    _id: string;
+    name?: string;
+    description?: string;
+    email?: string;
+  }>;
+};
 
 declare module "next-auth" {
   interface User {
@@ -217,8 +225,8 @@ declare module "next-auth" {
     manager?: string;
     interests?: string[];
     offering?: {
-      freq: "days" | "weeks" | "biweekly" | "monthly";
-      type: "online" | "offline" | "both";
+      freq: "Daily" | "Weekly" | "Biweekly" | "Monthly";
+      type: "Virtually" | "In-Person" | "Both";
       time: number;
     };
     availability?: boolean;

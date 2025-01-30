@@ -31,7 +31,7 @@ export function SkillDisplays({ skillIds }: SkillDisplayProps) {
   });
 
   return (
-    <div>
+    <div className="flex flex-wrap gap-2">
       {skillIds?.map((skill, i) => (
         <Badge key={i} variant="secondary">
           {skillsIdMap[skill]?.name}

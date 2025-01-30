@@ -383,9 +383,9 @@ export default function ProfilePage() {
                     }
                   />
                 )}
-                <div className="flex flex-wrap gap-2 mt-2">
+                {!isEditing && (
                   <SkillDisplays skillIds={profileData.skills || []} />
-                </div>
+                )}
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -401,9 +401,9 @@ export default function ProfilePage() {
                     }
                   />
                 )}
-                <div className="flex flex-wrap gap-2 mt-2">
+                {!isEditing && (
                   <SkillDisplays skillIds={profileData.interests || []} />
-                </div>
+                )}
               </div>
             </div>
           </div>
