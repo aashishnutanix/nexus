@@ -12,7 +12,12 @@ interface RequestCardProps {
   onReject: (profile: UserType) => void;
 }
 
-export function RequestCard({ profile, request, onAccept, acceptVisible }: RequestCardProps) {
+export function RequestCard({
+  profile,
+  request,
+  onAccept,
+  acceptVisible,
+}: RequestCardProps) {
   return (
     <Card className="w-[580px]">
       <CardContent className="pt-6">
@@ -49,16 +54,17 @@ export function RequestCard({ profile, request, onAccept, acceptVisible }: Reque
         </div>
       </CardContent>
 
-      {acceptVisible && <CardFooter className="pt-4">
-        <Button
-          className="w-full text-base py-6"
-          size="lg"
-          onClick={() => onAccept(profile)}
-         
-        >
-          Accept
-        </Button>
-      </CardFooter>}
+      {acceptVisible && (
+        <CardFooter className="pt-4">
+          <Button
+            className="w-full text-base py-6"
+            size="lg"
+            onClick={() => onAccept(profile)}
+          >
+            Accept
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }

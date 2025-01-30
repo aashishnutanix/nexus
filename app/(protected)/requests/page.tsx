@@ -62,7 +62,7 @@ const REQUEST_CONTEXT = {
 };
 
 export default function RequestsPage() {
-  const [activeMainTab, setActiveMainTab] = useState("Recieved");
+  const [activeMainTab, setActiveMainTab] = useState("Received");
   const [activeTab, setActiveTab] = useState("mentorship");
   const [activeSubTab, setActiveSubTab] = useState("pending");
   const { data: session } = useSession();
@@ -108,10 +108,8 @@ export default function RequestsPage() {
   const users = data?.users || {};
 
   useEffect(() => {
-    if (tabRef.current) {
-      console.log("tabRef.current --> ", tabRef.current.attributes);
-    }
-  }, [tabRef]);
+    console.log("Requests --> ", requests);
+  }, [requests]);
 
   const handleUpdate = async (
     request: Request,
@@ -144,7 +142,7 @@ export default function RequestsPage() {
   const renderTabContent = () => {
     return RequestContextEnum.options.map((context) => {
       const filteredRequests = requests.filter((request) => {
-        if (activeMainTab === "received") {
+        if (activeMainTab === "Received") {
           return (
             request.context === context &&
             request.userToId.toString() === currentUserId &&
@@ -161,7 +159,7 @@ export default function RequestsPage() {
 
       const requestCards = filteredRequests.map((request) => {
         const userId =
-          activeMainTab === "received"
+          activeMainTab === "Received"
             ? request.userFromId.toString()
             : request.userToId.toString();
 
@@ -171,7 +169,7 @@ export default function RequestsPage() {
               key={request._id}
               profile={users[userId]}
               request={request}
-              acceptVisible={activeMainTab === "received"}
+              acceptVisible={activeMainTab === "Received"}
               onAccept={(profile) => handleUpdate(request, profile, "Accepted")}
               onReject={(profile) => handleUpdate(request, profile, "Rejected")}
             />
@@ -211,7 +209,7 @@ export default function RequestsPage() {
             <TabsTrigger value="FEATURE">Features</TabsTrigger>
           </TabsList>
           <FilterTabs
-            options={["Recieved", "Sent"]}
+            options={["Received", "Sent"]}
             value={activeMainTab}
             onChange={setActiveMainTab}
           />
