@@ -124,7 +124,7 @@ export const UserSchema = z.object({
 });
 
 export const UpVoteSchema = z.object({
-  refreferenceId: z.string(),
+  referenceId: z.string(),
   context: z.string(),
 });
 
@@ -168,9 +168,9 @@ export const ProjectSchema = z.object({
   contributors: z.array(z.string()).optional(),
   open: z.boolean().optional(),
   bandwidthRequiredForContribution: z.number(),
-  createdBy: z.string(),
-  members: z.array(UserSchema).min(0),
-  features: z.array(FeatureSchema).min(0),
+  createdBy: z.string().optional(),
+  members: z.array(UserSchema).min(0).default([]).optional(),
+  features: z.array(FeatureSchema).min(0).default([]).optional(),
 });
 
 export const RequestSchema = z.object({
