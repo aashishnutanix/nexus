@@ -76,7 +76,7 @@ export default function Home() {
   console.log("Recent Projects---> ", recentProjects);
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-6 space-y-8 h-full">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -133,7 +133,7 @@ export default function Home() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 mb-auto">
         <Card>
           <CardHeader>
             <CardTitle>Recent Projects</CardTitle>
@@ -206,6 +206,11 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
+      </div>
+      <div className="w-full flex items-center justify-center !mt-36">
+        <p className="text-xs text-muted-foreground">
+          &copy; {new Date().getFullYear()} Nutanix Inc, All rights reserved
+        </p>
       </div>
     </div>
   );

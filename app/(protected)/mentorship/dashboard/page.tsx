@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -19,6 +20,8 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FilterTabs } from "@/components/filter-tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function MentorshipDashboardPage() {
   const { data: session } = useSession();
@@ -89,52 +92,37 @@ export default function MentorshipDashboardPage() {
             {mentorships.map((mentorship) => (
               <Card
                 key={mentorship._id}
-                className="border-l-4 border-l-primary"
+                className="w-full max-w-[375px] flex flex-col justify-between border border-black"
                 onClick={() => router.push(`/mentorship/${mentorship._id}`)}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
+                <CardHeader className="gap-2">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Avatar className="h-14 w-14 border-2 border-[#CFFAFE]">
+                      <AvatarFallback>{mentorship.mentorName[0]}</AvatarFallback>
+                      <AvatarImage src={mentorship.mentorImage} alt={mentorship.mentorName} />
+                    </Avatar>
+                    <div className="flex flex-col items-start justify-start gap-2 h-full">
                       <CardTitle>{mentorship.name}</CardTitle>
-                      <CardDescription>
-                        {mentorship.description}
-                      </CardDescription>
+                      <CardDescription>{mentorship.description}</CardDescription>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 justify-start flex-wrap">
                     <Badge variant="outline">{mentorship.status}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">
-                        Mentor:{" "}
-                        <Link href={`/profile/${mentorship.mentor}`}>
-                          {mentorship.mentorName}
-                        </Link>
-                      </p>
-                      <p className="text-sm font-medium">
-                        Mentee:{" "}
-                        <Link href={`/profile/${mentorship.mentee}`}>
-                          {mentorship.menteeName}
-                        </Link>
-                      </p>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">
-                          Progress
-                        </p>
-                        <p className="text-sm font-medium">
-                          {mentorship.progress}%
-                        </p>
-                      </div>
-                      <Progress
-                        value={mentorship.progress}
-                        className="bg-secondary"
-                      />
-                    </div>
+                <CardContent className="flex flex-col mt-auto">
+                  <Label className="mb-2">Progress</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">Progress</p>
+                    <p className="text-sm font-medium">{mentorship.progress}%</p>
                   </div>
+                  <Progress value={mentorship.progress} className="bg-secondary" />
                 </CardContent>
+                <CardFooter className="flex justify-between w-full">
+                  <Button className="w-full bg-purple-500 text-white">
+                    View Details
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
@@ -143,50 +131,39 @@ export default function MentorshipDashboardPage() {
         {activeTab === "Mentees" && (
           <div className="grid gap-6">
             {mentees.map((mentee) => (
-              <Card key={mentee._id} className="border-l-4 border-l-primary">
-                <CardHeader
-                  onClick={() => router.push(`/mentorship/2398579237928}`)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
+              <Card
+                key={mentee._id}
+                className="w-full max-w-[375px] flex flex-col justify-between border border-black"
+                onClick={() => router.push(`/mentorship/${mentee._id}`)}
+              >
+                <CardHeader className="gap-2">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Avatar className="h-14 w-14 border-2 border-[#CFFAFE]">
+                      <AvatarFallback>{mentee.menteeName[0]}</AvatarFallback>
+                      <AvatarImage src={mentee.menteeImage} alt={mentee.menteeName} />
+                    </Avatar>
+                    <div className="flex flex-col items-start justify-start gap-2 h-full">
                       <CardTitle>{mentee.name}</CardTitle>
                       <CardDescription>{mentee.description}</CardDescription>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 justify-start flex-wrap">
                     <Badge variant="outline">{mentee.status}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">
-                        Mentor:{" "}
-                        <Link href={`/profile/${mentee.mentor}`}>
-                          {session?.user?.name}
-                        </Link>
-                      </p>
-                      <p className="text-sm font-medium">
-                        Mentee:{" "}
-                        <Link href={`/profile/${mentee._id}`}>
-                          {mentee.menteeName}
-                        </Link>
-                      </p>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">
-                          Progress
-                        </p>
-                        <p className="text-sm font-medium">
-                          {mentee.progress}%
-                        </p>
-                      </div>
-                      <Progress
-                        value={mentee.progress}
-                        className="bg-secondary"
-                      />
-                    </div>
+                <CardContent className="flex flex-col mt-auto">
+                  <Label className="mb-2">Progress</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">Progress</p>
+                    <p className="text-sm font-medium">{mentee.progress}%</p>
                   </div>
+                  <Progress value={mentee.progress} className="bg-secondary" />
                 </CardContent>
+                <CardFooter className="flex justify-between w-full">
+                  <Button className="w-full bg-purple-500 text-white">
+                    View Details
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>

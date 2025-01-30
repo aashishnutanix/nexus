@@ -61,7 +61,7 @@ export default function FindMentorPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["fetch-all-mentors"],
-    queryFn: searchMentors(query, 10, 1, currentUserId),
+    queryFn: async () => await searchMentors(query, 10, 1, currentUserId),
   });
 
   console.log("mentors data from api - ", data);
@@ -138,16 +138,11 @@ export default function FindMentorPage() {
     );
   }
 
-  console.log(
-    "first mentor - ",
-    mentors.flatMap((mentor) => mentor.skills)
-  );
+  console.log("first mentor - ", mentors);
 
   const skillsHard = {
-    skills:[
-      "Javascript","Story telling", "Product Management"
-    ]
-  }
+    skills: ["Javascript", "Story telling", "Product Management"],
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-8">

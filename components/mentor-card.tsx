@@ -14,6 +14,7 @@ import { Label } from "./ui/label";
 import { UserType } from "@/lib/types";
 import Tile from "./tile";
 import { isEmpty } from "lodash";
+import { useRouter } from "next/navigation";
 
 interface MentorCardProps {
   userData: UserType;
@@ -24,11 +25,15 @@ const MentorCard: React.FC<MentorCardProps> = ({
   userData,
   onContactClick,
 }) => {
+  const router = useRouter();
   const { name, bio, image, designation } = userData;
   return (
     <Card className="w-full max-w-[375px] flex flex-col justify-between border">
       <CardHeader className="gap-2">
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => router.push(`/profile/${userData._id}`)}
+        >
           <Avatar className="h-14 w-14 border-2 border-=[#CFFAFE]">
             <AvatarFallback>{name[0]}</AvatarFallback>
             <AvatarImage src={image} alt={name} />
@@ -51,9 +56,9 @@ const MentorCard: React.FC<MentorCardProps> = ({
         <Label className="mb-2">SKILLS</Label>
         {!isEmpty(userData?.skills) ? (
           <div className="flex flex-wrap gap-2">
-            {userData?.skills?.map((skill, index) => (
+            {userData?.skillsDetails?.map((skill, index) => (
               <Badge key={index} variant="secondary" className="py-1 px-3">
-                {skill}
+                {skill.name}
               </Badge>
             ))}
           </div>

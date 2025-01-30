@@ -8,7 +8,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Logo } from "@/components/ui/logo";
+import { LogoMotion } from "@/components/ui/logo";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 
 import { routes } from "@/lib/constants";
@@ -50,7 +50,7 @@ export function Sidebar() {
           isCollapsed ? "px-2" : "px-6"
         )}
       >
-        {isCollapsed ? <Logo size="small" /> : <Logo />}
+        {isCollapsed ? <LogoMotion size="small" /> : <LogoMotion />}
       </div>
 
       <div
