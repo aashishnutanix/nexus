@@ -27,11 +27,11 @@ export async function GET(req: Request) {
     const regex = new RegExp(query, 'i'); // Case-insensitive search
     const skip = (page - 1) * limit; // Calculate how many documents to skip
 
-    // Run parallel queries for different collections using text search
+    // Run parallel queries for different collections using regex search
     const [userResults, projectResults, mentorshipResults] = await Promise.all([
-      db.collection(collections.users).find({ $text: { $search: query } }).skip(skip).limit(limit).toArray(),
-      db.collection(collections.projects).find({ $text: { $search: query } }).skip(skip).limit(limit).toArray(),
-      db.collection(collections.mentorships).find({ $text: { $search: query } }).skip(skip).limit(limit).toArray(),
+      db.collection(collections.users).find({ $or: [{ name: regex }, { email: regex }] }).skip(skip).limit(limit).toArray(),
+      db.collection(collections.projects).find({ $or: [{ name: regex }, { description: regex }] }).skip(skip).limit(limit).toArray(),
+      db.collection(collections.mentorships).find({ name: regex }).skip(skip).limit(limit).toArray(),
     ]);
 
     console.log("Search results:", { users: userResults, projects: projectResults, mentorships: mentorshipResults });
