@@ -31,7 +31,7 @@ export default function BreadcrumbCustom() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          <BreadcrumbLink href="/">HOME</BreadcrumbLink>
         </BreadcrumbItem>
         {/* {firstSegment && (
           <>
@@ -58,7 +58,7 @@ export default function BreadcrumbCustom() {
                       <Link
                         href={`/${pathSegments.slice(0, index + 2).join("/")}`}
                       >
-                        {segment}
+                        {segment.toUpperCase()}
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -73,14 +73,14 @@ export default function BreadcrumbCustom() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 {index === lastTwoSegments.length - 1 ? (
-                  <BreadcrumbPage>{segment}</BreadcrumbPage>
+                  <BreadcrumbPage>{segment.toUpperCase()}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink
                     href={`/${pathSegments
                       .slice(0, pathSegments.length - 2 + index + 1)
                       .join("/")}`}
                   >
-                    {segment}
+                    {segment.toUpperCase()}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

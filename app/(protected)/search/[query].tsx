@@ -62,7 +62,7 @@ export default function SearchResultsPage() {
         </TabsContent>
         <TabsContent value="features">
           <div className="space-y-4">
-            {data.features.map((feature, index) => (
+            {data.features?.map((feature, index) => (
               <div key={index} className="p-4 border rounded-md">
                 {feature}
               </div>

@@ -17,8 +17,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const id = searchParams?.get("id");
+
     // Get the user ID from the session
-    const userId = session.user.id;
+    const userId = id || session.user.id;
     const client = await clientPromise;
     const db = client.db();
 

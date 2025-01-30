@@ -6,6 +6,7 @@ interface TileProps {
   visible?: boolean;
   bgColor?: string;
   textColor?: string;
+  className?: string;
 }
 
 const Tile = ({
@@ -13,11 +14,12 @@ const Tile = ({
   visible = true,
   bgColor = "#CFFAFE",
   textColor = "#164E63",
+  className,
 }: TileProps) => {
   if (visible) {
     return (
       <span
-        className={cn("py-2 px-3 text-sm rounded-lg")}
+        className={cn("py-2 px-3 text-sm rounded-lg", className)}
         style={{ backgroundColor: bgColor, color: textColor }}
       >
         {value}

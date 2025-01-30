@@ -17,17 +17,22 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
-import { getRecentProjects, getActiveProjects } from "@/app/(services)/projects";
+import {
+  getRecentProjects,
+  getActiveProjects,
+} from "@/app/(services)/projects";
 import { useState, useEffect } from "react";
 import { Project } from "@/lib/db/schema";
 
 import Link from "next/link";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([]); // State to hold the fetched projects
   const [loading, setLoading] = useState(true); // Loading state to handle UI during fetch
-  const [ activeUserProjects, setActiveUserProjects ] = useState(0);
+  const router = useRouter();
+  const [activeUserProjects, setActiveUserProjects] = useState(0);
 
   const { data: session } = useSession();
   const { user } = session || {};
@@ -66,10 +71,7 @@ export default function Home() {
       }
     };
     fetchActiveUserProjects(); // Call the async function
-  }, []); 
-  
-
-
+  }, []);
 
   console.log("Recent Projects---> ", recentProjects);
 
@@ -155,7 +157,13 @@ export default function Home() {
                         {format(new Date(project.startDate), "dd MMM, yy")}
                       </p>
                     </div>
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        router.push(`/projects/${project._id}`);
+                      }}
+                    >
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
@@ -166,7 +174,7 @@ export default function Home() {
                 </p>
               )}
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/projects">View All Projects</Link>
+                <Link href="/projects/view-projects">View All Projects</Link>
               </Button>
             </CardContent>
           )}
@@ -194,7 +202,7 @@ export default function Home() {
               </div>
             ))}
             <Button variant="outline" className="w-full" asChild>
-              <Link href="/mentorship">Find a Mentor</Link>
+              <Link href="/mentorship/find-mentor">Find a Mentor</Link>
             </Button>
           </CardContent>
         </Card>
