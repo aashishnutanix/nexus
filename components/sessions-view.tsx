@@ -31,10 +31,11 @@ import {
 // import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "@/components/ui/chart"
 import { Badge } from "@/components/ui/badge";
 import { ChartDemo } from "./chart-demo";
+import { ActivityChart } from "./activity-chart";
 
 interface SessionsViewProps {
   sessions: any[];
-  activityData: { date: string; count: number }[];
+  activityData: any;
 }
 
 const statusConfig = {
@@ -61,16 +62,13 @@ export function SessionsView({ sessions, activityData }: SessionsViewProps) {
           <CardDescription>Your mentorship activity over time</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px]">
-            {/* <ChartDemo /> */}
-            {/* <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={activityData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer> */}
+          <div className="h-[200px] w-full">
+            <ActivityChart
+              className="w-full mx-auto"
+              data={activityData}
+              colors={"#7855FA"}
+              theme="light"
+            />
           </div>
         </CardContent>
       </Card>

@@ -54,6 +54,8 @@ export default function ProfilePage() {
     queryFn: getProfile,
   });
 
+  console.log("profiel data --> ", profile);
+
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
@@ -82,7 +84,11 @@ export default function ProfilePage() {
   const [designation, setDesignation] = useState<DesignationType | null>(null);
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [offering, setOffering] = useState<OfferingType | undefined>();
+  const [offering, setOffering] = useState<OfferingType>({
+    freq: "Daily",
+    type: "Virtually",
+    duration: 0,
+  });
 
   useEffect(() => {
     if (profile) {
@@ -90,7 +96,9 @@ export default function ProfilePage() {
       setLocation(profile.location || null);
       setDesignation(profile.designation || null);
       setIsAvailable(profile.isAvailable || false);
-      setOffering(profile.offering || undefined);
+      if (profile.offering) {
+        setOffering(profile.offering);
+      }
     }
   }, [profile]);
 
@@ -112,7 +120,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     handleSave();
-  }, [offering, isAvailable]);
+  }, [offering?.freq, offering?.duration, offering?.type, isAvailable]);
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -243,7 +251,7 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <div className="flex items-start justify-start gap-6">
-            <div className="">
+            <div className="relative">
               {/* Avatar with Image Upload */}
               <Avatar className="h-24 w-24 text-5xl border-primary border-2">
                 <AvatarImage
@@ -253,7 +261,7 @@ export default function ProfilePage() {
                 <AvatarFallback>{profileData.name[0]}</AvatarFallback>
               </Avatar>
               {isEditing && (
-                <div className="absolute rounded-full bottom-[-8px] right-[-8px]">
+                <div className="absolute rounded-full bottom-[-3px] right-[-3px] bg-primary border p-2 border-white text-white cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
@@ -261,13 +269,10 @@ export default function ProfilePage() {
                     className="hidden"
                     ref={fileInputRef}
                   />
-                  <Button
-                    variant="default"
-                    size="icon"
+                  <Upload
+                    size={20}
                     onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
+                  />
                 </div>
               )}
             </div>

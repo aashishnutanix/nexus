@@ -65,9 +65,25 @@ const DUMMY_DATA = {
   })),
 };
 
+const generateDummyData = () => {
+  const data = [];
+  const today = new Date();
+
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    data.push({
+      date: date.toISOString().split("T")[0],
+      count: Math.floor(Math.random() * 10),
+    });
+  }
+
+  return data.reverse();
+};
+
 export default function MentorshipPage() {
   const [timeframe, setTimeframe] = useState<"total" | "quarter">("total");
-
+  const activityData = generateDummyData();
   const statsCurrent = DUMMY_DATA.stats.current;
   const statsQuarter = DUMMY_DATA.stats.quarter;
 
@@ -106,7 +122,7 @@ export default function MentorshipPage() {
         <TabsContent value="sessions">
           <SessionsView
             sessions={DUMMY_DATA.sessions}
-            activityData={DUMMY_DATA.activityData}
+            activityData={activityData}
           />
         </TabsContent>
       </Tabs>

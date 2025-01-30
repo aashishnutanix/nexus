@@ -18,10 +18,11 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FilterTabs } from "@/components/filter-tabs";
 
 export default function MentorshipDashboardPage() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<string>("ongoing");
+  const [activeTab, setActiveTab] = useState<string>("Ongoing");
   const [mentorships, setMentorships] = useState<any[]>([]);
   const [mentees, setMentees] = useState<any[]>([]);
   const router = useRouter();
@@ -73,33 +74,17 @@ export default function MentorshipDashboardPage() {
             Manage and explore your mentorships
           </p>
         </div>
+        <div>
+          <FilterTabs
+            options={["Ongoing", "Mentees"]}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <button
-            className={`px-4 py-2 ${
-              activeTab === "ongoing"
-                ? "bg-primary text-white"
-                : "bg-muted-foreground text-muted"
-            }`}
-            onClick={() => handleTabChange("ongoing")}
-          >
-            Ongoing Mentorships
-          </button>
-          <button
-            className={`px-4 py-2 ${
-              activeTab === "mentees"
-                ? "bg-primary text-white"
-                : "bg-muted-foreground text-muted"
-            }`}
-            onClick={() => handleTabChange("mentees")}
-          >
-            Mentees
-          </button>
-        </div>
-
-        {activeTab === "ongoing" && (
+        {activeTab === "Ongoing" && (
           <div className="grid gap-6">
             {mentorships.map((mentorship) => (
               <Card
@@ -155,7 +140,7 @@ export default function MentorshipDashboardPage() {
           </div>
         )}
 
-        {activeTab === "mentees" && (
+        {activeTab === "Mentees" && (
           <div className="grid gap-6">
             {mentees.map((mentee) => (
               <Card key={mentee._id} className="border-l-4 border-l-primary">

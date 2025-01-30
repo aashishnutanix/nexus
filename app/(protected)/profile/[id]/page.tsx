@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useQuery<UserType>({
-    queryKey: ["profile"],
+    queryKey: ["profileById"],
     queryFn: async () => await getProfileById(userId),
   });
 

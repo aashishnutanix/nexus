@@ -72,6 +72,11 @@
   }
 }
 
+/* globals.css */
+rect {
+  transition: all 0.1s ease;
+}
+
 @layer base {
   * {
     @apply border-border;
