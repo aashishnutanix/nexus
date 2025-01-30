@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Logo } from "@/components/ui/logo";
+import { Logo, LogoMotion } from "@/components/ui/logo";
 import BgImage from "@/public/assets/bg.png";
 
 export default function SignUp() {
@@ -44,7 +44,7 @@ export default function SignUp() {
     <div className="w-full max-w-md space-y-8 px-4">
       <div className="text-center">
         <div className="flex justify-center mb-4">
-          <Logo />
+          <LogoMotion />
         </div>
         <div className="text-3xl">
           <p>Collab Like a Pro</p>

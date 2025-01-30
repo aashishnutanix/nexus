@@ -156,7 +156,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <DialogTitle>Apply for contribution In {name} </DialogTitle>
                 <DialogDescription>
                   Request will go to project owner{" "}
-                  <b>{usersIdMap[createdBy].name}</b>
+                  <b>{usersIdMap[createdBy]?.name}</b>
                   <p></p>
                   <p>
                     {bandwidthRequiredForContribution
