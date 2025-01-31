@@ -61,14 +61,14 @@ export default function FindMentorPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["fetch-all-mentors"],
-    queryFn: async () => await searchMentors(query, 10, 1, currentUserId),
+    queryFn: async () => await searchMentors(query, 50, 1, currentUserId),
   });
 
   console.log("mentors data from api - ", data);
 
   const handleSearch = async () => {
     try {
-      const result = await searchMentors(query, 10, 1, currentUserId);
+      const result = await searchMentors(query, 50, 1, currentUserId);
       setMentors(result.results);
     } catch (error) {
       console.error("Failed to search mentors:", error);
