@@ -97,7 +97,7 @@ export default function Home() {
             <Blocks className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeUserProjects}</div>
+            <div className="text-2xl font-bold">{2  }</div>
             <p className="text-xs text-muted-foreground">
               +2 projects this month
             </p>
@@ -111,7 +111,7 @@ export default function Home() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">1</div>
             <p className="text-xs text-muted-foreground">
               +4 sessions this month
             </p>
@@ -186,16 +186,16 @@ export default function Home() {
             <CardDescription>Most active mentors this month</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center space-x-4">
+            {[{name:'Sonali', ses:2}, {name:'Rishabh', ses:5}, {name:'Aashish', ses:6}].map((i) => (
+              <div key={i.name} className="flex items-center space-x-4">
                 <Avatar>
-                  <AvatarImage src={`https://i.pravatar.cc/40?img=${i}`} />
-                  <AvatarFallback>M{i}</AvatarFallback>
+                  <AvatarImage src={`https://i.phravatar.cc/40?img=${i}`} />
+                  <AvatarFallback>{i.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="font-medium">Mentor {i}</p>
+                  <p className="font-medium">{i.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    12 active sessions
+                    {i.ses} active sessions
                   </p>
                 </div>
                 <Trophy className="h-4 w-4 text-primary" />

@@ -552,7 +552,7 @@ export function TeamSection({ label, members, router }: TeamSectionProps) {
     <div className="flex items-center gap-4 bg-[#F8FAFC] rounded-lg border border-gray-200 p-4">
       <p className="text-sm font-medium">{label}</p>
       <div className="flex space-x-2">
-        {[...members, ...members, ...members, ...members].map(
+        {members.map(
           (member, index, arr) => (
             <TooltipWrapper value={member.name} key={index}>
               <motion.div

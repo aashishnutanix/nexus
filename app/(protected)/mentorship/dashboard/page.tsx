@@ -86,7 +86,7 @@ export default function MentorshipDashboardPage() {
       <div className="space-y-6">
         {activeTab === "Ongoing" && (
           <div className="grid gap-6">
-            {mentorships.map((mentorship) => (
+            {mentorships.slice(1).map((mentorship) => (
               <Card
                 key={mentorship._id}
                 className="border-l-4 border-l-primary"
@@ -95,7 +95,7 @@ export default function MentorshipDashboardPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>{mentorship.name}</CardTitle>
+                      <CardTitle>Mentorship for JavaScript with Sambit</CardTitle>
                       <CardDescription>
                         {mentorship.description}
                       </CardDescription>
