@@ -93,7 +93,7 @@ export default function MentorshipDashboardPage() {
       {/* <div className="space-y-6">
         {activeTab === "Ongoing" && (
           <div className="grid gap-6">
-            {mentorships.map((mentorship) => (
+            {mentorships.slice(1).map((mentorship) => (
               <Card
                 key={mentorship._id}
                 className="w-full max-w-[375px] flex flex-col justify-between border border-black"

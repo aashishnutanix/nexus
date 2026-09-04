@@ -105,7 +105,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         >
           {name}
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>{description ? description.length > 120 ? description.slice(0, 120) + "..." : description :null}</CardDescription>
         <div className="flex items-center gap-2 justify-start flex-wrap">
           <Tile
             value={status}

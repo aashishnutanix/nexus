@@ -91,7 +91,7 @@ export default function MentorshipPage() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">
-          Mentorship with {DUMMY_DATA.mentor.name}
+          Mentorship with Sambit
         </h1>
         <p className="text-muted-foreground">Track your mentorship progress</p>
       </div>
